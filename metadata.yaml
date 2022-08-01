@@ -1,0 +1,8 @@
+service:
+  full_name: Amazon Bedrock Agent Core Control
+  short_name: Bedrock Agent Core Control
+  link: https://docs.aws.amazon.com/bedrock-agentcore/
+  documentation: https://docs.aws.amazon.com/bedrock-agentcore-control/latest/APIReference/Welcome.html
+api_versions:
+  - api_version: v1alpha1
+    status: available
