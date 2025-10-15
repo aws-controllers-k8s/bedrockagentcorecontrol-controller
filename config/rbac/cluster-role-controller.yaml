@@ -23,6 +23,26 @@ rules:
   - list
   - watch
 - apiGroups:
+  - bedrockagentcorecontrol.services.k8s.aws
+  resources:
+  - agentruntimes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - bedrockagentcorecontrol.services.k8s.aws
+  resources:
+  - agentruntimes/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - services.k8s.aws
   resources:
   - adoptedresources

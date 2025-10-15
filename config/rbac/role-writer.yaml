@@ -9,6 +9,7 @@ rules:
 - apiGroups:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
+  - agentruntimes
   verbs:
   - create
   - delete
@@ -20,6 +21,7 @@ rules:
 - apiGroups:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
+  - agentruntimes
   verbs:
   - get
   - patch

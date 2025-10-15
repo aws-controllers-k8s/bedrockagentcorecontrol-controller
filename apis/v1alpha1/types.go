@@ -27,3 +27,160 @@ var (
 	_ = &aws.JSONValue{}
 	_ = ackv1alpha1.AWSAccountID("")
 )
+
+// The artifact of the agent.
+type AgentRuntimeArtifact struct {
+	// Representation of a container configuration.
+	ContainerConfiguration *ContainerConfiguration `json:"containerConfiguration,omitempty"`
+}
+
+// Contains information about an agent runtime endpoint. An endpoint provides
+// a way to connect to and interact with an agent runtime.
+type AgentRuntimeEndpoint struct {
+	AgentRuntimeARN *string      `json:"agentRuntimeARN,omitempty"`
+	CreatedAt       *metav1.Time `json:"createdAt,omitempty"`
+	LastUpdatedAt   *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	LiveVersion     *string      `json:"liveVersion,omitempty"`
+	TargetVersion   *string      `json:"targetVersion,omitempty"`
+}
+
+// Contains information about an agent runtime. An agent runtime is the execution
+// environment for a Amazon Bedrock Agent.
+type AgentRuntime_SDK struct {
+	AgentRuntimeARN     *string      `json:"agentRuntimeARN,omitempty"`
+	AgentRuntimeID      *string      `json:"agentRuntimeID,omitempty"`
+	AgentRuntimeName    *string      `json:"agentRuntimeName,omitempty"`
+	AgentRuntimeVersion *string      `json:"agentRuntimeVersion,omitempty"`
+	Description         *string      `json:"description,omitempty"`
+	LastUpdatedAt       *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	Status              *string      `json:"status,omitempty"`
+}
+
+// Represents inbound authorization configuration options used to authenticate
+// incoming requests.
+type AuthorizerConfiguration struct {
+	// Configuration for inbound JWT-based authorization, specifying how incoming
+	// requests should be authenticated.
+	CustomJWTAuthorizer *CustomJWTAuthorizerConfiguration `json:"customJWTAuthorizer,omitempty"`
+}
+
+// The network configuration for a browser. This structure defines how the browser
+// connects to the network.
+type BrowserNetworkConfiguration struct {
+	// VpcConfig for the Agent.
+	VPCConfig *VPCConfig `json:"vpcConfig,omitempty"`
+}
+
+// Contains summary information about a browser. A browser enables Amazon Bedrock
+// Agent to interact with web content.
+type BrowserSummary struct {
+	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
+	Description   *string      `json:"description,omitempty"`
+	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+}
+
+// The network configuration for a code interpreter. This structure defines
+// how the code interpreter connects to the network.
+type CodeInterpreterNetworkConfiguration struct {
+	// VpcConfig for the Agent.
+	VPCConfig *VPCConfig `json:"vpcConfig,omitempty"`
+}
+
+// Contains summary information about a code interpreter. A code interpreter
+// enables Amazon Bedrock Agent to execute code.
+type CodeInterpreterSummary struct {
+	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
+	Description   *string      `json:"description,omitempty"`
+	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+}
+
+// Representation of a container configuration.
+type ContainerConfiguration struct {
+	ContainerURI *string `json:"containerURI,omitempty"`
+}
+
+// Configuration for inbound JWT-based authorization, specifying how incoming
+// requests should be authenticated.
+type CustomJWTAuthorizerConfiguration struct {
+	AllowedAudience []*string `json:"allowedAudience,omitempty"`
+	AllowedClients  []*string `json:"allowedClients,omitempty"`
+	DiscoveryURL    *string   `json:"discoveryURL,omitempty"`
+}
+
+// Input for creating a custom memory strategy.
+type CustomMemoryStrategyInput struct {
+	Description *string `json:"description,omitempty"`
+}
+
+// Contains summary information about a gateway.
+type GatewaySummary struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Contains information about a memory resource.
+type Memory struct {
+	Description *string `json:"description,omitempty"`
+}
+
+// Contains information about a memory strategy.
+type MemoryStrategy struct {
+	Description *string `json:"description,omitempty"`
+}
+
+// Input for modifying a memory strategy.
+type ModifyMemoryStrategyInput struct {
+	Description *string `json:"description,omitempty"`
+}
+
+// SecurityConfig for the Agent.
+type NetworkConfiguration struct {
+	NetworkMode *string `json:"networkMode,omitempty"`
+	// VpcConfig for the Agent.
+	NetworkModeConfig *VPCConfig `json:"networkModeConfig,omitempty"`
+}
+
+// The protocol configuration for an agent runtime. This structure defines how
+// the agent runtime communicates with clients.
+type ProtocolConfiguration struct {
+	ServerProtocol *string `json:"serverProtocol,omitempty"`
+}
+
+// Configuration for HTTP request headers that will be passed through to the
+// runtime.
+type RequestHeaderConfiguration struct {
+	RequestHeaderAllowlist []*string `json:"requestHeaderAllowlist,omitempty"`
+}
+
+// Input for creating a semantic memory strategy.
+type SemanticMemoryStrategyInput struct {
+	Description *string `json:"description,omitempty"`
+}
+
+// Input for creating a summary memory strategy.
+type SummaryMemoryStrategyInput struct {
+	Description *string `json:"description,omitempty"`
+}
+
+// Contains summary information about a gateway target. A target represents
+// an endpoint that the gateway can connect to.
+type TargetSummary struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Input for creating a user preference memory strategy.
+type UserPreferenceMemoryStrategyInput struct {
+	Description *string `json:"description,omitempty"`
+}
+
+// VpcConfig for the Agent.
+type VPCConfig struct {
+	SecurityGroups []*string `json:"securityGroups,omitempty"`
+	Subnets        []*string `json:"subnets,omitempty"`
+}
+
+// The information about the workload identity.
+type WorkloadIdentityDetails struct {
+	WorkloadIdentityARN *string `json:"workloadIdentityARN,omitempty"`
+}
