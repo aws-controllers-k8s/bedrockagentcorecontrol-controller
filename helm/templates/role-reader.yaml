@@ -17,6 +17,7 @@ rules:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
   - agentruntimes
+  - agentruntimeendpoints
   verbs:
   - get
   - list

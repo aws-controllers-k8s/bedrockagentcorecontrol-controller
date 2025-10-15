@@ -1,7 +1,7 @@
 ignore:
   resource_names:
-    #- AgentRuntime
-    - AgentRuntimeEndpoint
+    # AgentRuntime
+    # AgentRuntimeEndpoint
     - ApiKeyCredentialProvider
     - Browser
     - CodeInterpreter
@@ -12,9 +12,11 @@ ignore:
     - WorkloadIdentity
   field_paths:
     - CreateAgentRuntimeInput.ClientToken
+    - CreateAgentRuntimeEndpointInput.ClientToken
 
 sdk_names:
   model_name: bedrock-agentcore-control
+
 resources:
   AgentRuntime:
     exceptions:
@@ -25,3 +27,28 @@ resources:
         template_path: hooks/agentruntime/sdk_read_one_post_set_output.go.tpl
       sdk_update_pre_build_request:
         template_path: hooks/agentruntime/sdk_update_pre_build_request.go.tpl
+
+  AgentRuntimeEndpoint:
+    renames:
+      operations:
+        GetAgentRuntimeEndpoint:
+          input_fields:
+            EndpointName: Name
+        CreateAgentRuntimeEndpoint:
+          input_fields:
+            EndpointName: Name
+        DeleteAgentRuntimeEndpoint:
+          input_fields:
+            EndpointName: Name
+    fields:
+      Name:
+        is_primary_key: true
+    hooks:
+      sdk_read_one_post_set_output:
+        template_path: hooks/agentruntimeendpoint/sdk_read_one_post_set_output.go.tpl
+      sdk_update_pre_build_request:
+        template_path: hooks/agentruntimeendpoint/sdk_update_pre_build_request.go.tpl
+    exceptions:
+      errors:
+        404:
+          code: AccessDeniedException

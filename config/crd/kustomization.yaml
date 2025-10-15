@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - common
   - bases/bedrockagentcorecontrol.services.k8s.aws_agentruntimes.yaml
+  - bases/bedrockagentcorecontrol.services.k8s.aws_agentruntimeendpoints.yaml

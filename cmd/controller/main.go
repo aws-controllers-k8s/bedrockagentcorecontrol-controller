@@ -40,6 +40,7 @@ import (
 	svcresource "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource"
 
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/agent_runtime"
+	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/agent_runtime_endpoint"
 
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/version"
 )

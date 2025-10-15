@@ -1,0 +1,8 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: AgentRuntimeEndpoint
+metadata:
+  name: $ENDPOINT_NAME
+  namespace: default
+spec:
+  agentRuntimeID: $AGENT_RUNTIME_ID
+  name: $ENDPOINT_NAME
