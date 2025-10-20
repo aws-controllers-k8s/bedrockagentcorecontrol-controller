@@ -16,6 +16,7 @@ rules:
 - apiGroups:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
+  - agentruntimes
   verbs:
   - get
   - list

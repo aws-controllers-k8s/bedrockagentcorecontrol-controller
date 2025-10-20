@@ -33,15 +33,15 @@ const (
 	AgentRuntimeEndpointStatus_UPDATING      AgentRuntimeEndpointStatus = "UPDATING"
 )
 
-type AgentRuntimeStatus string
+type AgentRuntimeStatus_SDK string
 
 const (
-	AgentRuntimeStatus_CREATE_FAILED AgentRuntimeStatus = "CREATE_FAILED"
-	AgentRuntimeStatus_CREATING      AgentRuntimeStatus = "CREATING"
-	AgentRuntimeStatus_DELETING      AgentRuntimeStatus = "DELETING"
-	AgentRuntimeStatus_READY         AgentRuntimeStatus = "READY"
-	AgentRuntimeStatus_UPDATE_FAILED AgentRuntimeStatus = "UPDATE_FAILED"
-	AgentRuntimeStatus_UPDATING      AgentRuntimeStatus = "UPDATING"
+	AgentRuntimeStatus_SDK_CREATE_FAILED AgentRuntimeStatus_SDK = "CREATE_FAILED"
+	AgentRuntimeStatus_SDK_CREATING      AgentRuntimeStatus_SDK = "CREATING"
+	AgentRuntimeStatus_SDK_DELETING      AgentRuntimeStatus_SDK = "DELETING"
+	AgentRuntimeStatus_SDK_READY         AgentRuntimeStatus_SDK = "READY"
+	AgentRuntimeStatus_SDK_UPDATE_FAILED AgentRuntimeStatus_SDK = "UPDATE_FAILED"
+	AgentRuntimeStatus_SDK_UPDATING      AgentRuntimeStatus_SDK = "UPDATING"
 )
 
 type AuthorizerType string

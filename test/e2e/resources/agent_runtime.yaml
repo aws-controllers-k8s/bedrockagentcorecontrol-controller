@@ -1,0 +1,13 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: AgentRuntime
+metadata:
+  name: $AGENT_RUNTIME_NAME
+  namespace: default
+spec:
+  agentRuntimeName: $AGENT_RUNTIME_NAME
+  roleARN: $ROLE_ARN
+  agentRuntimeArtifact:
+    containerConfiguration:
+      containerURI: $CONTAINER_URI
+  networkConfiguration:
+    networkMode: PUBLIC

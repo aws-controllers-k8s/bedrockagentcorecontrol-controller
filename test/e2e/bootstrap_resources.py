@@ -18,6 +18,7 @@ for them.
 from dataclasses import dataclass
 from acktest.bootstrapping import Resources
 from e2e import bootstrap_directory
+from acktest.bootstrapping.iam import Role
 
 @dataclass
 class BootstrapResources(Resources):

@@ -1,6 +1,6 @@
 ignore:
   resource_names:
-    - AgentRuntime
+    #- AgentRuntime
     - AgentRuntimeEndpoint
     - ApiKeyCredentialProvider
     - Browser
@@ -10,6 +10,18 @@ ignore:
     - Memory
     - Oauth2CredentialProvider
     - WorkloadIdentity
+  field_paths:
+    - CreateAgentRuntimeInput.ClientToken
 
 sdk_names:
   model_name: bedrock-agentcore-control
+resources:
+  AgentRuntime:
+    exceptions:
+      terminal_codes:
+        - ValidationException
+    hooks:
+      sdk_read_one_post_set_output:
+        template_path: hooks/agentruntime/sdk_read_one_post_set_output.go.tpl
+      sdk_update_pre_build_request:
+        template_path: hooks/agentruntime/sdk_update_pre_build_request.go.tpl
