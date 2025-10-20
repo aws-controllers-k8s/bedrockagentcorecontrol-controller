@@ -36,12 +36,17 @@ type AgentRuntimeArtifact struct {
 
 // Contains information about an agent runtime endpoint. An endpoint provides
 // a way to connect to and interact with an agent runtime.
-type AgentRuntimeEndpoint struct {
-	AgentRuntimeARN *string      `json:"agentRuntimeARN,omitempty"`
-	CreatedAt       *metav1.Time `json:"createdAt,omitempty"`
-	LastUpdatedAt   *metav1.Time `json:"lastUpdatedAt,omitempty"`
-	LiveVersion     *string      `json:"liveVersion,omitempty"`
-	TargetVersion   *string      `json:"targetVersion,omitempty"`
+type AgentRuntimeEndpoint_SDK struct {
+	AgentRuntimeARN         *string      `json:"agentRuntimeARN,omitempty"`
+	AgentRuntimeEndpointARN *string      `json:"agentRuntimeEndpointARN,omitempty"`
+	CreatedAt               *metav1.Time `json:"createdAt,omitempty"`
+	Description             *string      `json:"description,omitempty"`
+	ID                      *string      `json:"id,omitempty"`
+	LastUpdatedAt           *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	LiveVersion             *string      `json:"liveVersion,omitempty"`
+	Name                    *string      `json:"name,omitempty"`
+	Status                  *string      `json:"status,omitempty"`
+	TargetVersion           *string      `json:"targetVersion,omitempty"`
 }
 
 // Contains information about an agent runtime. An agent runtime is the execution
@@ -112,6 +117,11 @@ type CustomMemoryStrategyInput struct {
 	Description *string `json:"description,omitempty"`
 }
 
+// Input for deleting a memory strategy.
+type DeleteMemoryStrategyInput struct {
+	MemoryStrategyID *string `json:"memoryStrategyID,omitempty"`
+}
+
 // Contains summary information about a gateway.
 type GatewaySummary struct {
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
@@ -120,7 +130,8 @@ type GatewaySummary struct {
 
 // Contains information about a memory resource.
 type Memory struct {
-	Description *string `json:"description,omitempty"`
+	Description   *string `json:"description,omitempty"`
+	FailureReason *string `json:"failureReason,omitempty"`
 }
 
 // Contains information about a memory strategy.
@@ -130,7 +141,8 @@ type MemoryStrategy struct {
 
 // Input for modifying a memory strategy.
 type ModifyMemoryStrategyInput struct {
-	Description *string `json:"description,omitempty"`
+	Description      *string `json:"description,omitempty"`
+	MemoryStrategyID *string `json:"memoryStrategyID,omitempty"`
 }
 
 // SecurityConfig for the Agent.
@@ -152,14 +164,57 @@ type RequestHeaderConfiguration struct {
 	RequestHeaderAllowlist []*string `json:"requestHeaderAllowlist,omitempty"`
 }
 
+// The Amazon S3 location for storing data. This structure defines where in
+// Amazon S3 data is stored.
+type S3Location struct {
+	Bucket *string `json:"bucket,omitempty"`
+	Prefix *string `json:"prefix,omitempty"`
+}
+
+// A schema definition for a gateway target. This structure defines the structure
+// of the API that the target exposes.
+type SchemaDefinition struct {
+	Description *string `json:"description,omitempty"`
+}
+
+// Contains semantic consolidation override configuration.
+type SemanticConsolidationOverride struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// Contains semantic extraction override configuration.
+type SemanticExtractionOverride struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
 // Input for creating a semantic memory strategy.
 type SemanticMemoryStrategyInput struct {
 	Description *string `json:"description,omitempty"`
 }
 
+// Input for semantic override consolidation configuration in a memory strategy.
+type SemanticOverrideConsolidationConfigurationInput struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// Input for semantic override extraction configuration in a memory strategy.
+type SemanticOverrideExtractionConfigurationInput struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// Contains summary consolidation override configuration.
+type SummaryConsolidationOverride struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
 // Input for creating a summary memory strategy.
 type SummaryMemoryStrategyInput struct {
 	Description *string `json:"description,omitempty"`
+}
+
+// Input for summary override consolidation configuration in a memory strategy.
+type SummaryOverrideConsolidationConfigurationInput struct {
+	ModelID *string `json:"modelID,omitempty"`
 }
 
 // Contains summary information about a gateway target. A target represents
@@ -169,15 +224,50 @@ type TargetSummary struct {
 	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
 }
 
+// A tool definition for a gateway target. This structure defines a tool that
+// the target exposes through the Model Context Protocol.
+type ToolDefinition struct {
+	Description *string `json:"description,omitempty"`
+	Name        *string `json:"name,omitempty"`
+}
+
+// Contains user preference consolidation override configuration.
+type UserPreferenceConsolidationOverride struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// Contains user preference extraction override configuration.
+type UserPreferenceExtractionOverride struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
 // Input for creating a user preference memory strategy.
 type UserPreferenceMemoryStrategyInput struct {
 	Description *string `json:"description,omitempty"`
+}
+
+// Input for user preference override consolidation configuration in a memory
+// strategy.
+type UserPreferenceOverrideConsolidationConfigurationInput struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// Input for user preference override extraction configuration in a memory strategy.
+type UserPreferenceOverrideExtractionConfigurationInput struct {
+	ModelID *string `json:"modelID,omitempty"`
 }
 
 // VpcConfig for the Agent.
 type VPCConfig struct {
 	SecurityGroups []*string `json:"securityGroups,omitempty"`
 	Subnets        []*string `json:"subnets,omitempty"`
+}
+
+// Stores information about a field passed inside a request that resulted in
+// an exception.
+type ValidationExceptionField struct {
+	Message *string `json:"message,omitempty"`
+	Name    *string `json:"name,omitempty"`
 }
 
 // The information about the workload identity.

@@ -72,6 +72,7 @@ rules:
 - apiGroups:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
+  - agentruntimeendpoints
   - agentruntimes
   verbs:
   - create
@@ -84,6 +85,7 @@ rules:
 - apiGroups:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
+  - agentruntimeendpoints/status
   - agentruntimes/status
   verbs:
   - get

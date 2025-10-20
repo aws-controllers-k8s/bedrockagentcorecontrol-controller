@@ -17,6 +17,7 @@ rules:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
   - agentruntimes
+  - agentruntimeendpoints
   verbs:
   - create
   - delete
@@ -29,6 +30,7 @@ rules:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
   - agentruntimes
+  - agentruntimeendpoints
   verbs:
   - get
   - patch

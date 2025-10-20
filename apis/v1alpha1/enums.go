@@ -22,15 +22,15 @@ const (
 	APIKeyCredentialLocation_QUERY_PARAMETER APIKeyCredentialLocation = "QUERY_PARAMETER"
 )
 
-type AgentRuntimeEndpointStatus string
+type AgentRuntimeEndpointStatus_SDK string
 
 const (
-	AgentRuntimeEndpointStatus_CREATE_FAILED AgentRuntimeEndpointStatus = "CREATE_FAILED"
-	AgentRuntimeEndpointStatus_CREATING      AgentRuntimeEndpointStatus = "CREATING"
-	AgentRuntimeEndpointStatus_DELETING      AgentRuntimeEndpointStatus = "DELETING"
-	AgentRuntimeEndpointStatus_READY         AgentRuntimeEndpointStatus = "READY"
-	AgentRuntimeEndpointStatus_UPDATE_FAILED AgentRuntimeEndpointStatus = "UPDATE_FAILED"
-	AgentRuntimeEndpointStatus_UPDATING      AgentRuntimeEndpointStatus = "UPDATING"
+	AgentRuntimeEndpointStatus_SDK_CREATE_FAILED AgentRuntimeEndpointStatus_SDK = "CREATE_FAILED"
+	AgentRuntimeEndpointStatus_SDK_CREATING      AgentRuntimeEndpointStatus_SDK = "CREATING"
+	AgentRuntimeEndpointStatus_SDK_DELETING      AgentRuntimeEndpointStatus_SDK = "DELETING"
+	AgentRuntimeEndpointStatus_SDK_READY         AgentRuntimeEndpointStatus_SDK = "READY"
+	AgentRuntimeEndpointStatus_SDK_UPDATE_FAILED AgentRuntimeEndpointStatus_SDK = "UPDATE_FAILED"
+	AgentRuntimeEndpointStatus_SDK_UPDATING      AgentRuntimeEndpointStatus_SDK = "UPDATING"
 )
 
 type AgentRuntimeStatus_SDK string
