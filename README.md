@@ -1,7 +1,7 @@
-# ACK service controller for Amazon Cognito Identity
+# ACK service controller for Amazon Bedrock Agent Core Control
 
 This repository contains source code for the AWS Controllers for Kubernetes
-(ACK) service controller for .
+(ACK) service controller for Amazon Bedrock Agent Core Control.
 
 Please [log issues][ack-issues] and feedback on the main AWS Controllers for
 Kubernetes Github project.
