@@ -48,7 +48,3 @@ resources:
         template_path: hooks/agentruntimeendpoint/sdk_read_one_post_set_output.go.tpl
       sdk_update_pre_build_request:
         template_path: hooks/agentruntimeendpoint/sdk_update_pre_build_request.go.tpl
-    exceptions:
-      errors:
-        404:
-          code: AccessDeniedException
