@@ -1,11 +1,9 @@
 module github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller
 
-go 1.23.0
-
-toolchain go1.24.0
+go 1.24.0
 
 require (
-	github.com/aws-controllers-k8s/runtime v0.53.1
+	github.com/aws-controllers-k8s/runtime v0.56.0
 	github.com/aws/aws-sdk-go v1.49.0
 	github.com/aws/aws-sdk-go-v2 v1.39.2
 	github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol v1.10.0
