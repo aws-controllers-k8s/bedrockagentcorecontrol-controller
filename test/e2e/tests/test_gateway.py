@@ -141,15 +141,10 @@ class TestGateway:
         assert aws_tags["Environment"] == "test"
         assert aws_tags["Project"] == "ack-e2e"
 
-        # Update one tag, remove another
-        updates = {
-            "spec": {
-                "tags": {
-                    "Environment": "staging",
-                },
-            },
-        }
-        k8s.patch_custom_resource(ref, updates)
+        # Remove a tag by replacing the full CR with updated tags
+        cr = k8s.get_resource(ref)
+        cr["spec"]["tags"] = {"Environment": "staging"}
+        k8s.replace_custom_resource(ref, cr)
         time.sleep(UPDATE_WAIT_AFTER_SECONDS)
 
         assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
