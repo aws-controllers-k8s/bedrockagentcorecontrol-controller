@@ -4,20 +4,16 @@ ignore:
     # AgentRuntimeEndpoint
     - ApiKeyCredentialProvider
     - Browser
-    - BrowserProfile
     - CodeInterpreter
-    - Evaluator
-    - Gateway
+    # Gateway - now enabled
     - GatewayTarget
     - Memory
     - Oauth2CredentialProvider
-    - OnlineEvaluationConfig
-    - Policy
-    - PolicyEngine
-    # - WorkloadIdentity
+    - WorkloadIdentity
   field_paths:
     - CreateAgentRuntimeInput.ClientToken
     - CreateAgentRuntimeEndpointInput.ClientToken
+    - CreateGatewayInput.ClientToken
 
 sdk_names:
   model_name: bedrock-agentcore-control
@@ -54,29 +50,63 @@ resources:
       sdk_update_pre_build_request:
         template_path: hooks/agentruntimeendpoint/sdk_update_pre_build_request.go.tpl
 
-  WorkloadIdentity:
+  Gateway:
+    renames:
+      operations:
+        GetGateway:
+          input_fields:
+            GatewayIdentifier: GatewayId
+        UpdateGateway:
+          input_fields:
+            GatewayIdentifier: GatewayId
+        DeleteGateway:
+          input_fields:
+            GatewayIdentifier: GatewayId
     fields:
-      Name:
+      GatewayId:
         is_primary_key: true
+      GatewayArn:
+        is_read_only: true
+      GatewayUrl:
+        is_read_only: true
+      CreatedAt:
+        is_read_only: true
+      UpdatedAt:
+        is_read_only: true
+      Status:
+        is_read_only: true
+      StatusReasons:
+        is_read_only: true
+      Name:
         is_immutable: true
-      CreatedTime:
-        is_read_only: true
-        from:
-          operation: GetWorkloadIdentity
-          path: CreatedTime
-      LastUpdatedTime:
-        is_read_only: true
-        from:
-          operation: GetWorkloadIdentity
-          path: LastUpdatedTime
+      ProtocolType:
+        is_immutable: true
+      KmsKeyArn:
+        is_immutable: true
+        references:
+          resource: Key
+          path: Status.ACKResourceMetadata.ARN
+          service_name: kms
+      RoleArn:
+        references:
+          resource: Role
+          path: Status.ACKResourceMetadata.ARN
+          service_name: iam
+      Tags:
+        type: "map[string]*string"
+    hooks:
+      sdk_create_post_set_output:
+        template_path: hooks/gateway/sdk_create_post_set_output.go.tpl
+      sdk_update_pre_build_request:
+        template_path: hooks/gateway/sdk_update_pre_build_request.go.tpl
+      sdk_read_one_post_set_output:
+        template_path: hooks/gateway/sdk_read_one_post_set_output.go.tpl
     exceptions:
       errors:
         404:
           code: ResourceNotFoundException
       terminal_codes:
+        - AccessDeniedException
         - ValidationException
-    hooks:
-      sdk_read_one_post_set_output:
-        template_path: hooks/workloadidentity/sdk_read_one_post_set_output.go.tpl
-      sdk_update_pre_build_request:
-        template_path: hooks/workloadidentity/sdk_update_pre_build_request.go.tpl
+        - ConflictException
+        - ResourceLimitExceededException
