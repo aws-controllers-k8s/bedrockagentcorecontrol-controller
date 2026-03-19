@@ -907,9 +907,7 @@ func (rm *resourceManager) terminalAWSError(err error) bool {
 		return false
 	}
 	switch terminalErr.ErrorCode() {
-	case "AccessDeniedException",
-		"ValidationException",
-		"ResourceLimitExceededException":
+	case "ValidationException":
 		return true
 	default:
 		return false

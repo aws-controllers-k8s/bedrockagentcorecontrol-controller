@@ -82,9 +82,6 @@ spec:
 
                   Regex Pattern: `^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$`
                 type: string
-                x-kubernetes-validations:
-                - message: Value is immutable once set
-                  rule: self == oldSelf
               kmsKeyRef:
                 description: "AWSResourceReferenceWrapper provides a wrapper around
                   *AWSResourceReference\ntype to provide more user friendly syntax
@@ -108,9 +105,6 @@ spec:
 
                   Regex Pattern: `^([0-9a-zA-Z][-]?){1,100}$`
                 type: string
-                x-kubernetes-validations:
-                - message: Value is immutable once set
-                  rule: self == oldSelf
               protocolConfiguration:
                 description: |-
                   The configuration settings for the protocol specified in the protocolType
@@ -134,9 +128,6 @@ spec:
               protocolType:
                 description: The protocol type for the gateway.
                 type: string
-                x-kubernetes-validations:
-                - message: Value is immutable once set
-                  rule: self == oldSelf
               roleARN:
                 description: |-
                   The Amazon Resource Name (ARN) of the IAM role that provides permissions

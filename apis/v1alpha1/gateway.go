@@ -43,20 +43,17 @@ type GatewaySpec struct {
 	// with the gateway.
 	//
 	// Regex Pattern: `^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$`
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable once set"
 	KMSKeyARN *string                                  `json:"kmsKeyARN,omitempty"`
 	KMSKeyRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"kmsKeyRef,omitempty"`
 	// The name of the gateway. The name must be unique within your account.
 	//
 	// Regex Pattern: `^([0-9a-zA-Z][-]?){1,100}$`
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable once set"
 	// +kubebuilder:validation:Required
 	Name *string `json:"name"`
 	// The configuration settings for the protocol specified in the protocolType
 	// parameter.
 	ProtocolConfiguration *GatewayProtocolConfiguration `json:"protocolConfiguration,omitempty"`
 	// The protocol type for the gateway.
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable once set"
 	// +kubebuilder:validation:Required
 	ProtocolType *string `json:"protocolType"`
 	// The Amazon Resource Name (ARN) of the IAM role that provides permissions
