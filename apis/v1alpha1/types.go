@@ -122,10 +122,37 @@ type DeleteMemoryStrategyInput struct {
 	MemoryStrategyID *string `json:"memoryStrategyID,omitempty"`
 }
 
+// The configuration for a gateway protocol. This structure defines how the
+// gateway communicates with external services.
+type GatewayProtocolConfiguration struct {
+	// The configuration for a Model Context Protocol (MCP) gateway. This structure
+	// defines how the gateway implements the MCP protocol.
+	Mcp *MCPGatewayConfiguration `json:"mcp,omitempty"`
+}
+
 // Contains summary information about a gateway.
 type GatewaySummary struct {
-	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
-	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+	AuthorizerType *string      `json:"authorizerType,omitempty"`
+	CreatedAt      *metav1.Time `json:"createdAt,omitempty"`
+	Description    *string      `json:"description,omitempty"`
+	GatewayID      *string      `json:"gatewayID,omitempty"`
+	Name           *string      `json:"name,omitempty"`
+	ProtocolType   *string      `json:"protocolType,omitempty"`
+	Status         *string      `json:"status,omitempty"`
+	UpdatedAt      *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Contains the KMS configuration for a resource.
+type KMSConfiguration struct {
+	KMSKeyARN *string `json:"kmsKeyARN,omitempty"`
+}
+
+// The configuration for a Model Context Protocol (MCP) gateway. This structure
+// defines how the gateway implements the MCP protocol.
+type MCPGatewayConfiguration struct {
+	Instructions      *string   `json:"instructions,omitempty"`
+	SearchType        *string   `json:"searchType,omitempty"`
+	SupportedVersions []*string `json:"supportedVersions,omitempty"`
 }
 
 // Contains information about a memory resource.

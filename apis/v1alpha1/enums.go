@@ -118,15 +118,15 @@ const (
 	GatewayProtocolType_MCP GatewayProtocolType = "MCP"
 )
 
-type GatewayStatus string
+type GatewayStatus_SDK string
 
 const (
-	GatewayStatus_CREATING            GatewayStatus = "CREATING"
-	GatewayStatus_DELETING            GatewayStatus = "DELETING"
-	GatewayStatus_FAILED              GatewayStatus = "FAILED"
-	GatewayStatus_READY               GatewayStatus = "READY"
-	GatewayStatus_UPDATE_UNSUCCESSFUL GatewayStatus = "UPDATE_UNSUCCESSFUL"
-	GatewayStatus_UPDATING            GatewayStatus = "UPDATING"
+	GatewayStatus_SDK_CREATING            GatewayStatus_SDK = "CREATING"
+	GatewayStatus_SDK_DELETING            GatewayStatus_SDK = "DELETING"
+	GatewayStatus_SDK_FAILED              GatewayStatus_SDK = "FAILED"
+	GatewayStatus_SDK_READY               GatewayStatus_SDK = "READY"
+	GatewayStatus_SDK_UPDATE_UNSUCCESSFUL GatewayStatus_SDK = "UPDATE_UNSUCCESSFUL"
+	GatewayStatus_SDK_UPDATING            GatewayStatus_SDK = "UPDATING"
 )
 
 type KeyType string
