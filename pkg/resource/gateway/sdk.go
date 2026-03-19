@@ -219,7 +219,11 @@ func (rm *resourceManager) sdkFind(
 	}
 
 	rm.setStatusDefaults(ko)
-	ko.Spec.Tags = rm.getTags(ctx, string(*ko.Status.ACKResourceMetadata.ARN))
+	tags, err := rm.getTags(ctx, string(*ko.Status.ACKResourceMetadata.ARN))
+	if err != nil {
+		return nil, err
+	}
+	ko.Spec.Tags = tags
 
 	return &resource{ko}, nil
 }
@@ -509,8 +513,8 @@ func (rm *resourceManager) sdkUpdate(
 	if delta.DifferentAt("Spec.Tags") {
 		err := rm.syncTags(
 			ctx,
-			latest,
 			desired,
+			latest,
 		)
 		if err != nil {
 			return nil, err
@@ -518,6 +522,9 @@ func (rm *resourceManager) sdkUpdate(
 	}
 	if !delta.DifferentExcept("Spec.Tags") {
 		return desired, nil
+	}
+	if !gatewaySettled(latest) {
+		return latest, requeueNotReady
 	}
 
 	input, err := rm.newUpdateRequestPayload(ctx, desired, delta)
@@ -763,6 +770,10 @@ func (rm *resourceManager) sdkDelete(
 	defer func() {
 		exit(err)
 	}()
+	if !gatewaySettled(r) {
+		return nil, requeueNotReady
+	}
+
 	input, err := rm.newDeleteRequestPayload(r)
 	if err != nil {
 		return nil, err
@@ -898,7 +909,6 @@ func (rm *resourceManager) terminalAWSError(err error) bool {
 	switch terminalErr.ErrorCode() {
 	case "AccessDeniedException",
 		"ValidationException",
-		"ConflictException",
 		"ResourceLimitExceededException":
 		return true
 	default:

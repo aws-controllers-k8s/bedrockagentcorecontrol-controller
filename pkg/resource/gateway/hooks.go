@@ -15,22 +15,50 @@ package gateway
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	ackrequeue "github.com/aws-controllers-k8s/runtime/pkg/requeue"
 	ackrtlog "github.com/aws-controllers-k8s/runtime/pkg/runtime/log"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	svcsdk "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol"
+	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol/types"
 
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/tags"
 )
 
 var syncTags = tags.SyncTags
 
+var (
+	requeueNotReady = ackrequeue.NeededAfter(
+		fmt.Errorf("gateway is in a transitional state, cannot be modified or deleted"),
+		15*time.Second,
+	)
+)
+
+// gatewaySettled returns true when the gateway is not in a transitional state
+// (CREATING, UPDATING, DELETING). This allows updates from READY, FAILED, and
+// UPDATE_UNSUCCESSFUL states so the user can attempt to fix issues.
+func gatewaySettled(r *resource) bool {
+	if r.ko.Status.Status == nil {
+		return false
+	}
+	switch svcsdktypes.GatewayStatus(*r.ko.Status.Status) {
+	case svcsdktypes.GatewayStatusCreating,
+		svcsdktypes.GatewayStatusUpdating,
+		svcsdktypes.GatewayStatusDeleting:
+		return false
+	default:
+		return true
+	}
+}
+
 // getTags retrieves the tags for a given resource ARN using the
 // ListTagsForResource API and returns them as a map of string pointers.
 func (rm *resourceManager) getTags(
 	ctx context.Context,
 	resourceARN string,
-) map[string]*string {
+) (map[string]*string, error) {
 	rlog := ackrtlog.FromContext(ctx)
 	exit := rlog.Trace("rm.getTags")
 	defer func() { exit(nil) }()
@@ -40,18 +68,18 @@ func (rm *resourceManager) getTags(
 	})
 	rm.metrics.RecordAPICall("GET", "ListTagsForResource", err)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return aws.StringMap(resp.Tags)
+	return aws.StringMap(resp.Tags), nil
 }
 
 // syncTags keeps the resource's tags in sync by calling the TagResource and
 // UntagResource APIs.
 func (rm *resourceManager) syncTags(
 	ctx context.Context,
-	latest *resource,
 	desired *resource,
+	latest *resource,
 ) error {
 	resourceARN := string(*latest.ko.Status.ACKResourceMetadata.ARN)
 	desiredTags := aws.ToStringMap(desired.ko.Spec.Tags)
