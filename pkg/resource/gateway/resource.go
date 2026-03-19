@@ -97,11 +97,11 @@ func (r *resource) SetIdentifiers(identifier *ackv1alpha1.AWSIdentifiers) error 
 
 // PopulateResourceFromAnnotation populates the fields passed from adoption annotation
 func (r *resource) PopulateResourceFromAnnotation(fields map[string]string) error {
-	primaryKey, ok := fields["gatewayID"]
+	f0, ok := fields["gatewayID"]
 	if !ok {
 		return ackerrors.NewTerminalError(fmt.Errorf("required field missing: gatewayID"))
 	}
-	r.ko.Status.GatewayID = &primaryKey
+	r.ko.Status.GatewayID = &f0
 
 	return nil
 }

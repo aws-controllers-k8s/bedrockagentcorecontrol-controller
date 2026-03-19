@@ -7,7 +7,7 @@ ignore:
     - BrowserProfile
     - CodeInterpreter
     - Evaluator
-    # Gateway - now enabled
+    # Gateway
     - GatewayTarget
     - Memory
     - Oauth2CredentialProvider
@@ -95,26 +95,7 @@ resources:
           input_fields:
             GatewayIdentifier: GatewayId
     fields:
-      GatewayId:
-        is_primary_key: true
-      GatewayArn:
-        is_read_only: true
-      GatewayUrl:
-        is_read_only: true
-      CreatedAt:
-        is_read_only: true
-      UpdatedAt:
-        is_read_only: true
-      Status:
-        is_read_only: true
-      StatusReasons:
-        is_read_only: true
-      Name:
-        is_immutable: true
-      ProtocolType:
-        is_immutable: true
       KmsKeyArn:
-        is_immutable: true
         references:
           resource: Key
           path: Status.ACKResourceMetadata.ARN
@@ -147,6 +128,4 @@ resources:
         404:
           code: ResourceNotFoundException
       terminal_codes:
-        - AccessDeniedException
         - ValidationException
-        - ResourceLimitExceededException
