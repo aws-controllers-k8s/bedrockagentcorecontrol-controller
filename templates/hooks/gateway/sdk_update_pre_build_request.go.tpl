@@ -1,8 +1,8 @@
 	if delta.DifferentAt("Spec.Tags") {
 		err := rm.syncTags(
 			ctx,
-			latest,
 			desired,
+			latest,
 		)
 		if err != nil {
 			return nil, err
@@ -10,4 +10,7 @@
 	}
 	if !delta.DifferentExcept("Spec.Tags") {
 		return desired, nil
+	}
+	if !gatewaySettled(latest) {
+		return latest, requeueNotReady
 	}

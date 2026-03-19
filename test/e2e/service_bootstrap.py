@@ -18,6 +18,7 @@ import logging
 import os
 from acktest.bootstrapping import Resources, BootstrapFailureException
 from acktest.bootstrapping.iam import Role
+from acktest.bootstrapping.cognito_identity import UserPool
 from e2e import bootstrap_directory
 from e2e.bootstrap_resources import BootstrapResources
 
@@ -27,6 +28,14 @@ def service_bootstrap() -> Resources:
     logging.getLogger().setLevel(logging.INFO)
     
     resources = BootstrapResources(
+        GatewayRole=Role(
+            name_prefix="ack-bedrock-gateway",
+            principal_service="bedrock.amazonaws.com",
+            description="IAM role for ACK Bedrock Gateway e2e tests",
+        ),
+        GatewayUserPool=UserPool(
+            name_prefix="ack-bedrock-gateway",
+        ),
     )
     
     try:
