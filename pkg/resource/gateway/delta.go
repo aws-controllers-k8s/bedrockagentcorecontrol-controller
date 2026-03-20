@@ -62,6 +62,20 @@ func newResourceDelta(
 					delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients)
 				}
 			}
+			if len(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes) != len(b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes) {
+				delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes)
+			} else if len(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes) > 0 {
+				if !ackcompare.SliceStringPEqual(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes) {
+					delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes)
+				}
+			}
+			if len(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims) != len(b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims) {
+				delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims)
+			} else if len(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims) > 0 {
+				if !equality.Semantic.Equalities.DeepEqual(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims) {
+					delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims)
+				}
+			}
 			if ackcompare.HasNilDifference(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL) {
 				delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL)
 			} else if a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL != nil && b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL != nil {
@@ -92,6 +106,13 @@ func newResourceDelta(
 			delta.Add("Spec.ExceptionLevel", a.ko.Spec.ExceptionLevel, b.ko.Spec.ExceptionLevel)
 		}
 	}
+	if len(a.ko.Spec.InterceptorConfigurations) != len(b.ko.Spec.InterceptorConfigurations) {
+		delta.Add("Spec.InterceptorConfigurations", a.ko.Spec.InterceptorConfigurations, b.ko.Spec.InterceptorConfigurations)
+	} else if len(a.ko.Spec.InterceptorConfigurations) > 0 {
+		if !equality.Semantic.Equalities.DeepEqual(a.ko.Spec.InterceptorConfigurations, b.ko.Spec.InterceptorConfigurations) {
+			delta.Add("Spec.InterceptorConfigurations", a.ko.Spec.InterceptorConfigurations, b.ko.Spec.InterceptorConfigurations)
+		}
+	}
 	if ackcompare.HasNilDifference(a.ko.Spec.KMSKeyARN, b.ko.Spec.KMSKeyARN) {
 		delta.Add("Spec.KMSKeyARN", a.ko.Spec.KMSKeyARN, b.ko.Spec.KMSKeyARN)
 	} else if a.ko.Spec.KMSKeyARN != nil && b.ko.Spec.KMSKeyARN != nil {
@@ -107,6 +128,24 @@ func newResourceDelta(
 	} else if a.ko.Spec.Name != nil && b.ko.Spec.Name != nil {
 		if *a.ko.Spec.Name != *b.ko.Spec.Name {
 			delta.Add("Spec.Name", a.ko.Spec.Name, b.ko.Spec.Name)
+		}
+	}
+	if ackcompare.HasNilDifference(a.ko.Spec.PolicyEngineConfiguration, b.ko.Spec.PolicyEngineConfiguration) {
+		delta.Add("Spec.PolicyEngineConfiguration", a.ko.Spec.PolicyEngineConfiguration, b.ko.Spec.PolicyEngineConfiguration)
+	} else if a.ko.Spec.PolicyEngineConfiguration != nil && b.ko.Spec.PolicyEngineConfiguration != nil {
+		if ackcompare.HasNilDifference(a.ko.Spec.PolicyEngineConfiguration.ARN, b.ko.Spec.PolicyEngineConfiguration.ARN) {
+			delta.Add("Spec.PolicyEngineConfiguration.ARN", a.ko.Spec.PolicyEngineConfiguration.ARN, b.ko.Spec.PolicyEngineConfiguration.ARN)
+		} else if a.ko.Spec.PolicyEngineConfiguration.ARN != nil && b.ko.Spec.PolicyEngineConfiguration.ARN != nil {
+			if *a.ko.Spec.PolicyEngineConfiguration.ARN != *b.ko.Spec.PolicyEngineConfiguration.ARN {
+				delta.Add("Spec.PolicyEngineConfiguration.ARN", a.ko.Spec.PolicyEngineConfiguration.ARN, b.ko.Spec.PolicyEngineConfiguration.ARN)
+			}
+		}
+		if ackcompare.HasNilDifference(a.ko.Spec.PolicyEngineConfiguration.Mode, b.ko.Spec.PolicyEngineConfiguration.Mode) {
+			delta.Add("Spec.PolicyEngineConfiguration.Mode", a.ko.Spec.PolicyEngineConfiguration.Mode, b.ko.Spec.PolicyEngineConfiguration.Mode)
+		} else if a.ko.Spec.PolicyEngineConfiguration.Mode != nil && b.ko.Spec.PolicyEngineConfiguration.Mode != nil {
+			if *a.ko.Spec.PolicyEngineConfiguration.Mode != *b.ko.Spec.PolicyEngineConfiguration.Mode {
+				delta.Add("Spec.PolicyEngineConfiguration.Mode", a.ko.Spec.PolicyEngineConfiguration.Mode, b.ko.Spec.PolicyEngineConfiguration.Mode)
+			}
 		}
 	}
 	if ackcompare.HasNilDifference(a.ko.Spec.ProtocolConfiguration, b.ko.Spec.ProtocolConfiguration) {

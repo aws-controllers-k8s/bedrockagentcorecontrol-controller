@@ -23,10 +23,17 @@ import (
 // GatewaySpec defines the desired state of Gateway.
 type GatewaySpec struct {
 
-	// The authorizer configuration for the gateway.
-	// +kubebuilder:validation:Required
-	AuthorizerConfiguration *AuthorizerConfiguration `json:"authorizerConfiguration"`
+	// The authorizer configuration for the gateway. Required if authorizerType
+	// is CUSTOM_JWT.
+	AuthorizerConfiguration *AuthorizerConfiguration `json:"authorizerConfiguration,omitempty"`
 	// The type of authorizer to use for the gateway.
+	//
+	//   - CUSTOM_JWT - Authorize with a bearer token.
+	//
+	//   - AWS_IAM - Authorize with your Amazon Web Services IAM credentials.
+	//
+	//   - NONE - No authorization
+	//
 	// +kubebuilder:validation:Required
 	AuthorizerType *string `json:"authorizerType"`
 	// The description of the gateway.
@@ -39,6 +46,9 @@ type GatewaySpec struct {
 	//   - If the value is omitted, a generic error message is returned to the
 	//     end user.
 	ExceptionLevel *string `json:"exceptionLevel,omitempty"`
+	// A list of configuration settings for a gateway interceptor. Gateway interceptors
+	// allow custom code to be invoked during gateway invocations.
+	InterceptorConfigurations []*GatewayInterceptorConfiguration `json:"interceptorConfigurations,omitempty"`
 	// The Amazon Resource Name (ARN) of the KMS key used to encrypt data associated
 	// with the gateway.
 	//
@@ -50,6 +60,11 @@ type GatewaySpec struct {
 	// Regex Pattern: `^([0-9a-zA-Z][-]?){1,100}$`
 	// +kubebuilder:validation:Required
 	Name *string `json:"name"`
+	// The policy engine configuration for the gateway. A policy engine is a collection
+	// of policies that evaluates and authorizes agent tool calls. When associated
+	// with a gateway, the policy engine intercepts all agent requests and determines
+	// whether to allow or deny each action based on the defined policies.
+	PolicyEngineConfiguration *GatewayPolicyEngineConfiguration `json:"policyEngineConfiguration,omitempty"`
 	// The configuration settings for the protocol specified in the protocolType
 	// parameter.
 	ProtocolConfiguration *GatewayProtocolConfiguration `json:"protocolConfiguration,omitempty"`
@@ -62,7 +77,8 @@ type GatewaySpec struct {
 	// Regex Pattern: `^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$`
 	RoleARN *string                                  `json:"roleARN,omitempty"`
 	RoleRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"roleRef,omitempty"`
-	Tags    map[string]*string                       `json:"tags,omitempty"`
+	// A map of key-value pairs to associate with the gateway as metadata tags.
+	Tags map[string]*string `json:"tags,omitempty"`
 }
 
 // GatewayStatus defines the observed state of Gateway
