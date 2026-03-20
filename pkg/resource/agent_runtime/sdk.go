@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strings"
 
@@ -100,14 +101,47 @@ func (rm *resourceManager) sdkFind(
 	if resp.AgentRuntimeArtifact != nil {
 		f1 := &svcapitypes.AgentRuntimeArtifact{}
 		switch resp.AgentRuntimeArtifact.(type) {
-		case *svcsdktypes.AgentRuntimeArtifactMemberContainerConfiguration:
-			f1f0 := resp.AgentRuntimeArtifact.(*svcsdktypes.AgentRuntimeArtifactMemberContainerConfiguration)
+		case *svcsdktypes.AgentRuntimeArtifactMemberCodeConfiguration:
+			f1f0 := resp.AgentRuntimeArtifact.(*svcsdktypes.AgentRuntimeArtifactMemberCodeConfiguration)
 			if f1f0 != nil {
-				f1f0f0 := &svcapitypes.ContainerConfiguration{}
-				if f1f0.Value.ContainerUri != nil {
-					f1f0f0.ContainerURI = f1f0.Value.ContainerUri
+				f1f0f0 := &svcapitypes.CodeConfiguration{}
+				if f1f0.Value.Code != nil {
+					f1f0f0f0 := &svcapitypes.Code{}
+					switch f1f0.Value.Code.(type) {
+					case *svcsdktypes.CodeMemberS3:
+						f1f0f0f0f0 := f1f0.Value.Code.(*svcsdktypes.CodeMemberS3)
+						if f1f0f0f0f0 != nil {
+							f1f0f0f0f0f0 := &svcapitypes.S3Location{}
+							if f1f0f0f0f0.Value.Bucket != nil {
+								f1f0f0f0f0f0.Bucket = f1f0f0f0f0.Value.Bucket
+							}
+							if f1f0f0f0f0.Value.Prefix != nil {
+								f1f0f0f0f0f0.Prefix = f1f0f0f0f0.Value.Prefix
+							}
+							if f1f0f0f0f0.Value.VersionId != nil {
+								f1f0f0f0f0f0.VersionID = f1f0f0f0f0.Value.VersionId
+							}
+							f1f0f0f0.S3 = f1f0f0f0f0f0
+						}
+					}
+					f1f0f0.Code = f1f0f0f0
 				}
-				f1.ContainerConfiguration = f1f0f0
+				if f1f0.Value.EntryPoint != nil {
+					f1f0f0.EntryPoint = aws.StringSlice(f1f0.Value.EntryPoint)
+				}
+				if f1f0.Value.Runtime != "" {
+					f1f0f0.Runtime = aws.String(string(f1f0.Value.Runtime))
+				}
+				f1.CodeConfiguration = f1f0f0
+			}
+		case *svcsdktypes.AgentRuntimeArtifactMemberContainerConfiguration:
+			f1f1 := resp.AgentRuntimeArtifact.(*svcsdktypes.AgentRuntimeArtifactMemberContainerConfiguration)
+			if f1f1 != nil {
+				f1f1f1 := &svcapitypes.ContainerConfiguration{}
+				if f1f1.Value.ContainerUri != nil {
+					f1f1f1.ContainerURI = f1f1.Value.ContainerUri
+				}
+				f1.ContainerConfiguration = f1f1f1
 			}
 		}
 		ko.Spec.AgentRuntimeArtifact = f1
@@ -142,6 +176,46 @@ func (rm *resourceManager) sdkFind(
 				if f5f0.Value.AllowedClients != nil {
 					f5f0f0.AllowedClients = aws.StringSlice(f5f0.Value.AllowedClients)
 				}
+				if f5f0.Value.AllowedScopes != nil {
+					f5f0f0.AllowedScopes = aws.StringSlice(f5f0.Value.AllowedScopes)
+				}
+				if f5f0.Value.CustomClaims != nil {
+					f5f0f0f3 := []*svcapitypes.CustomClaimValidationType{}
+					for _, f5f0f0f3iter := range f5f0.Value.CustomClaims {
+						f5f0f0f3elem := &svcapitypes.CustomClaimValidationType{}
+						if f5f0f0f3iter.AuthorizingClaimMatchValue != nil {
+							f5f0f0f3elemf0 := &svcapitypes.AuthorizingClaimMatchValueType{}
+							if f5f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator != "" {
+								f5f0f0f3elemf0.ClaimMatchOperator = aws.String(string(f5f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator))
+							}
+							if f5f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue != nil {
+								f5f0f0f3elemf0f1 := &svcapitypes.ClaimMatchValueType{}
+								switch f5f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(type) {
+								case *svcsdktypes.ClaimMatchValueTypeMemberMatchValueString:
+									f5f0f0f3elemf0f1f0 := f5f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(*svcsdktypes.ClaimMatchValueTypeMemberMatchValueString)
+									if f5f0f0f3elemf0f1f0 != nil {
+										f5f0f0f3elemf0f1.MatchValueString = &f5f0f0f3elemf0f1f0.Value
+									}
+								case *svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList:
+									f5f0f0f3elemf0f1f1 := f5f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(*svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList)
+									if f5f0f0f3elemf0f1f1 != nil {
+										f5f0f0f3elemf0f1.MatchValueStringList = aws.StringSlice(f5f0f0f3elemf0f1f1.Value)
+									}
+								}
+								f5f0f0f3elemf0.ClaimMatchValue = f5f0f0f3elemf0f1
+							}
+							f5f0f0f3elem.AuthorizingClaimMatchValue = f5f0f0f3elemf0
+						}
+						if f5f0f0f3iter.InboundTokenClaimName != nil {
+							f5f0f0f3elem.InboundTokenClaimName = f5f0f0f3iter.InboundTokenClaimName
+						}
+						if f5f0f0f3iter.InboundTokenClaimValueType != "" {
+							f5f0f0f3elem.InboundTokenClaimValueType = aws.String(string(f5f0f0f3iter.InboundTokenClaimValueType))
+						}
+						f5f0f0f3 = append(f5f0f0f3, f5f0f0f3elem)
+					}
+					f5f0f0.CustomClaims = f5f0f0f3
+				}
 				if f5f0.Value.DiscoveryUrl != nil {
 					f5f0f0.DiscoveryURL = f5f0.Value.DiscoveryUrl
 				}
@@ -167,44 +241,58 @@ func (rm *resourceManager) sdkFind(
 	} else {
 		ko.Spec.EnvironmentVariables = nil
 	}
+	if resp.LifecycleConfiguration != nil {
+		f11 := &svcapitypes.LifecycleConfiguration{}
+		if resp.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil {
+			idleRuntimeSessionTimeoutCopy := int64(*resp.LifecycleConfiguration.IdleRuntimeSessionTimeout)
+			f11.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
+		}
+		if resp.LifecycleConfiguration.MaxLifetime != nil {
+			maxLifetimeCopy := int64(*resp.LifecycleConfiguration.MaxLifetime)
+			f11.MaxLifetime = &maxLifetimeCopy
+		}
+		ko.Spec.LifecycleConfiguration = f11
+	} else {
+		ko.Spec.LifecycleConfiguration = nil
+	}
 	if resp.NetworkConfiguration != nil {
-		f10 := &svcapitypes.NetworkConfiguration{}
+		f12 := &svcapitypes.NetworkConfiguration{}
 		if resp.NetworkConfiguration.NetworkMode != "" {
-			f10.NetworkMode = aws.String(string(resp.NetworkConfiguration.NetworkMode))
+			f12.NetworkMode = aws.String(string(resp.NetworkConfiguration.NetworkMode))
 		}
 		if resp.NetworkConfiguration.NetworkModeConfig != nil {
-			f10f1 := &svcapitypes.VPCConfig{}
+			f12f1 := &svcapitypes.VPCConfig{}
 			if resp.NetworkConfiguration.NetworkModeConfig.SecurityGroups != nil {
-				f10f1.SecurityGroups = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
+				f12f1.SecurityGroups = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
 			}
 			if resp.NetworkConfiguration.NetworkModeConfig.Subnets != nil {
-				f10f1.Subnets = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.Subnets)
+				f12f1.Subnets = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.Subnets)
 			}
-			f10.NetworkModeConfig = f10f1
+			f12.NetworkModeConfig = f12f1
 		}
-		ko.Spec.NetworkConfiguration = f10
+		ko.Spec.NetworkConfiguration = f12
 	} else {
 		ko.Spec.NetworkConfiguration = nil
 	}
 	if resp.ProtocolConfiguration != nil {
-		f11 := &svcapitypes.ProtocolConfiguration{}
+		f13 := &svcapitypes.ProtocolConfiguration{}
 		if resp.ProtocolConfiguration.ServerProtocol != "" {
-			f11.ServerProtocol = aws.String(string(resp.ProtocolConfiguration.ServerProtocol))
+			f13.ServerProtocol = aws.String(string(resp.ProtocolConfiguration.ServerProtocol))
 		}
-		ko.Spec.ProtocolConfiguration = f11
+		ko.Spec.ProtocolConfiguration = f13
 	} else {
 		ko.Spec.ProtocolConfiguration = nil
 	}
 	if resp.RequestHeaderConfiguration != nil {
-		f12 := &svcapitypes.RequestHeaderConfiguration{}
+		f14 := &svcapitypes.RequestHeaderConfiguration{}
 		switch resp.RequestHeaderConfiguration.(type) {
 		case *svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist:
-			f12f0 := resp.RequestHeaderConfiguration.(*svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist)
-			if f12f0 != nil {
-				f12.RequestHeaderAllowlist = aws.StringSlice(f12f0.Value)
+			f14f0 := resp.RequestHeaderConfiguration.(*svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist)
+			if f14f0 != nil {
+				f14.RequestHeaderAllowlist = aws.StringSlice(f14f0.Value)
 			}
 		}
-		ko.Spec.RequestHeaderConfiguration = f12
+		ko.Spec.RequestHeaderConfiguration = f14
 	} else {
 		ko.Spec.RequestHeaderConfiguration = nil
 	}
@@ -219,11 +307,11 @@ func (rm *resourceManager) sdkFind(
 		ko.Status.Status = nil
 	}
 	if resp.WorkloadIdentityDetails != nil {
-		f15 := &svcapitypes.WorkloadIdentityDetails{}
+		f17 := &svcapitypes.WorkloadIdentityDetails{}
 		if resp.WorkloadIdentityDetails.WorkloadIdentityArn != nil {
-			f15.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
+			f17.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
 		}
-		ko.Status.WorkloadIdentityDetails = f15
+		ko.Status.WorkloadIdentityDetails = f17
 	} else {
 		ko.Status.WorkloadIdentityDetails = nil
 	}
@@ -342,17 +430,57 @@ func (rm *resourceManager) newCreateRequestPayload(
 	if r.ko.Spec.AgentRuntimeArtifact != nil {
 		var f0 svcsdktypes.AgentRuntimeArtifact
 		isInterfaceSet := false
+		if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration != nil {
+			if isInterfaceSet {
+				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for CodeConfiguration"))
+			}
+			f0f0Parent := &svcsdktypes.AgentRuntimeArtifactMemberCodeConfiguration{}
+			f0f0 := &svcsdktypes.CodeConfiguration{}
+			if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code != nil {
+				var f0f0f0 svcsdktypes.Code
+				isInterfaceSet := false
+				if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3 != nil {
+					if isInterfaceSet {
+						return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for S3"))
+					}
+					f0f0f0f0Parent := &svcsdktypes.CodeMemberS3{}
+					f0f0f0f0 := &svcsdktypes.S3Location{}
+					if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket != nil {
+						f0f0f0f0.Bucket = r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket
+					}
+					if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix != nil {
+						f0f0f0f0.Prefix = r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix
+					}
+					if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID != nil {
+						f0f0f0f0.VersionId = r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID
+					}
+					f0f0f0f0Parent.Value = *f0f0f0f0
+					f0f0f0 = f0f0f0f0Parent
+					isInterfaceSet = true
+				}
+				f0f0.Code = f0f0f0
+			}
+			if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint != nil {
+				f0f0.EntryPoint = aws.ToStringSlice(r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint)
+			}
+			if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime != nil {
+				f0f0.Runtime = svcsdktypes.AgentManagedRuntimeType(*r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime)
+			}
+			f0f0Parent.Value = *f0f0
+			f0 = f0f0Parent
+			isInterfaceSet = true
+		}
 		if r.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for ContainerConfiguration"))
 			}
-			f0f0Parent := &svcsdktypes.AgentRuntimeArtifactMemberContainerConfiguration{}
-			f0f0 := &svcsdktypes.ContainerConfiguration{}
+			f0f1Parent := &svcsdktypes.AgentRuntimeArtifactMemberContainerConfiguration{}
+			f0f1 := &svcsdktypes.ContainerConfiguration{}
 			if r.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration.ContainerURI != nil {
-				f0f0.ContainerUri = r.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration.ContainerURI
+				f0f1.ContainerUri = r.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration.ContainerURI
 			}
-			f0f0Parent.Value = *f0f0
-			f0 = f0f0Parent
+			f0f1Parent.Value = *f0f1
+			f0 = f0f1Parent
 			isInterfaceSet = true
 		}
 		res.AgentRuntimeArtifact = f0
@@ -375,6 +503,55 @@ func (rm *resourceManager) newCreateRequestPayload(
 			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients != nil {
 				f2f0.AllowedClients = aws.ToStringSlice(r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients)
 			}
+			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes != nil {
+				f2f0.AllowedScopes = aws.ToStringSlice(r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes)
+			}
+			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims != nil {
+				f2f0f3 := []svcsdktypes.CustomClaimValidationType{}
+				for _, f2f0f3iter := range r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims {
+					f2f0f3elem := &svcsdktypes.CustomClaimValidationType{}
+					if f2f0f3iter.AuthorizingClaimMatchValue != nil {
+						f2f0f3elemf0 := &svcsdktypes.AuthorizingClaimMatchValueType{}
+						if f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator != nil {
+							f2f0f3elemf0.ClaimMatchOperator = svcsdktypes.ClaimMatchOperatorType(*f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator)
+						}
+						if f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue != nil {
+							var f2f0f3elemf0f1 svcsdktypes.ClaimMatchValueType
+							isInterfaceSet := false
+							if f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueString != nil {
+								if isInterfaceSet {
+									return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for MatchValueString"))
+								}
+								f2f0f3elemf0f1f0Parent := &svcsdktypes.ClaimMatchValueTypeMemberMatchValueString{}
+								f2f0f3elemf0f1f0Parent.Value = *f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueString
+								f2f0f3elemf0f1 = f2f0f3elemf0f1f0Parent
+								isInterfaceSet = true
+							}
+							if f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueStringList != nil {
+								if isInterfaceSet {
+									return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for MatchValueStringList"))
+								}
+								f2f0f3elemf0f1f1Parent := &svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList{}
+								f2f0f3elemf0f1f1 := []string{}
+								f2f0f3elemf0f1f1 = aws.ToStringSlice(f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueStringList)
+								f2f0f3elemf0f1f1Parent.Value = f2f0f3elemf0f1f1
+								f2f0f3elemf0f1 = f2f0f3elemf0f1f1Parent
+								isInterfaceSet = true
+							}
+							f2f0f3elemf0.ClaimMatchValue = f2f0f3elemf0f1
+						}
+						f2f0f3elem.AuthorizingClaimMatchValue = f2f0f3elemf0
+					}
+					if f2f0f3iter.InboundTokenClaimName != nil {
+						f2f0f3elem.InboundTokenClaimName = f2f0f3iter.InboundTokenClaimName
+					}
+					if f2f0f3iter.InboundTokenClaimValueType != nil {
+						f2f0f3elem.InboundTokenClaimValueType = svcsdktypes.InboundTokenClaimValueType(*f2f0f3iter.InboundTokenClaimValueType)
+					}
+					f2f0f3 = append(f2f0f3, *f2f0f3elem)
+				}
+				f2f0.CustomClaims = f2f0f3
+			}
 			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL != nil {
 				f2f0.DiscoveryUrl = r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL
 			}
@@ -390,45 +567,65 @@ func (rm *resourceManager) newCreateRequestPayload(
 	if r.ko.Spec.EnvironmentVariables != nil {
 		res.EnvironmentVariables = aws.ToStringMap(r.ko.Spec.EnvironmentVariables)
 	}
+	if r.ko.Spec.LifecycleConfiguration != nil {
+		f5 := &svcsdktypes.LifecycleConfiguration{}
+		if r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil {
+			idleRuntimeSessionTimeoutCopy0 := *r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout
+			if idleRuntimeSessionTimeoutCopy0 > math.MaxInt32 || idleRuntimeSessionTimeoutCopy0 < math.MinInt32 {
+				return nil, fmt.Errorf("error: field idleRuntimeSessionTimeout is of type int32")
+			}
+			idleRuntimeSessionTimeoutCopy := int32(idleRuntimeSessionTimeoutCopy0)
+			f5.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
+		}
+		if r.ko.Spec.LifecycleConfiguration.MaxLifetime != nil {
+			maxLifetimeCopy0 := *r.ko.Spec.LifecycleConfiguration.MaxLifetime
+			if maxLifetimeCopy0 > math.MaxInt32 || maxLifetimeCopy0 < math.MinInt32 {
+				return nil, fmt.Errorf("error: field maxLifetime is of type int32")
+			}
+			maxLifetimeCopy := int32(maxLifetimeCopy0)
+			f5.MaxLifetime = &maxLifetimeCopy
+		}
+		res.LifecycleConfiguration = f5
+	}
 	if r.ko.Spec.NetworkConfiguration != nil {
-		f5 := &svcsdktypes.NetworkConfiguration{}
+		f6 := &svcsdktypes.NetworkConfiguration{}
 		if r.ko.Spec.NetworkConfiguration.NetworkMode != nil {
-			f5.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
+			f6.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
 		}
 		if r.ko.Spec.NetworkConfiguration.NetworkModeConfig != nil {
-			f5f1 := &svcsdktypes.VpcConfig{}
+			f6f1 := &svcsdktypes.VpcConfig{}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups != nil {
-				f5f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
+				f6f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
 			}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets != nil {
-				f5f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
+				f6f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
 			}
-			f5.NetworkModeConfig = f5f1
+			f6.NetworkModeConfig = f6f1
 		}
-		res.NetworkConfiguration = f5
+		res.NetworkConfiguration = f6
 	}
 	if r.ko.Spec.ProtocolConfiguration != nil {
-		f6 := &svcsdktypes.ProtocolConfiguration{}
+		f7 := &svcsdktypes.ProtocolConfiguration{}
 		if r.ko.Spec.ProtocolConfiguration.ServerProtocol != nil {
-			f6.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
+			f7.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
 		}
-		res.ProtocolConfiguration = f6
+		res.ProtocolConfiguration = f7
 	}
 	if r.ko.Spec.RequestHeaderConfiguration != nil {
-		var f7 svcsdktypes.RequestHeaderConfiguration
+		var f8 svcsdktypes.RequestHeaderConfiguration
 		isInterfaceSet := false
 		if r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for RequestHeaderAllowlist"))
 			}
-			f7f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
-			f7f0 := []string{}
-			f7f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
-			f7f0Parent.Value = f7f0
-			f7 = f7f0Parent
+			f8f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
+			f8f0 := []string{}
+			f8f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
+			f8f0Parent.Value = f8f0
+			f8 = f8f0Parent
 			isInterfaceSet = true
 		}
-		res.RequestHeaderConfiguration = f7
+		res.RequestHeaderConfiguration = f8
 	}
 	if r.ko.Spec.RoleARN != nil {
 		res.RoleArn = r.ko.Spec.RoleARN
@@ -538,17 +735,57 @@ func (rm *resourceManager) newUpdateRequestPayload(
 	if r.ko.Spec.AgentRuntimeArtifact != nil {
 		var f0 svcsdktypes.AgentRuntimeArtifact
 		isInterfaceSet := false
+		if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration != nil {
+			if isInterfaceSet {
+				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for CodeConfiguration"))
+			}
+			f0f0Parent := &svcsdktypes.AgentRuntimeArtifactMemberCodeConfiguration{}
+			f0f0 := &svcsdktypes.CodeConfiguration{}
+			if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code != nil {
+				var f0f0f0 svcsdktypes.Code
+				isInterfaceSet := false
+				if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3 != nil {
+					if isInterfaceSet {
+						return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for S3"))
+					}
+					f0f0f0f0Parent := &svcsdktypes.CodeMemberS3{}
+					f0f0f0f0 := &svcsdktypes.S3Location{}
+					if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket != nil {
+						f0f0f0f0.Bucket = r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket
+					}
+					if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix != nil {
+						f0f0f0f0.Prefix = r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix
+					}
+					if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID != nil {
+						f0f0f0f0.VersionId = r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID
+					}
+					f0f0f0f0Parent.Value = *f0f0f0f0
+					f0f0f0 = f0f0f0f0Parent
+					isInterfaceSet = true
+				}
+				f0f0.Code = f0f0f0
+			}
+			if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint != nil {
+				f0f0.EntryPoint = aws.ToStringSlice(r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint)
+			}
+			if r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime != nil {
+				f0f0.Runtime = svcsdktypes.AgentManagedRuntimeType(*r.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime)
+			}
+			f0f0Parent.Value = *f0f0
+			f0 = f0f0Parent
+			isInterfaceSet = true
+		}
 		if r.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for ContainerConfiguration"))
 			}
-			f0f0Parent := &svcsdktypes.AgentRuntimeArtifactMemberContainerConfiguration{}
-			f0f0 := &svcsdktypes.ContainerConfiguration{}
+			f0f1Parent := &svcsdktypes.AgentRuntimeArtifactMemberContainerConfiguration{}
+			f0f1 := &svcsdktypes.ContainerConfiguration{}
 			if r.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration.ContainerURI != nil {
-				f0f0.ContainerUri = r.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration.ContainerURI
+				f0f1.ContainerUri = r.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration.ContainerURI
 			}
-			f0f0Parent.Value = *f0f0
-			f0 = f0f0Parent
+			f0f1Parent.Value = *f0f1
+			f0 = f0f1Parent
 			isInterfaceSet = true
 		}
 		res.AgentRuntimeArtifact = f0
@@ -571,6 +808,55 @@ func (rm *resourceManager) newUpdateRequestPayload(
 			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients != nil {
 				f2f0.AllowedClients = aws.ToStringSlice(r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients)
 			}
+			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes != nil {
+				f2f0.AllowedScopes = aws.ToStringSlice(r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes)
+			}
+			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims != nil {
+				f2f0f3 := []svcsdktypes.CustomClaimValidationType{}
+				for _, f2f0f3iter := range r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims {
+					f2f0f3elem := &svcsdktypes.CustomClaimValidationType{}
+					if f2f0f3iter.AuthorizingClaimMatchValue != nil {
+						f2f0f3elemf0 := &svcsdktypes.AuthorizingClaimMatchValueType{}
+						if f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator != nil {
+							f2f0f3elemf0.ClaimMatchOperator = svcsdktypes.ClaimMatchOperatorType(*f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator)
+						}
+						if f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue != nil {
+							var f2f0f3elemf0f1 svcsdktypes.ClaimMatchValueType
+							isInterfaceSet := false
+							if f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueString != nil {
+								if isInterfaceSet {
+									return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for MatchValueString"))
+								}
+								f2f0f3elemf0f1f0Parent := &svcsdktypes.ClaimMatchValueTypeMemberMatchValueString{}
+								f2f0f3elemf0f1f0Parent.Value = *f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueString
+								f2f0f3elemf0f1 = f2f0f3elemf0f1f0Parent
+								isInterfaceSet = true
+							}
+							if f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueStringList != nil {
+								if isInterfaceSet {
+									return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for MatchValueStringList"))
+								}
+								f2f0f3elemf0f1f1Parent := &svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList{}
+								f2f0f3elemf0f1f1 := []string{}
+								f2f0f3elemf0f1f1 = aws.ToStringSlice(f2f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueStringList)
+								f2f0f3elemf0f1f1Parent.Value = f2f0f3elemf0f1f1
+								f2f0f3elemf0f1 = f2f0f3elemf0f1f1Parent
+								isInterfaceSet = true
+							}
+							f2f0f3elemf0.ClaimMatchValue = f2f0f3elemf0f1
+						}
+						f2f0f3elem.AuthorizingClaimMatchValue = f2f0f3elemf0
+					}
+					if f2f0f3iter.InboundTokenClaimName != nil {
+						f2f0f3elem.InboundTokenClaimName = f2f0f3iter.InboundTokenClaimName
+					}
+					if f2f0f3iter.InboundTokenClaimValueType != nil {
+						f2f0f3elem.InboundTokenClaimValueType = svcsdktypes.InboundTokenClaimValueType(*f2f0f3iter.InboundTokenClaimValueType)
+					}
+					f2f0f3 = append(f2f0f3, *f2f0f3elem)
+				}
+				f2f0.CustomClaims = f2f0f3
+			}
 			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL != nil {
 				f2f0.DiscoveryUrl = r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL
 			}
@@ -586,45 +872,65 @@ func (rm *resourceManager) newUpdateRequestPayload(
 	if r.ko.Spec.EnvironmentVariables != nil {
 		res.EnvironmentVariables = aws.ToStringMap(r.ko.Spec.EnvironmentVariables)
 	}
+	if r.ko.Spec.LifecycleConfiguration != nil {
+		f6 := &svcsdktypes.LifecycleConfiguration{}
+		if r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil {
+			idleRuntimeSessionTimeoutCopy0 := *r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout
+			if idleRuntimeSessionTimeoutCopy0 > math.MaxInt32 || idleRuntimeSessionTimeoutCopy0 < math.MinInt32 {
+				return nil, fmt.Errorf("error: field idleRuntimeSessionTimeout is of type int32")
+			}
+			idleRuntimeSessionTimeoutCopy := int32(idleRuntimeSessionTimeoutCopy0)
+			f6.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
+		}
+		if r.ko.Spec.LifecycleConfiguration.MaxLifetime != nil {
+			maxLifetimeCopy0 := *r.ko.Spec.LifecycleConfiguration.MaxLifetime
+			if maxLifetimeCopy0 > math.MaxInt32 || maxLifetimeCopy0 < math.MinInt32 {
+				return nil, fmt.Errorf("error: field maxLifetime is of type int32")
+			}
+			maxLifetimeCopy := int32(maxLifetimeCopy0)
+			f6.MaxLifetime = &maxLifetimeCopy
+		}
+		res.LifecycleConfiguration = f6
+	}
 	if r.ko.Spec.NetworkConfiguration != nil {
-		f6 := &svcsdktypes.NetworkConfiguration{}
+		f7 := &svcsdktypes.NetworkConfiguration{}
 		if r.ko.Spec.NetworkConfiguration.NetworkMode != nil {
-			f6.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
+			f7.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
 		}
 		if r.ko.Spec.NetworkConfiguration.NetworkModeConfig != nil {
-			f6f1 := &svcsdktypes.VpcConfig{}
+			f7f1 := &svcsdktypes.VpcConfig{}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups != nil {
-				f6f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
+				f7f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
 			}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets != nil {
-				f6f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
+				f7f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
 			}
-			f6.NetworkModeConfig = f6f1
+			f7.NetworkModeConfig = f7f1
 		}
-		res.NetworkConfiguration = f6
+		res.NetworkConfiguration = f7
 	}
 	if r.ko.Spec.ProtocolConfiguration != nil {
-		f7 := &svcsdktypes.ProtocolConfiguration{}
+		f8 := &svcsdktypes.ProtocolConfiguration{}
 		if r.ko.Spec.ProtocolConfiguration.ServerProtocol != nil {
-			f7.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
+			f8.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
 		}
-		res.ProtocolConfiguration = f7
+		res.ProtocolConfiguration = f8
 	}
 	if r.ko.Spec.RequestHeaderConfiguration != nil {
-		var f8 svcsdktypes.RequestHeaderConfiguration
+		var f9 svcsdktypes.RequestHeaderConfiguration
 		isInterfaceSet := false
 		if r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for RequestHeaderAllowlist"))
 			}
-			f8f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
-			f8f0 := []string{}
-			f8f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
-			f8f0Parent.Value = f8f0
-			f8 = f8f0Parent
+			f9f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
+			f9f0 := []string{}
+			f9f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
+			f9f0Parent.Value = f9f0
+			f9 = f9f0Parent
 			isInterfaceSet = true
 		}
-		res.RequestHeaderConfiguration = f8
+		res.RequestHeaderConfiguration = f9
 	}
 	if r.ko.Spec.RoleARN != nil {
 		res.RoleArn = r.ko.Spec.RoleARN

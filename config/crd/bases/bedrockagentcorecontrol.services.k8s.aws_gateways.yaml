@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: agentruntimes.bedrockagentcorecontrol.services.k8s.aws
+  name: gateways.bedrockagentcorecontrol.services.k8s.aws
 spec:
   group: bedrockagentcorecontrol.services.k8s.aws
   names:
-    kind: AgentRuntime
-    listKind: AgentRuntimeList
-    plural: agentruntimes
-    singular: agentruntime
+    kind: Gateway
+    listKind: GatewayList
+    plural: gateways
+    singular: gateway
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: AgentRuntime is the Schema for the AgentRuntimes API
+        description: Gateway is the Schema for the Gateways API
         properties:
           apiVersion:
             description: |-
@@ -37,61 +37,12 @@ spec:
           metadata:
             type: object
           spec:
-            description: |-
-              AgentRuntimeSpec defines the desired state of AgentRuntime.
-
-              Contains information about an agent runtime. An agent runtime is the execution
-              environment for a Amazon Bedrock AgentCore Agent.
+            description: GatewaySpec defines the desired state of Gateway.
             properties:
-              agentRuntimeArtifact:
-                description: The artifact of the AgentCore Runtime.
-                properties:
-                  codeConfiguration:
-                    description: |-
-                      The configuration for the source code that defines how the agent runtime
-                      code should be executed, including the code location, runtime environment,
-                      and entry point.
-                    properties:
-                      code:
-                        description: |-
-                          The source code configuration that specifies the location and details of
-                          the code to be executed.
-                        properties:
-                          s3:
-                            description: |-
-                              The Amazon S3 location for storing data. This structure defines where in
-                              Amazon S3 data is stored.
-                            properties:
-                              bucket:
-                                type: string
-                              prefix:
-                                type: string
-                              versionID:
-                                type: string
-                            type: object
-                        type: object
-                      entryPoint:
-                        items:
-                          type: string
-                        type: array
-                      runtime:
-                        type: string
-                    type: object
-                  containerConfiguration:
-                    description: Representation of a container configuration.
-                    properties:
-                      containerURI:
-                        type: string
-                    type: object
-                type: object
-              agentRuntimeName:
-                description: |-
-                  The name of the AgentCore Runtime.
-
-                  Regex Pattern: `^[a-zA-Z][a-zA-Z0-9_]{0,47}$`
-                type: string
               authorizerConfiguration:
-                description: The authorizer configuration for the AgentCore Runtime.
+                description: |-
+                  The authorizer configuration for the gateway. Required if authorizerType
+                  is CUSTOM_JWT.
                 properties:
                   customJWTAuthorizer:
                     description: |-
@@ -152,83 +103,163 @@ spec:
                         type: string
                     type: object
                 type: object
-              description:
-                description: The description of the AgentCore Runtime.
+              authorizerType:
+                description: |-
+                  The type of authorizer to use for the gateway.
+
+                     * CUSTOM_JWT - Authorize with a bearer token.
+
+                     * AWS_IAM - Authorize with your Amazon Web Services IAM credentials.
+
+                     * NONE - No authorization
                 type: string
-              environmentVariables:
-                additionalProperties:
-                  type: string
-                description: Environment variables to set in the AgentCore Runtime
-                  environment.
-                type: object
-              lifecycleConfiguration:
-                description: The life cycle configuration for the AgentCore Runtime.
+              description:
+                description: The description of the gateway.
+                type: string
+              exceptionLevel:
+                description: |-
+                  The level of detail in error messages returned when invoking the gateway.
+
+                     * If the value is DEBUG, granular exception messages are returned to help
+                     a user debug the gateway.
+
+                     * If the value is omitted, a generic error message is returned to the
+                     end user.
+                type: string
+              interceptorConfigurations:
+                description: |-
+                  A list of configuration settings for a gateway interceptor. Gateway interceptors
+                  allow custom code to be invoked during gateway invocations.
+                items:
+                  description: |-
+                    The configuration for an interceptor on a gateway. This structure defines
+                    settings for an interceptor that will be invoked during the invocation of
+                    the gateway.
+                  properties:
+                    inputConfiguration:
+                      description: The input configuration of the interceptor.
+                      properties:
+                        passRequestHeaders:
+                          type: boolean
+                      type: object
+                    interceptionPoints:
+                      items:
+                        type: string
+                      type: array
+                    interceptor:
+                      description: The interceptor configuration.
+                      properties:
+                        lambda:
+                          description: The lambda configuration for the interceptor
+                          properties:
+                            arn:
+                              type: string
+                          type: object
+                      type: object
+                  type: object
+                type: array
+              kmsKeyARN:
+                description: |-
+                  The Amazon Resource Name (ARN) of the KMS key used to encrypt data associated
+                  with the gateway.
+
+                  Regex Pattern: `^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$`
+                type: string
+              kmsKeyRef:
+                description: "AWSResourceReferenceWrapper provides a wrapper around
+                  *AWSResourceReference\ntype to provide more user friendly syntax
+                  for references using 'from' field\nEx:\nAPIIDRef:\n\n\tfrom:\n\t
+                  \ name: my-api"
                 properties:
-                  idleRuntimeSessionTimeout:
-                    format: int64
-                    type: integer
-                  maxLifetime:
-                    format: int64
-                    type: integer
-                type: object
-              networkConfiguration:
-                description: The network configuration for the AgentCore Runtime.
-                properties:
-                  networkMode:
-                    type: string
-                  networkModeConfig:
-                    description: VpcConfig for the Agent.
+                  from:
+                    description: |-
+                      AWSResourceReference provides all the values necessary to reference another
+                      k8s resource for finding the identifier(Id/ARN/Name)
                     properties:
-                      securityGroups:
-                        items:
-                          type: string
-                        type: array
-                      subnets:
+                      name:
+                        type: string
+                      namespace:
+                        type: string
+                    type: object
+                type: object
+              name:
+                description: |-
+                  The name of the gateway. The name must be unique within your account.
+
+                  Regex Pattern: `^([0-9a-zA-Z][-]?){1,100}$`
+                type: string
+              policyEngineConfiguration:
+                description: |-
+                  The policy engine configuration for the gateway. A policy engine is a collection
+                  of policies that evaluates and authorizes agent tool calls. When associated
+                  with a gateway, the policy engine intercepts all agent requests and determines
+                  whether to allow or deny each action based on the defined policies.
+                properties:
+                  arn:
+                    type: string
+                  mode:
+                    type: string
+                type: object
+              protocolConfiguration:
+                description: |-
+                  The configuration settings for the protocol specified in the protocolType
+                  parameter.
+                properties:
+                  mcp:
+                    description: |-
+                      The configuration for a Model Context Protocol (MCP) gateway. This structure
+                      defines how the gateway implements the MCP protocol.
+                    properties:
+                      instructions:
+                        type: string
+                      searchType:
+                        type: string
+                      supportedVersions:
                         items:
                           type: string
                         type: array
                     type: object
                 type: object
-              protocolConfiguration:
-                description: |-
-                  The protocol configuration for an agent runtime. This structure defines how
-                  the agent runtime communicates with clients.
-                properties:
-                  serverProtocol:
-                    type: string
-                type: object
-              requestHeaderConfiguration:
-                description: |-
-                  Configuration for HTTP request headers that will be passed through to the
-                  runtime.
-                properties:
-                  requestHeaderAllowlist:
-                    items:
-                      type: string
-                    type: array
-                type: object
+              protocolType:
+                description: The protocol type for the gateway.
+                type: string
               roleARN:
                 description: |-
-                  The IAM role ARN that provides permissions for the AgentCore Runtime.
+                  The Amazon Resource Name (ARN) of the IAM role that provides permissions
+                  for the gateway to access Amazon Web Services services.
 
                   Regex Pattern: `^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$`
                 type: string
+              roleRef:
+                description: "AWSResourceReferenceWrapper provides a wrapper around
+                  *AWSResourceReference\ntype to provide more user friendly syntax
+                  for references using 'from' field\nEx:\nAPIIDRef:\n\n\tfrom:\n\t
+                  \ name: my-api"
+                properties:
+                  from:
+                    description: |-
+                      AWSResourceReference provides all the values necessary to reference another
+                      k8s resource for finding the identifier(Id/ARN/Name)
+                    properties:
+                      name:
+                        type: string
+                      namespace:
+                        type: string
+                    type: object
+                type: object
               tags:
                 additionalProperties:
                   type: string
-                description: |-
-                  A map of tag keys and values to assign to the agent runtime. Tags enable
-                  you to categorize your resources in different ways, for example, by purpose,
-                  owner, or environment.
+                description: A map of key-value pairs to associate with the gateway
+                  as metadata tags.
                 type: object
             required:
-            - agentRuntimeArtifact
-            - agentRuntimeName
-            - networkConfiguration
-            - roleARN
+            - authorizerType
+            - name
+            - protocolType
             type: object
           status:
-            description: AgentRuntimeStatus defines the observed state of AgentRuntime
+            description: GatewayStatus defines the observed state of Gateway
             properties:
               ackResourceMetadata:
                 description: |-
@@ -259,18 +290,6 @@ spec:
                 - ownerAccountID
                 - region
                 type: object
-              agentRuntimeID:
-                description: |-
-                  The unique identifier of the AgentCore Runtime.
-
-                  Regex Pattern: `^[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$`
-                type: string
-              agentRuntimeVersion:
-                description: |-
-                  The version of the AgentCore Runtime.
-
-                  Regex Pattern: `^([1-9][0-9]{0,4})$`
-                type: string
               conditions:
                 description: |-
                   All CRs managed by ACK have a common `Status.Conditions` member that
@@ -307,14 +326,32 @@ spec:
                   type: object
                 type: array
               createdAt:
-                description: The timestamp when the AgentCore Runtime was created.
+                description: The timestamp when the gateway was created.
                 format: date-time
                 type: string
+              gatewayID:
+                description: |-
+                  The unique identifier of the created gateway.
+
+                  Regex Pattern: `^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$`
+                type: string
+              gatewayURL:
+                description: The URL endpoint for the created gateway.
+                type: string
               status:
-                description: The current status of the AgentCore Runtime.
+                description: The current status of the gateway.
+                type: string
+              statusReasons:
+                description: The reasons for the current status of the gateway.
+                items:
+                  type: string
+                type: array
+              updatedAt:
+                description: The timestamp when the gateway was last updated.
+                format: date-time
                 type: string
               workloadIdentityDetails:
-                description: The workload identity details for the AgentCore Runtime.
+                description: The workload identity details for the created gateway.
                 properties:
                   workloadIdentityARN:
                     type: string

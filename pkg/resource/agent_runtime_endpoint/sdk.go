@@ -201,10 +201,20 @@ func (rm *resourceManager) sdkCreate(
 		arn := ackv1alpha1.AWSResourceName(*resp.AgentRuntimeEndpointArn)
 		ko.Status.ACKResourceMetadata.ARN = &arn
 	}
+	if resp.AgentRuntimeId != nil {
+		ko.Spec.AgentRuntimeID = resp.AgentRuntimeId
+	} else {
+		ko.Spec.AgentRuntimeID = nil
+	}
 	if resp.CreatedAt != nil {
 		ko.Status.CreatedAt = &metav1.Time{*resp.CreatedAt}
 	} else {
 		ko.Status.CreatedAt = nil
+	}
+	if resp.EndpointName != nil {
+		ko.Spec.Name = resp.EndpointName
+	} else {
+		ko.Spec.Name = nil
 	}
 	if resp.Status != "" {
 		ko.Status.Status = aws.String(string(resp.Status))
