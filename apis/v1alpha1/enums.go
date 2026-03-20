@@ -22,6 +22,15 @@ const (
 	APIKeyCredentialLocation_QUERY_PARAMETER APIKeyCredentialLocation = "QUERY_PARAMETER"
 )
 
+type AgentManagedRuntimeType string
+
+const (
+	AgentManagedRuntimeType_PYTHON_3_10 AgentManagedRuntimeType = "PYTHON_3_10"
+	AgentManagedRuntimeType_PYTHON_3_11 AgentManagedRuntimeType = "PYTHON_3_11"
+	AgentManagedRuntimeType_PYTHON_3_12 AgentManagedRuntimeType = "PYTHON_3_12"
+	AgentManagedRuntimeType_PYTHON_3_13 AgentManagedRuntimeType = "PYTHON_3_13"
+)
+
 type AgentRuntimeEndpointStatus_SDK string
 
 const (
@@ -47,7 +56,9 @@ const (
 type AuthorizerType string
 
 const (
+	AuthorizerType_AWS_IAM    AuthorizerType = "AWS_IAM"
 	AuthorizerType_CUSTOM_JWT AuthorizerType = "CUSTOM_JWT"
+	AuthorizerType_NONE       AuthorizerType = "NONE"
 )
 
 type BrowserNetworkMode string
@@ -55,6 +66,15 @@ type BrowserNetworkMode string
 const (
 	BrowserNetworkMode_PUBLIC BrowserNetworkMode = "PUBLIC"
 	BrowserNetworkMode_VPC    BrowserNetworkMode = "VPC"
+)
+
+type BrowserProfileStatus string
+
+const (
+	BrowserProfileStatus_DELETED  BrowserProfileStatus = "DELETED"
+	BrowserProfileStatus_DELETING BrowserProfileStatus = "DELETING"
+	BrowserProfileStatus_READY    BrowserProfileStatus = "READY"
+	BrowserProfileStatus_SAVING   BrowserProfileStatus = "SAVING"
 )
 
 type BrowserStatus string
@@ -66,6 +86,14 @@ const (
 	BrowserStatus_DELETE_FAILED BrowserStatus = "DELETE_FAILED"
 	BrowserStatus_DELETING      BrowserStatus = "DELETING"
 	BrowserStatus_READY         BrowserStatus = "READY"
+)
+
+type ClaimMatchOperatorType string
+
+const (
+	ClaimMatchOperatorType_CONTAINS     ClaimMatchOperatorType = "CONTAINS"
+	ClaimMatchOperatorType_CONTAINS_ANY ClaimMatchOperatorType = "CONTAINS_ANY"
+	ClaimMatchOperatorType_EQUALS       ClaimMatchOperatorType = "EQUALS"
 )
 
 type CodeInterpreterNetworkMode string
@@ -98,18 +126,102 @@ const (
 type CredentialProviderVendorType string
 
 const (
+	CredentialProviderVendorType_AtlassianOauth2  CredentialProviderVendorType = "AtlassianOauth2"
+	CredentialProviderVendorType_Auth0Oauth2      CredentialProviderVendorType = "Auth0Oauth2"
+	CredentialProviderVendorType_CognitoOauth2    CredentialProviderVendorType = "CognitoOauth2"
 	CredentialProviderVendorType_CustomOauth2     CredentialProviderVendorType = "CustomOauth2"
+	CredentialProviderVendorType_CyberArkOauth2   CredentialProviderVendorType = "CyberArkOauth2"
+	CredentialProviderVendorType_DropboxOauth2    CredentialProviderVendorType = "DropboxOauth2"
+	CredentialProviderVendorType_FacebookOauth2   CredentialProviderVendorType = "FacebookOauth2"
+	CredentialProviderVendorType_FusionAuthOauth2 CredentialProviderVendorType = "FusionAuthOauth2"
 	CredentialProviderVendorType_GithubOauth2     CredentialProviderVendorType = "GithubOauth2"
 	CredentialProviderVendorType_GoogleOauth2     CredentialProviderVendorType = "GoogleOauth2"
+	CredentialProviderVendorType_HubspotOauth2    CredentialProviderVendorType = "HubspotOauth2"
+	CredentialProviderVendorType_LinkedinOauth2   CredentialProviderVendorType = "LinkedinOauth2"
 	CredentialProviderVendorType_MicrosoftOauth2  CredentialProviderVendorType = "MicrosoftOauth2"
+	CredentialProviderVendorType_NotionOauth2     CredentialProviderVendorType = "NotionOauth2"
+	CredentialProviderVendorType_OktaOauth2       CredentialProviderVendorType = "OktaOauth2"
+	CredentialProviderVendorType_OneLoginOauth2   CredentialProviderVendorType = "OneLoginOauth2"
+	CredentialProviderVendorType_PingOneOauth2    CredentialProviderVendorType = "PingOneOauth2"
+	CredentialProviderVendorType_RedditOauth2     CredentialProviderVendorType = "RedditOauth2"
 	CredentialProviderVendorType_SalesforceOauth2 CredentialProviderVendorType = "SalesforceOauth2"
 	CredentialProviderVendorType_SlackOauth2      CredentialProviderVendorType = "SlackOauth2"
+	CredentialProviderVendorType_SpotifyOauth2    CredentialProviderVendorType = "SpotifyOauth2"
+	CredentialProviderVendorType_TwitchOauth2     CredentialProviderVendorType = "TwitchOauth2"
+	CredentialProviderVendorType_XOauth2          CredentialProviderVendorType = "XOauth2"
+	CredentialProviderVendorType_YandexOauth2     CredentialProviderVendorType = "YandexOauth2"
+	CredentialProviderVendorType_ZoomOauth2       CredentialProviderVendorType = "ZoomOauth2"
+)
+
+type EvaluatorLevel string
+
+const (
+	EvaluatorLevel_SESSION   EvaluatorLevel = "SESSION"
+	EvaluatorLevel_TOOL_CALL EvaluatorLevel = "TOOL_CALL"
+	EvaluatorLevel_TRACE     EvaluatorLevel = "TRACE"
+)
+
+type EvaluatorStatus string
+
+const (
+	EvaluatorStatus_ACTIVE        EvaluatorStatus = "ACTIVE"
+	EvaluatorStatus_CREATE_FAILED EvaluatorStatus = "CREATE_FAILED"
+	EvaluatorStatus_CREATING      EvaluatorStatus = "CREATING"
+	EvaluatorStatus_DELETING      EvaluatorStatus = "DELETING"
+	EvaluatorStatus_UPDATE_FAILED EvaluatorStatus = "UPDATE_FAILED"
+	EvaluatorStatus_UPDATING      EvaluatorStatus = "UPDATING"
+)
+
+type EvaluatorType string
+
+const (
+	EvaluatorType_Builtin EvaluatorType = "Builtin"
+	EvaluatorType_Custom  EvaluatorType = "Custom"
 )
 
 type ExceptionLevel string
 
 const (
 	ExceptionLevel_DEBUG ExceptionLevel = "DEBUG"
+)
+
+type FilterOperator string
+
+const (
+	FilterOperator_Contains           FilterOperator = "Contains"
+	FilterOperator_Equals             FilterOperator = "Equals"
+	FilterOperator_GreaterThan        FilterOperator = "GreaterThan"
+	FilterOperator_GreaterThanOrEqual FilterOperator = "GreaterThanOrEqual"
+	FilterOperator_LessThan           FilterOperator = "LessThan"
+	FilterOperator_LessThanOrEqual    FilterOperator = "LessThanOrEqual"
+	FilterOperator_NotContains        FilterOperator = "NotContains"
+	FilterOperator_NotEquals          FilterOperator = "NotEquals"
+)
+
+type FindingType string
+
+const (
+	FindingType_ALLOW_ALL        FindingType = "ALLOW_ALL"
+	FindingType_ALLOW_NONE       FindingType = "ALLOW_NONE"
+	FindingType_DENY_ALL         FindingType = "DENY_ALL"
+	FindingType_DENY_NONE        FindingType = "DENY_NONE"
+	FindingType_INVALID          FindingType = "INVALID"
+	FindingType_NOT_TRANSLATABLE FindingType = "NOT_TRANSLATABLE"
+	FindingType_VALID            FindingType = "VALID"
+)
+
+type GatewayInterceptionPoint string
+
+const (
+	GatewayInterceptionPoint_REQUEST  GatewayInterceptionPoint = "REQUEST"
+	GatewayInterceptionPoint_RESPONSE GatewayInterceptionPoint = "RESPONSE"
+)
+
+type GatewayPolicyEngineMode string
+
+const (
+	GatewayPolicyEngineMode_ENFORCE  GatewayPolicyEngineMode = "ENFORCE"
+	GatewayPolicyEngineMode_LOG_ONLY GatewayPolicyEngineMode = "LOG_ONLY"
 )
 
 type GatewayProtocolType string
@@ -127,6 +239,13 @@ const (
 	GatewayStatus_SDK_READY               GatewayStatus_SDK = "READY"
 	GatewayStatus_SDK_UPDATE_UNSUCCESSFUL GatewayStatus_SDK = "UPDATE_UNSUCCESSFUL"
 	GatewayStatus_SDK_UPDATING            GatewayStatus_SDK = "UPDATING"
+)
+
+type InboundTokenClaimValueType string
+
+const (
+	InboundTokenClaimValueType_STRING       InboundTokenClaimValueType = "STRING"
+	InboundTokenClaimValueType_STRING_ARRAY InboundTokenClaimValueType = "STRING_ARRAY"
 )
 
 type KeyType string
@@ -158,9 +277,17 @@ type MemoryStrategyType string
 
 const (
 	MemoryStrategyType_CUSTOM          MemoryStrategyType = "CUSTOM"
+	MemoryStrategyType_EPISODIC        MemoryStrategyType = "EPISODIC"
 	MemoryStrategyType_SEMANTIC        MemoryStrategyType = "SEMANTIC"
 	MemoryStrategyType_SUMMARIZATION   MemoryStrategyType = "SUMMARIZATION"
 	MemoryStrategyType_USER_PREFERENCE MemoryStrategyType = "USER_PREFERENCE"
+)
+
+type MemoryView string
+
+const (
+	MemoryView_full               MemoryView = "full"
+	MemoryView_without_decryption MemoryView = "without_decryption"
 )
 
 type NetworkMode string
@@ -170,12 +297,79 @@ const (
 	NetworkMode_VPC    NetworkMode = "VPC"
 )
 
+type OAuthGrantType string
+
+const (
+	OAuthGrantType_AUTHORIZATION_CODE OAuthGrantType = "AUTHORIZATION_CODE"
+	OAuthGrantType_CLIENT_CREDENTIALS OAuthGrantType = "CLIENT_CREDENTIALS"
+)
+
+type OnlineEvaluationConfigStatus string
+
+const (
+	OnlineEvaluationConfigStatus_ACTIVE        OnlineEvaluationConfigStatus = "ACTIVE"
+	OnlineEvaluationConfigStatus_CREATE_FAILED OnlineEvaluationConfigStatus = "CREATE_FAILED"
+	OnlineEvaluationConfigStatus_CREATING      OnlineEvaluationConfigStatus = "CREATING"
+	OnlineEvaluationConfigStatus_DELETING      OnlineEvaluationConfigStatus = "DELETING"
+	OnlineEvaluationConfigStatus_UPDATE_FAILED OnlineEvaluationConfigStatus = "UPDATE_FAILED"
+	OnlineEvaluationConfigStatus_UPDATING      OnlineEvaluationConfigStatus = "UPDATING"
+)
+
+type OnlineEvaluationExecutionStatus string
+
+const (
+	OnlineEvaluationExecutionStatus_DISABLED OnlineEvaluationExecutionStatus = "DISABLED"
+	OnlineEvaluationExecutionStatus_ENABLED  OnlineEvaluationExecutionStatus = "ENABLED"
+)
+
 type OverrideType string
 
 const (
+	OverrideType_EPISODIC_OVERRIDE        OverrideType = "EPISODIC_OVERRIDE"
+	OverrideType_SELF_MANAGED             OverrideType = "SELF_MANAGED"
 	OverrideType_SEMANTIC_OVERRIDE        OverrideType = "SEMANTIC_OVERRIDE"
 	OverrideType_SUMMARY_OVERRIDE         OverrideType = "SUMMARY_OVERRIDE"
 	OverrideType_USER_PREFERENCE_OVERRIDE OverrideType = "USER_PREFERENCE_OVERRIDE"
+)
+
+type PolicyEngineStatus string
+
+const (
+	PolicyEngineStatus_ACTIVE        PolicyEngineStatus = "ACTIVE"
+	PolicyEngineStatus_CREATE_FAILED PolicyEngineStatus = "CREATE_FAILED"
+	PolicyEngineStatus_CREATING      PolicyEngineStatus = "CREATING"
+	PolicyEngineStatus_DELETE_FAILED PolicyEngineStatus = "DELETE_FAILED"
+	PolicyEngineStatus_DELETING      PolicyEngineStatus = "DELETING"
+	PolicyEngineStatus_UPDATE_FAILED PolicyEngineStatus = "UPDATE_FAILED"
+	PolicyEngineStatus_UPDATING      PolicyEngineStatus = "UPDATING"
+)
+
+type PolicyGenerationStatus string
+
+const (
+	PolicyGenerationStatus_DELETE_FAILED   PolicyGenerationStatus = "DELETE_FAILED"
+	PolicyGenerationStatus_GENERATED       PolicyGenerationStatus = "GENERATED"
+	PolicyGenerationStatus_GENERATE_FAILED PolicyGenerationStatus = "GENERATE_FAILED"
+	PolicyGenerationStatus_GENERATING      PolicyGenerationStatus = "GENERATING"
+)
+
+type PolicyStatus string
+
+const (
+	PolicyStatus_ACTIVE        PolicyStatus = "ACTIVE"
+	PolicyStatus_CREATE_FAILED PolicyStatus = "CREATE_FAILED"
+	PolicyStatus_CREATING      PolicyStatus = "CREATING"
+	PolicyStatus_DELETE_FAILED PolicyStatus = "DELETE_FAILED"
+	PolicyStatus_DELETING      PolicyStatus = "DELETING"
+	PolicyStatus_UPDATE_FAILED PolicyStatus = "UPDATE_FAILED"
+	PolicyStatus_UPDATING      PolicyStatus = "UPDATING"
+)
+
+type PolicyValidationMode string
+
+const (
+	PolicyValidationMode_FAIL_ON_ANY_FINDINGS PolicyValidationMode = "FAIL_ON_ANY_FINDINGS"
+	PolicyValidationMode_IGNORE_ALL_FINDINGS  PolicyValidationMode = "IGNORE_ALL_FINDINGS"
 )
 
 type ResourceType string
@@ -183,6 +377,18 @@ type ResourceType string
 const (
 	ResourceType_CUSTOM ResourceType = "CUSTOM"
 	ResourceType_SYSTEM ResourceType = "SYSTEM"
+)
+
+type RestAPIMethod string
+
+const (
+	RestAPIMethod_DELETE  RestAPIMethod = "DELETE"
+	RestAPIMethod_GET     RestAPIMethod = "GET"
+	RestAPIMethod_HEAD    RestAPIMethod = "HEAD"
+	RestAPIMethod_OPTIONS RestAPIMethod = "OPTIONS"
+	RestAPIMethod_PATCH   RestAPIMethod = "PATCH"
+	RestAPIMethod_POST    RestAPIMethod = "POST"
+	RestAPIMethod_PUT     RestAPIMethod = "PUT"
 )
 
 type SchemaType string
@@ -205,6 +411,7 @@ const (
 type ServerProtocol string
 
 const (
+	ServerProtocol_A2A  ServerProtocol = "A2A"
 	ServerProtocol_HTTP ServerProtocol = "HTTP"
 	ServerProtocol_MCP  ServerProtocol = "MCP"
 )
@@ -212,12 +419,14 @@ const (
 type TargetStatus string
 
 const (
-	TargetStatus_CREATING            TargetStatus = "CREATING"
-	TargetStatus_DELETING            TargetStatus = "DELETING"
-	TargetStatus_FAILED              TargetStatus = "FAILED"
-	TargetStatus_READY               TargetStatus = "READY"
-	TargetStatus_UPDATE_UNSUCCESSFUL TargetStatus = "UPDATE_UNSUCCESSFUL"
-	TargetStatus_UPDATING            TargetStatus = "UPDATING"
+	TargetStatus_CREATING                 TargetStatus = "CREATING"
+	TargetStatus_DELETING                 TargetStatus = "DELETING"
+	TargetStatus_FAILED                   TargetStatus = "FAILED"
+	TargetStatus_READY                    TargetStatus = "READY"
+	TargetStatus_SYNCHRONIZE_UNSUCCESSFUL TargetStatus = "SYNCHRONIZE_UNSUCCESSFUL"
+	TargetStatus_SYNCHRONIZING            TargetStatus = "SYNCHRONIZING"
+	TargetStatus_UPDATE_UNSUCCESSFUL      TargetStatus = "UPDATE_UNSUCCESSFUL"
+	TargetStatus_UPDATING                 TargetStatus = "UPDATING"
 )
 
 type ValidationExceptionReason string

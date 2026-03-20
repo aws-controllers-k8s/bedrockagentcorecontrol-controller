@@ -40,7 +40,9 @@ spec:
             description: GatewaySpec defines the desired state of Gateway.
             properties:
               authorizerConfiguration:
-                description: The authorizer configuration for the gateway.
+                description: |-
+                  The authorizer configuration for the gateway. Required if authorizerType
+                  is CUSTOM_JWT.
                 properties:
                   customJWTAuthorizer:
                     description: |-
@@ -55,12 +57,61 @@ spec:
                         items:
                           type: string
                         type: array
+                      allowedScopes:
+                        items:
+                          type: string
+                        type: array
+                      customClaims:
+                        items:
+                          description: |-
+                            Defines the name of a custom claim field and rules for finding matches to
+                            authenticate its value.
+                          properties:
+                            authorizingClaimMatchValue:
+                              description: Defines the value or values to match for
+                                and the relationship of the match.
+                              properties:
+                                claimMatchOperator:
+                                  type: string
+                                claimMatchValue:
+                                  description: |-
+                                    The value or values to match for.
+
+                                       * Include a matchValueString with the EQUALS operator to specify a string
+                                       that matches the claim field value.
+
+                                       * Include a matchValueArray to specify an array of string values. You
+                                       can use the following operators: Use CONTAINS to yield a match if the
+                                       claim field value is in the array. Use CONTAINS_ANY to yield a match if
+                                       the claim field value contains any of the strings in the array.
+                                  properties:
+                                    matchValueString:
+                                      type: string
+                                    matchValueStringList:
+                                      items:
+                                        type: string
+                                      type: array
+                                  type: object
+                              type: object
+                            inboundTokenClaimName:
+                              type: string
+                            inboundTokenClaimValueType:
+                              type: string
+                          type: object
+                        type: array
                       discoveryURL:
                         type: string
                     type: object
                 type: object
               authorizerType:
-                description: The type of authorizer to use for the gateway.
+                description: |-
+                  The type of authorizer to use for the gateway.
+
+                    - CUSTOM_JWT - Authorize with a bearer token.
+
+                    - AWS_IAM - Authorize with your Amazon Web Services IAM credentials.
+
+                    - NONE - No authorization
                 type: string
               description:
                 description: The description of the gateway.
@@ -75,6 +126,38 @@ spec:
                     - If the value is omitted, a generic error message is returned to the
                       end user.
                 type: string
+              interceptorConfigurations:
+                description: |-
+                  A list of configuration settings for a gateway interceptor. Gateway interceptors
+                  allow custom code to be invoked during gateway invocations.
+                items:
+                  description: |-
+                    The configuration for an interceptor on a gateway. This structure defines
+                    settings for an interceptor that will be invoked during the invocation of
+                    the gateway.
+                  properties:
+                    inputConfiguration:
+                      description: The input configuration of the interceptor.
+                      properties:
+                        passRequestHeaders:
+                          type: boolean
+                      type: object
+                    interceptionPoints:
+                      items:
+                        type: string
+                      type: array
+                    interceptor:
+                      description: The interceptor configuration.
+                      properties:
+                        lambda:
+                          description: The lambda configuration for the interceptor
+                          properties:
+                            arn:
+                              type: string
+                          type: object
+                      type: object
+                  type: object
+                type: array
               kmsKeyARN:
                 description: |-
                   The Amazon Resource Name (ARN) of the KMS key used to encrypt data associated
@@ -105,6 +188,18 @@ spec:
 
                   Regex Pattern: `^([0-9a-zA-Z][-]?){1,100}$`
                 type: string
+              policyEngineConfiguration:
+                description: |-
+                  The policy engine configuration for the gateway. A policy engine is a collection
+                  of policies that evaluates and authorizes agent tool calls. When associated
+                  with a gateway, the policy engine intercepts all agent requests and determines
+                  whether to allow or deny each action based on the defined policies.
+                properties:
+                  arn:
+                    type: string
+                  mode:
+                    type: string
+                type: object
               protocolConfiguration:
                 description: |-
                   The configuration settings for the protocol specified in the protocolType
@@ -155,9 +250,10 @@ spec:
               tags:
                 additionalProperties:
                   type: string
+                description: A map of key-value pairs to associate with the gateway
+                  as metadata tags.
                 type: object
             required:
-            - authorizerConfiguration
             - authorizerType
             - name
             - protocolType

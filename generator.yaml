@@ -4,12 +4,20 @@ ignore:
     # AgentRuntimeEndpoint
     - ApiKeyCredentialProvider
     - Browser
+    - BrowserProfile
     - CodeInterpreter
+    - Evaluator
     # Gateway
     - GatewayTarget
     - Memory
     - Oauth2CredentialProvider
+    - OnlineEvaluationConfig
     - WorkloadIdentity
+    - Policy
+    - PolicyEngine
+  shape_names:
+    # unsupported document type
+    - AdditionalModelRequestFields
   field_paths:
     - CreateAgentRuntimeInput.ClientToken
     - CreateAgentRuntimeEndpointInput.ClientToken
@@ -73,8 +81,6 @@ resources:
           resource: Role
           path: Status.ACKResourceMetadata.ARN
           service_name: iam
-      Tags:
-        type: "map[string]*string"
     synced:
       when:
         - path: Status.Status

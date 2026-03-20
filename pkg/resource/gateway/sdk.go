@@ -103,6 +103,46 @@ func (rm *resourceManager) sdkFind(
 				if f0f0.Value.AllowedClients != nil {
 					f0f0f0.AllowedClients = aws.StringSlice(f0f0.Value.AllowedClients)
 				}
+				if f0f0.Value.AllowedScopes != nil {
+					f0f0f0.AllowedScopes = aws.StringSlice(f0f0.Value.AllowedScopes)
+				}
+				if f0f0.Value.CustomClaims != nil {
+					f0f0f0f3 := []*svcapitypes.CustomClaimValidationType{}
+					for _, f0f0f0f3iter := range f0f0.Value.CustomClaims {
+						f0f0f0f3elem := &svcapitypes.CustomClaimValidationType{}
+						if f0f0f0f3iter.AuthorizingClaimMatchValue != nil {
+							f0f0f0f3elemf0 := &svcapitypes.AuthorizingClaimMatchValueType{}
+							if f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator != "" {
+								f0f0f0f3elemf0.ClaimMatchOperator = aws.String(string(f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator))
+							}
+							if f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue != nil {
+								f0f0f0f3elemf0f1 := &svcapitypes.ClaimMatchValueType{}
+								switch f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(type) {
+								case *svcsdktypes.ClaimMatchValueTypeMemberMatchValueString:
+									f0f0f0f3elemf0f1f0 := f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(*svcsdktypes.ClaimMatchValueTypeMemberMatchValueString)
+									if f0f0f0f3elemf0f1f0 != nil {
+										f0f0f0f3elemf0f1.MatchValueString = &f0f0f0f3elemf0f1f0.Value
+									}
+								case *svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList:
+									f0f0f0f3elemf0f1f1 := f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(*svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList)
+									if f0f0f0f3elemf0f1f1 != nil {
+										f0f0f0f3elemf0f1.MatchValueStringList = aws.StringSlice(f0f0f0f3elemf0f1f1.Value)
+									}
+								}
+								f0f0f0f3elemf0.ClaimMatchValue = f0f0f0f3elemf0f1
+							}
+							f0f0f0f3elem.AuthorizingClaimMatchValue = f0f0f0f3elemf0
+						}
+						if f0f0f0f3iter.InboundTokenClaimName != nil {
+							f0f0f0f3elem.InboundTokenClaimName = f0f0f0f3iter.InboundTokenClaimName
+						}
+						if f0f0f0f3iter.InboundTokenClaimValueType != "" {
+							f0f0f0f3elem.InboundTokenClaimValueType = aws.String(string(f0f0f0f3iter.InboundTokenClaimValueType))
+						}
+						f0f0f0f3 = append(f0f0f0f3, f0f0f0f3elem)
+					}
+					f0f0f0.CustomClaims = f0f0f0f3
+				}
 				if f0f0.Value.DiscoveryUrl != nil {
 					f0f0f0.DiscoveryURL = f0f0.Value.DiscoveryUrl
 				}
@@ -150,6 +190,47 @@ func (rm *resourceManager) sdkFind(
 	} else {
 		ko.Status.GatewayURL = nil
 	}
+	if resp.InterceptorConfigurations != nil {
+		f8 := []*svcapitypes.GatewayInterceptorConfiguration{}
+		for _, f8iter := range resp.InterceptorConfigurations {
+			f8elem := &svcapitypes.GatewayInterceptorConfiguration{}
+			if f8iter.InputConfiguration != nil {
+				f8elemf0 := &svcapitypes.InterceptorInputConfiguration{}
+				if f8iter.InputConfiguration.PassRequestHeaders != nil {
+					f8elemf0.PassRequestHeaders = f8iter.InputConfiguration.PassRequestHeaders
+				}
+				f8elem.InputConfiguration = f8elemf0
+			}
+			if f8iter.InterceptionPoints != nil {
+				f8elemf1 := []*string{}
+				for _, f8elemf1iter := range f8iter.InterceptionPoints {
+					var f8elemf1elem *string
+					f8elemf1elem = aws.String(string(f8elemf1iter))
+					f8elemf1 = append(f8elemf1, f8elemf1elem)
+				}
+				f8elem.InterceptionPoints = f8elemf1
+			}
+			if f8iter.Interceptor != nil {
+				f8elemf2 := &svcapitypes.InterceptorConfiguration{}
+				switch f8iter.Interceptor.(type) {
+				case *svcsdktypes.InterceptorConfigurationMemberLambda:
+					f8elemf2f0 := f8iter.Interceptor.(*svcsdktypes.InterceptorConfigurationMemberLambda)
+					if f8elemf2f0 != nil {
+						f8elemf2f0f0 := &svcapitypes.LambdaInterceptorConfiguration{}
+						if f8elemf2f0.Value.Arn != nil {
+							f8elemf2f0f0.ARN = f8elemf2f0.Value.Arn
+						}
+						f8elemf2.Lambda = f8elemf2f0f0
+					}
+				}
+				f8elem.Interceptor = f8elemf2
+			}
+			f8 = append(f8, f8elem)
+		}
+		ko.Spec.InterceptorConfigurations = f8
+	} else {
+		ko.Spec.InterceptorConfigurations = nil
+	}
 	if resp.KmsKeyArn != nil {
 		ko.Spec.KMSKeyARN = resp.KmsKeyArn
 	} else {
@@ -160,26 +241,38 @@ func (rm *resourceManager) sdkFind(
 	} else {
 		ko.Spec.Name = nil
 	}
+	if resp.PolicyEngineConfiguration != nil {
+		f11 := &svcapitypes.GatewayPolicyEngineConfiguration{}
+		if resp.PolicyEngineConfiguration.Arn != nil {
+			f11.ARN = resp.PolicyEngineConfiguration.Arn
+		}
+		if resp.PolicyEngineConfiguration.Mode != "" {
+			f11.Mode = aws.String(string(resp.PolicyEngineConfiguration.Mode))
+		}
+		ko.Spec.PolicyEngineConfiguration = f11
+	} else {
+		ko.Spec.PolicyEngineConfiguration = nil
+	}
 	if resp.ProtocolConfiguration != nil {
-		f10 := &svcapitypes.GatewayProtocolConfiguration{}
+		f12 := &svcapitypes.GatewayProtocolConfiguration{}
 		switch resp.ProtocolConfiguration.(type) {
 		case *svcsdktypes.GatewayProtocolConfigurationMemberMcp:
-			f10f0 := resp.ProtocolConfiguration.(*svcsdktypes.GatewayProtocolConfigurationMemberMcp)
-			if f10f0 != nil {
-				f10f0f0 := &svcapitypes.MCPGatewayConfiguration{}
-				if f10f0.Value.Instructions != nil {
-					f10f0f0.Instructions = f10f0.Value.Instructions
+			f12f0 := resp.ProtocolConfiguration.(*svcsdktypes.GatewayProtocolConfigurationMemberMcp)
+			if f12f0 != nil {
+				f12f0f0 := &svcapitypes.MCPGatewayConfiguration{}
+				if f12f0.Value.Instructions != nil {
+					f12f0f0.Instructions = f12f0.Value.Instructions
 				}
-				if f10f0.Value.SearchType != "" {
-					f10f0f0.SearchType = aws.String(string(f10f0.Value.SearchType))
+				if f12f0.Value.SearchType != "" {
+					f12f0f0.SearchType = aws.String(string(f12f0.Value.SearchType))
 				}
-				if f10f0.Value.SupportedVersions != nil {
-					f10f0f0.SupportedVersions = aws.StringSlice(f10f0.Value.SupportedVersions)
+				if f12f0.Value.SupportedVersions != nil {
+					f12f0f0.SupportedVersions = aws.StringSlice(f12f0.Value.SupportedVersions)
 				}
-				f10.Mcp = f10f0f0
+				f12.Mcp = f12f0f0
 			}
 		}
-		ko.Spec.ProtocolConfiguration = f10
+		ko.Spec.ProtocolConfiguration = f12
 	} else {
 		ko.Spec.ProtocolConfiguration = nil
 	}
@@ -209,11 +302,11 @@ func (rm *resourceManager) sdkFind(
 		ko.Status.UpdatedAt = nil
 	}
 	if resp.WorkloadIdentityDetails != nil {
-		f16 := &svcapitypes.WorkloadIdentityDetails{}
+		f18 := &svcapitypes.WorkloadIdentityDetails{}
 		if resp.WorkloadIdentityDetails.WorkloadIdentityArn != nil {
-			f16.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
+			f18.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
 		}
-		ko.Status.WorkloadIdentityDetails = f16
+		ko.Status.WorkloadIdentityDetails = f18
 	} else {
 		ko.Status.WorkloadIdentityDetails = nil
 	}
@@ -293,6 +386,46 @@ func (rm *resourceManager) sdkCreate(
 				if f0f0.Value.AllowedClients != nil {
 					f0f0f0.AllowedClients = aws.StringSlice(f0f0.Value.AllowedClients)
 				}
+				if f0f0.Value.AllowedScopes != nil {
+					f0f0f0.AllowedScopes = aws.StringSlice(f0f0.Value.AllowedScopes)
+				}
+				if f0f0.Value.CustomClaims != nil {
+					f0f0f0f3 := []*svcapitypes.CustomClaimValidationType{}
+					for _, f0f0f0f3iter := range f0f0.Value.CustomClaims {
+						f0f0f0f3elem := &svcapitypes.CustomClaimValidationType{}
+						if f0f0f0f3iter.AuthorizingClaimMatchValue != nil {
+							f0f0f0f3elemf0 := &svcapitypes.AuthorizingClaimMatchValueType{}
+							if f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator != "" {
+								f0f0f0f3elemf0.ClaimMatchOperator = aws.String(string(f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator))
+							}
+							if f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue != nil {
+								f0f0f0f3elemf0f1 := &svcapitypes.ClaimMatchValueType{}
+								switch f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(type) {
+								case *svcsdktypes.ClaimMatchValueTypeMemberMatchValueString:
+									f0f0f0f3elemf0f1f0 := f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(*svcsdktypes.ClaimMatchValueTypeMemberMatchValueString)
+									if f0f0f0f3elemf0f1f0 != nil {
+										f0f0f0f3elemf0f1.MatchValueString = &f0f0f0f3elemf0f1f0.Value
+									}
+								case *svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList:
+									f0f0f0f3elemf0f1f1 := f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(*svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList)
+									if f0f0f0f3elemf0f1f1 != nil {
+										f0f0f0f3elemf0f1.MatchValueStringList = aws.StringSlice(f0f0f0f3elemf0f1f1.Value)
+									}
+								}
+								f0f0f0f3elemf0.ClaimMatchValue = f0f0f0f3elemf0f1
+							}
+							f0f0f0f3elem.AuthorizingClaimMatchValue = f0f0f0f3elemf0
+						}
+						if f0f0f0f3iter.InboundTokenClaimName != nil {
+							f0f0f0f3elem.InboundTokenClaimName = f0f0f0f3iter.InboundTokenClaimName
+						}
+						if f0f0f0f3iter.InboundTokenClaimValueType != "" {
+							f0f0f0f3elem.InboundTokenClaimValueType = aws.String(string(f0f0f0f3iter.InboundTokenClaimValueType))
+						}
+						f0f0f0f3 = append(f0f0f0f3, f0f0f0f3elem)
+					}
+					f0f0f0.CustomClaims = f0f0f0f3
+				}
 				if f0f0.Value.DiscoveryUrl != nil {
 					f0f0f0.DiscoveryURL = f0f0.Value.DiscoveryUrl
 				}
@@ -340,6 +473,47 @@ func (rm *resourceManager) sdkCreate(
 	} else {
 		ko.Status.GatewayURL = nil
 	}
+	if resp.InterceptorConfigurations != nil {
+		f8 := []*svcapitypes.GatewayInterceptorConfiguration{}
+		for _, f8iter := range resp.InterceptorConfigurations {
+			f8elem := &svcapitypes.GatewayInterceptorConfiguration{}
+			if f8iter.InputConfiguration != nil {
+				f8elemf0 := &svcapitypes.InterceptorInputConfiguration{}
+				if f8iter.InputConfiguration.PassRequestHeaders != nil {
+					f8elemf0.PassRequestHeaders = f8iter.InputConfiguration.PassRequestHeaders
+				}
+				f8elem.InputConfiguration = f8elemf0
+			}
+			if f8iter.InterceptionPoints != nil {
+				f8elemf1 := []*string{}
+				for _, f8elemf1iter := range f8iter.InterceptionPoints {
+					var f8elemf1elem *string
+					f8elemf1elem = aws.String(string(f8elemf1iter))
+					f8elemf1 = append(f8elemf1, f8elemf1elem)
+				}
+				f8elem.InterceptionPoints = f8elemf1
+			}
+			if f8iter.Interceptor != nil {
+				f8elemf2 := &svcapitypes.InterceptorConfiguration{}
+				switch f8iter.Interceptor.(type) {
+				case *svcsdktypes.InterceptorConfigurationMemberLambda:
+					f8elemf2f0 := f8iter.Interceptor.(*svcsdktypes.InterceptorConfigurationMemberLambda)
+					if f8elemf2f0 != nil {
+						f8elemf2f0f0 := &svcapitypes.LambdaInterceptorConfiguration{}
+						if f8elemf2f0.Value.Arn != nil {
+							f8elemf2f0f0.ARN = f8elemf2f0.Value.Arn
+						}
+						f8elemf2.Lambda = f8elemf2f0f0
+					}
+				}
+				f8elem.Interceptor = f8elemf2
+			}
+			f8 = append(f8, f8elem)
+		}
+		ko.Spec.InterceptorConfigurations = f8
+	} else {
+		ko.Spec.InterceptorConfigurations = nil
+	}
 	if resp.KmsKeyArn != nil {
 		ko.Spec.KMSKeyARN = resp.KmsKeyArn
 	} else {
@@ -350,26 +524,38 @@ func (rm *resourceManager) sdkCreate(
 	} else {
 		ko.Spec.Name = nil
 	}
+	if resp.PolicyEngineConfiguration != nil {
+		f11 := &svcapitypes.GatewayPolicyEngineConfiguration{}
+		if resp.PolicyEngineConfiguration.Arn != nil {
+			f11.ARN = resp.PolicyEngineConfiguration.Arn
+		}
+		if resp.PolicyEngineConfiguration.Mode != "" {
+			f11.Mode = aws.String(string(resp.PolicyEngineConfiguration.Mode))
+		}
+		ko.Spec.PolicyEngineConfiguration = f11
+	} else {
+		ko.Spec.PolicyEngineConfiguration = nil
+	}
 	if resp.ProtocolConfiguration != nil {
-		f10 := &svcapitypes.GatewayProtocolConfiguration{}
+		f12 := &svcapitypes.GatewayProtocolConfiguration{}
 		switch resp.ProtocolConfiguration.(type) {
 		case *svcsdktypes.GatewayProtocolConfigurationMemberMcp:
-			f10f0 := resp.ProtocolConfiguration.(*svcsdktypes.GatewayProtocolConfigurationMemberMcp)
-			if f10f0 != nil {
-				f10f0f0 := &svcapitypes.MCPGatewayConfiguration{}
-				if f10f0.Value.Instructions != nil {
-					f10f0f0.Instructions = f10f0.Value.Instructions
+			f12f0 := resp.ProtocolConfiguration.(*svcsdktypes.GatewayProtocolConfigurationMemberMcp)
+			if f12f0 != nil {
+				f12f0f0 := &svcapitypes.MCPGatewayConfiguration{}
+				if f12f0.Value.Instructions != nil {
+					f12f0f0.Instructions = f12f0.Value.Instructions
 				}
-				if f10f0.Value.SearchType != "" {
-					f10f0f0.SearchType = aws.String(string(f10f0.Value.SearchType))
+				if f12f0.Value.SearchType != "" {
+					f12f0f0.SearchType = aws.String(string(f12f0.Value.SearchType))
 				}
-				if f10f0.Value.SupportedVersions != nil {
-					f10f0f0.SupportedVersions = aws.StringSlice(f10f0.Value.SupportedVersions)
+				if f12f0.Value.SupportedVersions != nil {
+					f12f0f0.SupportedVersions = aws.StringSlice(f12f0.Value.SupportedVersions)
 				}
-				f10.Mcp = f10f0f0
+				f12.Mcp = f12f0f0
 			}
 		}
-		ko.Spec.ProtocolConfiguration = f10
+		ko.Spec.ProtocolConfiguration = f12
 	} else {
 		ko.Spec.ProtocolConfiguration = nil
 	}
@@ -399,11 +585,11 @@ func (rm *resourceManager) sdkCreate(
 		ko.Status.UpdatedAt = nil
 	}
 	if resp.WorkloadIdentityDetails != nil {
-		f16 := &svcapitypes.WorkloadIdentityDetails{}
+		f18 := &svcapitypes.WorkloadIdentityDetails{}
 		if resp.WorkloadIdentityDetails.WorkloadIdentityArn != nil {
-			f16.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
+			f18.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
 		}
-		ko.Status.WorkloadIdentityDetails = f16
+		ko.Status.WorkloadIdentityDetails = f18
 	} else {
 		ko.Status.WorkloadIdentityDetails = nil
 	}
@@ -439,6 +625,55 @@ func (rm *resourceManager) newCreateRequestPayload(
 			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients != nil {
 				f0f0.AllowedClients = aws.ToStringSlice(r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients)
 			}
+			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes != nil {
+				f0f0.AllowedScopes = aws.ToStringSlice(r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes)
+			}
+			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims != nil {
+				f0f0f3 := []svcsdktypes.CustomClaimValidationType{}
+				for _, f0f0f3iter := range r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims {
+					f0f0f3elem := &svcsdktypes.CustomClaimValidationType{}
+					if f0f0f3iter.AuthorizingClaimMatchValue != nil {
+						f0f0f3elemf0 := &svcsdktypes.AuthorizingClaimMatchValueType{}
+						if f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator != nil {
+							f0f0f3elemf0.ClaimMatchOperator = svcsdktypes.ClaimMatchOperatorType(*f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator)
+						}
+						if f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue != nil {
+							var f0f0f3elemf0f1 svcsdktypes.ClaimMatchValueType
+							isInterfaceSet := false
+							if f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueString != nil {
+								if isInterfaceSet {
+									return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for MatchValueString"))
+								}
+								f0f0f3elemf0f1f0Parent := &svcsdktypes.ClaimMatchValueTypeMemberMatchValueString{}
+								f0f0f3elemf0f1f0Parent.Value = *f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueString
+								f0f0f3elemf0f1 = f0f0f3elemf0f1f0Parent
+								isInterfaceSet = true
+							}
+							if f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueStringList != nil {
+								if isInterfaceSet {
+									return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for MatchValueStringList"))
+								}
+								f0f0f3elemf0f1f1Parent := &svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList{}
+								f0f0f3elemf0f1f1 := []string{}
+								f0f0f3elemf0f1f1 = aws.ToStringSlice(f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueStringList)
+								f0f0f3elemf0f1f1Parent.Value = f0f0f3elemf0f1f1
+								f0f0f3elemf0f1 = f0f0f3elemf0f1f1Parent
+								isInterfaceSet = true
+							}
+							f0f0f3elemf0.ClaimMatchValue = f0f0f3elemf0f1
+						}
+						f0f0f3elem.AuthorizingClaimMatchValue = f0f0f3elemf0
+					}
+					if f0f0f3iter.InboundTokenClaimName != nil {
+						f0f0f3elem.InboundTokenClaimName = f0f0f3iter.InboundTokenClaimName
+					}
+					if f0f0f3iter.InboundTokenClaimValueType != nil {
+						f0f0f3elem.InboundTokenClaimValueType = svcsdktypes.InboundTokenClaimValueType(*f0f0f3iter.InboundTokenClaimValueType)
+					}
+					f0f0f3 = append(f0f0f3, *f0f0f3elem)
+				}
+				f0f0.CustomClaims = f0f0f3
+			}
 			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL != nil {
 				f0f0.DiscoveryUrl = r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL
 			}
@@ -457,41 +692,96 @@ func (rm *resourceManager) newCreateRequestPayload(
 	if r.ko.Spec.ExceptionLevel != nil {
 		res.ExceptionLevel = svcsdktypes.ExceptionLevel(*r.ko.Spec.ExceptionLevel)
 	}
+	if r.ko.Spec.InterceptorConfigurations != nil {
+		f4 := []svcsdktypes.GatewayInterceptorConfiguration{}
+		for _, f4iter := range r.ko.Spec.InterceptorConfigurations {
+			f4elem := &svcsdktypes.GatewayInterceptorConfiguration{}
+			if f4iter.InputConfiguration != nil {
+				f4elemf0 := &svcsdktypes.InterceptorInputConfiguration{}
+				if f4iter.InputConfiguration.PassRequestHeaders != nil {
+					f4elemf0.PassRequestHeaders = f4iter.InputConfiguration.PassRequestHeaders
+				}
+				f4elem.InputConfiguration = f4elemf0
+			}
+			if f4iter.InterceptionPoints != nil {
+				f4elemf1 := []svcsdktypes.GatewayInterceptionPoint{}
+				for _, f4elemf1iter := range f4iter.InterceptionPoints {
+					var f4elemf1elem string
+					f4elemf1elem = string(*f4elemf1iter)
+					f4elemf1 = append(f4elemf1, svcsdktypes.GatewayInterceptionPoint(f4elemf1elem))
+				}
+				f4elem.InterceptionPoints = f4elemf1
+			}
+			if f4iter.Interceptor != nil {
+				var f4elemf2 svcsdktypes.InterceptorConfiguration
+				isInterfaceSet := false
+				if f4iter.Interceptor.Lambda != nil {
+					if isInterfaceSet {
+						return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for Lambda"))
+					}
+					f4elemf2f0Parent := &svcsdktypes.InterceptorConfigurationMemberLambda{}
+					f4elemf2f0 := &svcsdktypes.LambdaInterceptorConfiguration{}
+					if f4iter.Interceptor.Lambda.ARN != nil {
+						f4elemf2f0.Arn = f4iter.Interceptor.Lambda.ARN
+					}
+					f4elemf2f0Parent.Value = *f4elemf2f0
+					f4elemf2 = f4elemf2f0Parent
+					isInterfaceSet = true
+				}
+				f4elem.Interceptor = f4elemf2
+			}
+			f4 = append(f4, *f4elem)
+		}
+		res.InterceptorConfigurations = f4
+	}
 	if r.ko.Spec.KMSKeyARN != nil {
 		res.KmsKeyArn = r.ko.Spec.KMSKeyARN
 	}
 	if r.ko.Spec.Name != nil {
 		res.Name = r.ko.Spec.Name
 	}
+	if r.ko.Spec.PolicyEngineConfiguration != nil {
+		f7 := &svcsdktypes.GatewayPolicyEngineConfiguration{}
+		if r.ko.Spec.PolicyEngineConfiguration.ARN != nil {
+			f7.Arn = r.ko.Spec.PolicyEngineConfiguration.ARN
+		}
+		if r.ko.Spec.PolicyEngineConfiguration.Mode != nil {
+			f7.Mode = svcsdktypes.GatewayPolicyEngineMode(*r.ko.Spec.PolicyEngineConfiguration.Mode)
+		}
+		res.PolicyEngineConfiguration = f7
+	}
 	if r.ko.Spec.ProtocolConfiguration != nil {
-		var f6 svcsdktypes.GatewayProtocolConfiguration
+		var f8 svcsdktypes.GatewayProtocolConfiguration
 		isInterfaceSet := false
 		if r.ko.Spec.ProtocolConfiguration.Mcp != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for Mcp"))
 			}
-			f6f0Parent := &svcsdktypes.GatewayProtocolConfigurationMemberMcp{}
-			f6f0 := &svcsdktypes.MCPGatewayConfiguration{}
+			f8f0Parent := &svcsdktypes.GatewayProtocolConfigurationMemberMcp{}
+			f8f0 := &svcsdktypes.MCPGatewayConfiguration{}
 			if r.ko.Spec.ProtocolConfiguration.Mcp.Instructions != nil {
-				f6f0.Instructions = r.ko.Spec.ProtocolConfiguration.Mcp.Instructions
+				f8f0.Instructions = r.ko.Spec.ProtocolConfiguration.Mcp.Instructions
 			}
 			if r.ko.Spec.ProtocolConfiguration.Mcp.SearchType != nil {
-				f6f0.SearchType = svcsdktypes.SearchType(*r.ko.Spec.ProtocolConfiguration.Mcp.SearchType)
+				f8f0.SearchType = svcsdktypes.SearchType(*r.ko.Spec.ProtocolConfiguration.Mcp.SearchType)
 			}
 			if r.ko.Spec.ProtocolConfiguration.Mcp.SupportedVersions != nil {
-				f6f0.SupportedVersions = aws.ToStringSlice(r.ko.Spec.ProtocolConfiguration.Mcp.SupportedVersions)
+				f8f0.SupportedVersions = aws.ToStringSlice(r.ko.Spec.ProtocolConfiguration.Mcp.SupportedVersions)
 			}
-			f6f0Parent.Value = *f6f0
-			f6 = f6f0Parent
+			f8f0Parent.Value = *f8f0
+			f8 = f8f0Parent
 			isInterfaceSet = true
 		}
-		res.ProtocolConfiguration = f6
+		res.ProtocolConfiguration = f8
 	}
 	if r.ko.Spec.ProtocolType != nil {
 		res.ProtocolType = svcsdktypes.GatewayProtocolType(*r.ko.Spec.ProtocolType)
 	}
 	if r.ko.Spec.RoleARN != nil {
 		res.RoleArn = r.ko.Spec.RoleARN
+	}
+	if r.ko.Spec.Tags != nil {
+		res.Tags = aws.ToStringMap(r.ko.Spec.Tags)
 	}
 
 	return res, nil
@@ -556,6 +846,46 @@ func (rm *resourceManager) sdkUpdate(
 				if f0f0.Value.AllowedClients != nil {
 					f0f0f0.AllowedClients = aws.StringSlice(f0f0.Value.AllowedClients)
 				}
+				if f0f0.Value.AllowedScopes != nil {
+					f0f0f0.AllowedScopes = aws.StringSlice(f0f0.Value.AllowedScopes)
+				}
+				if f0f0.Value.CustomClaims != nil {
+					f0f0f0f3 := []*svcapitypes.CustomClaimValidationType{}
+					for _, f0f0f0f3iter := range f0f0.Value.CustomClaims {
+						f0f0f0f3elem := &svcapitypes.CustomClaimValidationType{}
+						if f0f0f0f3iter.AuthorizingClaimMatchValue != nil {
+							f0f0f0f3elemf0 := &svcapitypes.AuthorizingClaimMatchValueType{}
+							if f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator != "" {
+								f0f0f0f3elemf0.ClaimMatchOperator = aws.String(string(f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator))
+							}
+							if f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue != nil {
+								f0f0f0f3elemf0f1 := &svcapitypes.ClaimMatchValueType{}
+								switch f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(type) {
+								case *svcsdktypes.ClaimMatchValueTypeMemberMatchValueString:
+									f0f0f0f3elemf0f1f0 := f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(*svcsdktypes.ClaimMatchValueTypeMemberMatchValueString)
+									if f0f0f0f3elemf0f1f0 != nil {
+										f0f0f0f3elemf0f1.MatchValueString = &f0f0f0f3elemf0f1f0.Value
+									}
+								case *svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList:
+									f0f0f0f3elemf0f1f1 := f0f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.(*svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList)
+									if f0f0f0f3elemf0f1f1 != nil {
+										f0f0f0f3elemf0f1.MatchValueStringList = aws.StringSlice(f0f0f0f3elemf0f1f1.Value)
+									}
+								}
+								f0f0f0f3elemf0.ClaimMatchValue = f0f0f0f3elemf0f1
+							}
+							f0f0f0f3elem.AuthorizingClaimMatchValue = f0f0f0f3elemf0
+						}
+						if f0f0f0f3iter.InboundTokenClaimName != nil {
+							f0f0f0f3elem.InboundTokenClaimName = f0f0f0f3iter.InboundTokenClaimName
+						}
+						if f0f0f0f3iter.InboundTokenClaimValueType != "" {
+							f0f0f0f3elem.InboundTokenClaimValueType = aws.String(string(f0f0f0f3iter.InboundTokenClaimValueType))
+						}
+						f0f0f0f3 = append(f0f0f0f3, f0f0f0f3elem)
+					}
+					f0f0f0.CustomClaims = f0f0f0f3
+				}
 				if f0f0.Value.DiscoveryUrl != nil {
 					f0f0f0.DiscoveryURL = f0f0.Value.DiscoveryUrl
 				}
@@ -603,6 +933,47 @@ func (rm *resourceManager) sdkUpdate(
 	} else {
 		ko.Status.GatewayURL = nil
 	}
+	if resp.InterceptorConfigurations != nil {
+		f8 := []*svcapitypes.GatewayInterceptorConfiguration{}
+		for _, f8iter := range resp.InterceptorConfigurations {
+			f8elem := &svcapitypes.GatewayInterceptorConfiguration{}
+			if f8iter.InputConfiguration != nil {
+				f8elemf0 := &svcapitypes.InterceptorInputConfiguration{}
+				if f8iter.InputConfiguration.PassRequestHeaders != nil {
+					f8elemf0.PassRequestHeaders = f8iter.InputConfiguration.PassRequestHeaders
+				}
+				f8elem.InputConfiguration = f8elemf0
+			}
+			if f8iter.InterceptionPoints != nil {
+				f8elemf1 := []*string{}
+				for _, f8elemf1iter := range f8iter.InterceptionPoints {
+					var f8elemf1elem *string
+					f8elemf1elem = aws.String(string(f8elemf1iter))
+					f8elemf1 = append(f8elemf1, f8elemf1elem)
+				}
+				f8elem.InterceptionPoints = f8elemf1
+			}
+			if f8iter.Interceptor != nil {
+				f8elemf2 := &svcapitypes.InterceptorConfiguration{}
+				switch f8iter.Interceptor.(type) {
+				case *svcsdktypes.InterceptorConfigurationMemberLambda:
+					f8elemf2f0 := f8iter.Interceptor.(*svcsdktypes.InterceptorConfigurationMemberLambda)
+					if f8elemf2f0 != nil {
+						f8elemf2f0f0 := &svcapitypes.LambdaInterceptorConfiguration{}
+						if f8elemf2f0.Value.Arn != nil {
+							f8elemf2f0f0.ARN = f8elemf2f0.Value.Arn
+						}
+						f8elemf2.Lambda = f8elemf2f0f0
+					}
+				}
+				f8elem.Interceptor = f8elemf2
+			}
+			f8 = append(f8, f8elem)
+		}
+		ko.Spec.InterceptorConfigurations = f8
+	} else {
+		ko.Spec.InterceptorConfigurations = nil
+	}
 	if resp.KmsKeyArn != nil {
 		ko.Spec.KMSKeyARN = resp.KmsKeyArn
 	} else {
@@ -613,26 +984,38 @@ func (rm *resourceManager) sdkUpdate(
 	} else {
 		ko.Spec.Name = nil
 	}
+	if resp.PolicyEngineConfiguration != nil {
+		f11 := &svcapitypes.GatewayPolicyEngineConfiguration{}
+		if resp.PolicyEngineConfiguration.Arn != nil {
+			f11.ARN = resp.PolicyEngineConfiguration.Arn
+		}
+		if resp.PolicyEngineConfiguration.Mode != "" {
+			f11.Mode = aws.String(string(resp.PolicyEngineConfiguration.Mode))
+		}
+		ko.Spec.PolicyEngineConfiguration = f11
+	} else {
+		ko.Spec.PolicyEngineConfiguration = nil
+	}
 	if resp.ProtocolConfiguration != nil {
-		f10 := &svcapitypes.GatewayProtocolConfiguration{}
+		f12 := &svcapitypes.GatewayProtocolConfiguration{}
 		switch resp.ProtocolConfiguration.(type) {
 		case *svcsdktypes.GatewayProtocolConfigurationMemberMcp:
-			f10f0 := resp.ProtocolConfiguration.(*svcsdktypes.GatewayProtocolConfigurationMemberMcp)
-			if f10f0 != nil {
-				f10f0f0 := &svcapitypes.MCPGatewayConfiguration{}
-				if f10f0.Value.Instructions != nil {
-					f10f0f0.Instructions = f10f0.Value.Instructions
+			f12f0 := resp.ProtocolConfiguration.(*svcsdktypes.GatewayProtocolConfigurationMemberMcp)
+			if f12f0 != nil {
+				f12f0f0 := &svcapitypes.MCPGatewayConfiguration{}
+				if f12f0.Value.Instructions != nil {
+					f12f0f0.Instructions = f12f0.Value.Instructions
 				}
-				if f10f0.Value.SearchType != "" {
-					f10f0f0.SearchType = aws.String(string(f10f0.Value.SearchType))
+				if f12f0.Value.SearchType != "" {
+					f12f0f0.SearchType = aws.String(string(f12f0.Value.SearchType))
 				}
-				if f10f0.Value.SupportedVersions != nil {
-					f10f0f0.SupportedVersions = aws.StringSlice(f10f0.Value.SupportedVersions)
+				if f12f0.Value.SupportedVersions != nil {
+					f12f0f0.SupportedVersions = aws.StringSlice(f12f0.Value.SupportedVersions)
 				}
-				f10.Mcp = f10f0f0
+				f12.Mcp = f12f0f0
 			}
 		}
-		ko.Spec.ProtocolConfiguration = f10
+		ko.Spec.ProtocolConfiguration = f12
 	} else {
 		ko.Spec.ProtocolConfiguration = nil
 	}
@@ -662,11 +1045,11 @@ func (rm *resourceManager) sdkUpdate(
 		ko.Status.UpdatedAt = nil
 	}
 	if resp.WorkloadIdentityDetails != nil {
-		f16 := &svcapitypes.WorkloadIdentityDetails{}
+		f18 := &svcapitypes.WorkloadIdentityDetails{}
 		if resp.WorkloadIdentityDetails.WorkloadIdentityArn != nil {
-			f16.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
+			f18.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
 		}
-		ko.Status.WorkloadIdentityDetails = f16
+		ko.Status.WorkloadIdentityDetails = f18
 	} else {
 		ko.Status.WorkloadIdentityDetails = nil
 	}
@@ -699,6 +1082,55 @@ func (rm *resourceManager) newUpdateRequestPayload(
 			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients != nil {
 				f0f0.AllowedClients = aws.ToStringSlice(r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients)
 			}
+			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes != nil {
+				f0f0.AllowedScopes = aws.ToStringSlice(r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes)
+			}
+			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims != nil {
+				f0f0f3 := []svcsdktypes.CustomClaimValidationType{}
+				for _, f0f0f3iter := range r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims {
+					f0f0f3elem := &svcsdktypes.CustomClaimValidationType{}
+					if f0f0f3iter.AuthorizingClaimMatchValue != nil {
+						f0f0f3elemf0 := &svcsdktypes.AuthorizingClaimMatchValueType{}
+						if f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator != nil {
+							f0f0f3elemf0.ClaimMatchOperator = svcsdktypes.ClaimMatchOperatorType(*f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchOperator)
+						}
+						if f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue != nil {
+							var f0f0f3elemf0f1 svcsdktypes.ClaimMatchValueType
+							isInterfaceSet := false
+							if f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueString != nil {
+								if isInterfaceSet {
+									return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for MatchValueString"))
+								}
+								f0f0f3elemf0f1f0Parent := &svcsdktypes.ClaimMatchValueTypeMemberMatchValueString{}
+								f0f0f3elemf0f1f0Parent.Value = *f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueString
+								f0f0f3elemf0f1 = f0f0f3elemf0f1f0Parent
+								isInterfaceSet = true
+							}
+							if f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueStringList != nil {
+								if isInterfaceSet {
+									return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for MatchValueStringList"))
+								}
+								f0f0f3elemf0f1f1Parent := &svcsdktypes.ClaimMatchValueTypeMemberMatchValueStringList{}
+								f0f0f3elemf0f1f1 := []string{}
+								f0f0f3elemf0f1f1 = aws.ToStringSlice(f0f0f3iter.AuthorizingClaimMatchValue.ClaimMatchValue.MatchValueStringList)
+								f0f0f3elemf0f1f1Parent.Value = f0f0f3elemf0f1f1
+								f0f0f3elemf0f1 = f0f0f3elemf0f1f1Parent
+								isInterfaceSet = true
+							}
+							f0f0f3elemf0.ClaimMatchValue = f0f0f3elemf0f1
+						}
+						f0f0f3elem.AuthorizingClaimMatchValue = f0f0f3elemf0
+					}
+					if f0f0f3iter.InboundTokenClaimName != nil {
+						f0f0f3elem.InboundTokenClaimName = f0f0f3iter.InboundTokenClaimName
+					}
+					if f0f0f3iter.InboundTokenClaimValueType != nil {
+						f0f0f3elem.InboundTokenClaimValueType = svcsdktypes.InboundTokenClaimValueType(*f0f0f3iter.InboundTokenClaimValueType)
+					}
+					f0f0f3 = append(f0f0f3, *f0f0f3elem)
+				}
+				f0f0.CustomClaims = f0f0f3
+			}
 			if r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL != nil {
 				f0f0.DiscoveryUrl = r.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL
 			}
@@ -720,35 +1152,87 @@ func (rm *resourceManager) newUpdateRequestPayload(
 	if r.ko.Status.GatewayID != nil {
 		res.GatewayIdentifier = r.ko.Status.GatewayID
 	}
+	if r.ko.Spec.InterceptorConfigurations != nil {
+		f5 := []svcsdktypes.GatewayInterceptorConfiguration{}
+		for _, f5iter := range r.ko.Spec.InterceptorConfigurations {
+			f5elem := &svcsdktypes.GatewayInterceptorConfiguration{}
+			if f5iter.InputConfiguration != nil {
+				f5elemf0 := &svcsdktypes.InterceptorInputConfiguration{}
+				if f5iter.InputConfiguration.PassRequestHeaders != nil {
+					f5elemf0.PassRequestHeaders = f5iter.InputConfiguration.PassRequestHeaders
+				}
+				f5elem.InputConfiguration = f5elemf0
+			}
+			if f5iter.InterceptionPoints != nil {
+				f5elemf1 := []svcsdktypes.GatewayInterceptionPoint{}
+				for _, f5elemf1iter := range f5iter.InterceptionPoints {
+					var f5elemf1elem string
+					f5elemf1elem = string(*f5elemf1iter)
+					f5elemf1 = append(f5elemf1, svcsdktypes.GatewayInterceptionPoint(f5elemf1elem))
+				}
+				f5elem.InterceptionPoints = f5elemf1
+			}
+			if f5iter.Interceptor != nil {
+				var f5elemf2 svcsdktypes.InterceptorConfiguration
+				isInterfaceSet := false
+				if f5iter.Interceptor.Lambda != nil {
+					if isInterfaceSet {
+						return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for Lambda"))
+					}
+					f5elemf2f0Parent := &svcsdktypes.InterceptorConfigurationMemberLambda{}
+					f5elemf2f0 := &svcsdktypes.LambdaInterceptorConfiguration{}
+					if f5iter.Interceptor.Lambda.ARN != nil {
+						f5elemf2f0.Arn = f5iter.Interceptor.Lambda.ARN
+					}
+					f5elemf2f0Parent.Value = *f5elemf2f0
+					f5elemf2 = f5elemf2f0Parent
+					isInterfaceSet = true
+				}
+				f5elem.Interceptor = f5elemf2
+			}
+			f5 = append(f5, *f5elem)
+		}
+		res.InterceptorConfigurations = f5
+	}
 	if r.ko.Spec.KMSKeyARN != nil {
 		res.KmsKeyArn = r.ko.Spec.KMSKeyARN
 	}
 	if r.ko.Spec.Name != nil {
 		res.Name = r.ko.Spec.Name
 	}
+	if r.ko.Spec.PolicyEngineConfiguration != nil {
+		f8 := &svcsdktypes.GatewayPolicyEngineConfiguration{}
+		if r.ko.Spec.PolicyEngineConfiguration.ARN != nil {
+			f8.Arn = r.ko.Spec.PolicyEngineConfiguration.ARN
+		}
+		if r.ko.Spec.PolicyEngineConfiguration.Mode != nil {
+			f8.Mode = svcsdktypes.GatewayPolicyEngineMode(*r.ko.Spec.PolicyEngineConfiguration.Mode)
+		}
+		res.PolicyEngineConfiguration = f8
+	}
 	if r.ko.Spec.ProtocolConfiguration != nil {
-		var f7 svcsdktypes.GatewayProtocolConfiguration
+		var f9 svcsdktypes.GatewayProtocolConfiguration
 		isInterfaceSet := false
 		if r.ko.Spec.ProtocolConfiguration.Mcp != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for Mcp"))
 			}
-			f7f0Parent := &svcsdktypes.GatewayProtocolConfigurationMemberMcp{}
-			f7f0 := &svcsdktypes.MCPGatewayConfiguration{}
+			f9f0Parent := &svcsdktypes.GatewayProtocolConfigurationMemberMcp{}
+			f9f0 := &svcsdktypes.MCPGatewayConfiguration{}
 			if r.ko.Spec.ProtocolConfiguration.Mcp.Instructions != nil {
-				f7f0.Instructions = r.ko.Spec.ProtocolConfiguration.Mcp.Instructions
+				f9f0.Instructions = r.ko.Spec.ProtocolConfiguration.Mcp.Instructions
 			}
 			if r.ko.Spec.ProtocolConfiguration.Mcp.SearchType != nil {
-				f7f0.SearchType = svcsdktypes.SearchType(*r.ko.Spec.ProtocolConfiguration.Mcp.SearchType)
+				f9f0.SearchType = svcsdktypes.SearchType(*r.ko.Spec.ProtocolConfiguration.Mcp.SearchType)
 			}
 			if r.ko.Spec.ProtocolConfiguration.Mcp.SupportedVersions != nil {
-				f7f0.SupportedVersions = aws.ToStringSlice(r.ko.Spec.ProtocolConfiguration.Mcp.SupportedVersions)
+				f9f0.SupportedVersions = aws.ToStringSlice(r.ko.Spec.ProtocolConfiguration.Mcp.SupportedVersions)
 			}
-			f7f0Parent.Value = *f7f0
-			f7 = f7f0Parent
+			f9f0Parent.Value = *f9f0
+			f9 = f9f0Parent
 			isInterfaceSet = true
 		}
-		res.ProtocolConfiguration = f7
+		res.ProtocolConfiguration = f9
 	}
 	if r.ko.Spec.ProtocolType != nil {
 		res.ProtocolType = svcsdktypes.GatewayProtocolType(*r.ko.Spec.ProtocolType)
