@@ -48,6 +48,12 @@ type APIGatewayToolOverride struct {
 	Path        *string `json:"path,omitempty"`
 }
 
+// Contains information about an API key credential provider.
+type APIKeyCredentialProviderItem struct {
+	CreatedTime     *metav1.Time `json:"createdTime,omitempty"`
+	LastUpdatedTime *metav1.Time `json:"lastUpdatedTime,omitempty"`
+}
+
 // The artifact of the agent.
 type AgentRuntimeArtifact struct {
 	// The configuration for the source code that defines how the agent runtime
@@ -277,7 +283,9 @@ type EpisodicReflectionOverride struct {
 // The summary information about an evaluator, including basic metadata and
 // status information.
 type EvaluatorSummary struct {
-	LockedForModification *bool `json:"lockedForModification,omitempty"`
+	CreatedAt             *metav1.Time `json:"createdAt,omitempty"`
+	LockedForModification *bool        `json:"lockedForModification,omitempty"`
+	UpdatedAt             *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // The filter that applies conditions to agent traces during online evaluation
@@ -424,14 +432,24 @@ type McpServerTargetConfiguration struct {
 
 // Contains information about a memory resource.
 type Memory struct {
-	Description         *string `json:"description,omitempty"`
-	EventExpiryDuration *int64  `json:"eventExpiryDuration,omitempty"`
-	FailureReason       *string `json:"failureReason,omitempty"`
+	CreatedAt           *metav1.Time `json:"createdAt,omitempty"`
+	Description         *string      `json:"description,omitempty"`
+	EventExpiryDuration *int64       `json:"eventExpiryDuration,omitempty"`
+	FailureReason       *string      `json:"failureReason,omitempty"`
+	UpdatedAt           *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Contains information about a memory strategy.
 type MemoryStrategy struct {
-	Description *string `json:"description,omitempty"`
+	CreatedAt   *metav1.Time `json:"createdAt,omitempty"`
+	Description *string      `json:"description,omitempty"`
+	UpdatedAt   *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Contains summary information about a memory resource.
+type MemorySummary struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // The trigger configuration based on a message.
@@ -474,10 +492,18 @@ type NumericalScaleDefinition struct {
 	Label      *string `json:"label,omitempty"`
 }
 
+// Contains information about an OAuth2 credential provider.
+type Oauth2CredentialProviderItem struct {
+	CreatedTime     *metav1.Time `json:"createdTime,omitempty"`
+	LastUpdatedTime *metav1.Time `json:"lastUpdatedTime,omitempty"`
+}
+
 // The summary information about an online evaluation configuration, including
 // basic metadata and execution status.
 type OnlineEvaluationConfigSummary struct {
-	FailureReason *string `json:"failureReason,omitempty"`
+	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
+	FailureReason *string      `json:"failureReason,omitempty"`
+	UpdatedAt     *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Represents a complete policy resource within the AgentCore Policy system.
@@ -696,5 +722,11 @@ type ValidationExceptionField struct {
 
 // The information about the workload identity.
 type WorkloadIdentityDetails struct {
+	WorkloadIdentityARN *string `json:"workloadIdentityARN,omitempty"`
+}
+
+// Contains information about a workload identity.
+type WorkloadIdentityType struct {
+	Name                *string `json:"name,omitempty"`
 	WorkloadIdentityARN *string `json:"workloadIdentityARN,omitempty"`
 }
