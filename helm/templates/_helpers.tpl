@@ -74,6 +74,7 @@ rules:
   resources:
   - agentruntimeendpoints
   - agentruntimes
+  - memories
   - workloadidentities
   verbs:
   - create
@@ -88,11 +89,28 @@ rules:
   resources:
   - agentruntimeendpoints/status
   - agentruntimes/status
+  - memories/status
   - workloadidentities/status
   verbs:
   - get
   - patch
   - update
+- apiGroups:
+  - iam.services.k8s.aws
+  resources:
+  - roles
+  - roles/status
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - kms.services.k8s.aws
+  resources:
+  - keys
+  - keys/status
+  verbs:
+  - get
+  - list
 - apiGroups:
   - services.k8s.aws
   resources:
@@ -115,6 +133,14 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - sns.services.k8s.aws
+  resources:
+  - topics
+  - topics/status
+  verbs:
+  - get
+  - list
 {{- end }}
 
 {{/* Convert k/v map to string like: "key1=value1,key2=value2,..." */}}

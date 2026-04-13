@@ -3,7 +3,10 @@ module github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller
 go 1.25.0
 
 require (
+	github.com/aws-controllers-k8s/iam-controller v1.6.3
+	github.com/aws-controllers-k8s/kms-controller v1.2.3
 	github.com/aws-controllers-k8s/runtime v0.58.0
+	github.com/aws-controllers-k8s/sns-controller v1.4.2
 	github.com/aws/aws-sdk-go v1.49.0
 	github.com/aws/aws-sdk-go-v2 v1.41.5
 	github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol v1.29.0

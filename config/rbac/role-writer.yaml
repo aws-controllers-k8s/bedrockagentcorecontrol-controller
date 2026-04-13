@@ -11,6 +11,7 @@ rules:
   resources:
   - agentruntimes
   - agentruntimeendpoints
+  - memories
   - workloadidentities
   verbs:
   - create
@@ -25,6 +26,7 @@ rules:
   resources:
   - agentruntimes
   - agentruntimeendpoints
+  - memories
   - workloadidentities
   verbs:
   - get

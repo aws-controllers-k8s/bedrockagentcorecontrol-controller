@@ -9,7 +9,7 @@ ignore:
     - Evaluator
     - Gateway
     - GatewayTarget
-    - Memory
+    # - Memory
     - Oauth2CredentialProvider
     - OnlineEvaluationConfig
     - Policy
@@ -18,9 +18,18 @@ ignore:
   field_paths:
     - CreateAgentRuntimeInput.ClientToken
     - CreateAgentRuntimeEndpointInput.ClientToken
+    - UpdateMemoryInput.MemoryStrategies
 
 sdk_names:
   model_name: bedrock-agentcore-control
+
+operations:
+  CreateMemory:
+    output_wrapper_field_path: Memory
+  GetMemory:
+    output_wrapper_field_path: Memory
+  UpdateMemory:
+    output_wrapper_field_path: Memory
 
 resources:
   AgentRuntime:
@@ -53,6 +62,81 @@ resources:
         template_path: hooks/agentruntimeendpoint/sdk_read_one_post_set_output.go.tpl
       sdk_update_pre_build_request:
         template_path: hooks/agentruntimeendpoint/sdk_update_pre_build_request.go.tpl
+
+  Memory:
+    ignore_idempotency_token: true
+    renames:
+      operations:
+        GetMemory:
+          input_fields:
+            MemoryId: Id
+        UpdateMemory:
+          input_fields:
+            MemoryId: Id
+        DeleteMemory:
+          input_fields:
+            MemoryId: Id
+    fields:
+      Id:
+        is_primary_key: true
+      Name:
+        is_immutable: true
+      EncryptionKeyArn:
+        is_immutable: true
+        references:
+          resource: Key
+          service_name: kms
+          path: Status.ACKResourceMetadata.ARN
+      MemoryExecutionRoleArn:
+        references:
+          resource: Role
+          service_name: iam
+          path: Status.ACKResourceMetadata.ARN
+      MemoryStrategies.CustomMemoryStrategy.Configuration.SelfManagedConfiguration.InvocationConfiguration.TopicArn:
+        references:
+          resource: Topic
+          service_name: sns
+          path: Status.ACKResourceMetadata.ARN
+      CreatedAt:
+        is_read_only: true
+        from:
+          operation: GetMemory
+          path: Memory.CreatedAt
+      UpdatedAt:
+        is_read_only: true
+        from:
+          operation: GetMemory
+          path: Memory.UpdatedAt
+      FailureReason:
+        is_read_only: true
+        from:
+          operation: GetMemory
+          path: Memory.FailureReason
+      Strategies:
+        is_read_only: true
+        from:
+          operation: GetMemory
+          path: Memory.Strategies
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+            - FAILED
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
+        - ConflictException
+    hooks:
+      sdk_read_one_post_set_output:
+        template_path: hooks/memory/sdk_read_one_post_set_output.go.tpl
+      sdk_update_pre_build_request:
+        template_path: hooks/memory/sdk_update_pre_build_request.go.tpl
+      sdk_update_post_build_request:
+        template_path: hooks/memory/sdk_update_post_build_request.go.tpl
 
   WorkloadIdentity:
     fields:
