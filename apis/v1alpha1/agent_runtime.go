@@ -40,6 +40,9 @@ type AgentRuntimeSpec struct {
 	Description *string `json:"description,omitempty"`
 	// Environment variables to set in the AgentCore Runtime environment.
 	EnvironmentVariables map[string]*string `json:"environmentVariables,omitempty"`
+	// The filesystem configurations to mount into the AgentCore Runtime. Use filesystem
+	// configurations to provide persistent storage to your AgentCore Runtime sessions.
+	FilesystemConfigurations []*FilesystemConfiguration `json:"filesystemConfigurations,omitempty"`
 	// The life cycle configuration for the AgentCore Runtime.
 	LifecycleConfiguration *LifecycleConfiguration `json:"lifecycleConfiguration,omitempty"`
 	// The network configuration for the AgentCore Runtime.

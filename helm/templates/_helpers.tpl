@@ -85,6 +85,7 @@ rules:
   - apikeycredentialproviders
   - gateways
   - gatewaytargets
+  - memories
   - workloadidentities
   verbs:
   - create
@@ -102,6 +103,7 @@ rules:
   - apikeycredentialproviders/status
   - gateways/status
   - gatewaytargets/status
+  - memories/status
   - workloadidentities/status
   verbs:
   - get
@@ -145,6 +147,14 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - sns.services.k8s.aws
+  resources:
+  - topics
+  - topics/status
+  verbs:
+  - get
+  - list
 {{- end }}
 
 {{/* Convert k/v map to string like: "key1=value1,key2=value2,..." */}}

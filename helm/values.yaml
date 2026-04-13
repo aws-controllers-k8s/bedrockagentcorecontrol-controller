@@ -155,6 +155,7 @@ reconcile:
     - AgentRuntimeEndpoint
     - Gateway
     - GatewayTarget
+    - Memory
     - WorkloadIdentity
 
 serviceAccount:
