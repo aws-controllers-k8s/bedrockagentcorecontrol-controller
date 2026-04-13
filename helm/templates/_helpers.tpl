@@ -74,6 +74,7 @@ rules:
   resources:
   - agentruntimeendpoints
   - agentruntimes
+  - memories
   - workloadidentities
   verbs:
   - create
@@ -88,6 +89,7 @@ rules:
   resources:
   - agentruntimeendpoints/status
   - agentruntimes/status
+  - memories/status
   - workloadidentities/status
   verbs:
   - get
