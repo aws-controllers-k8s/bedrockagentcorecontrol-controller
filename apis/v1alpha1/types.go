@@ -28,8 +28,38 @@ var (
 	_ = ackv1alpha1.AWSAccountID("")
 )
 
+// The configuration for an Amazon API Gateway target.
+type APIGatewayTargetConfiguration struct {
+	RestAPIID *string `json:"restAPIID,omitempty"`
+	Stage     *string `json:"stage,omitempty"`
+}
+
+// Specifies which operations from an API Gateway REST API are exposed as tools.
+// Tool names and descriptions are derived from the operationId and description
+// fields in the API's exported OpenAPI specification.
+type APIGatewayToolFilter struct {
+	FilterPath *string `json:"filterPath,omitempty"`
+}
+
+// Settings to override configurations for a tool.
+type APIGatewayToolOverride struct {
+	Description *string `json:"description,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	Path        *string `json:"path,omitempty"`
+}
+
+// Contains information about an API key credential provider.
+type APIKeyCredentialProviderItem struct {
+	CreatedTime     *metav1.Time `json:"createdTime,omitempty"`
+	LastUpdatedTime *metav1.Time `json:"lastUpdatedTime,omitempty"`
+}
+
 // The artifact of the agent.
 type AgentRuntimeArtifact struct {
+	// The configuration for the source code that defines how the agent runtime
+	// code should be executed, including the code location, runtime environment,
+	// and entry point.
+	CodeConfiguration *CodeConfiguration `json:"codeConfiguration,omitempty"`
 	// Representation of a container configuration.
 	ContainerConfiguration *ContainerConfiguration `json:"containerConfiguration,omitempty"`
 }
@@ -50,7 +80,7 @@ type AgentRuntimeEndpoint_SDK struct {
 }
 
 // Contains information about an agent runtime. An agent runtime is the execution
-// environment for a Amazon Bedrock Agent.
+// environment for a Amazon Bedrock AgentCore Agent.
 type AgentRuntime_SDK struct {
 	AgentRuntimeARN     *string      `json:"agentRuntimeARN,omitempty"`
 	AgentRuntimeID      *string      `json:"agentRuntimeID,omitempty"`
@@ -69,6 +99,21 @@ type AuthorizerConfiguration struct {
 	CustomJWTAuthorizer *CustomJWTAuthorizerConfiguration `json:"customJWTAuthorizer,omitempty"`
 }
 
+// Defines the value or values to match for and the relationship of the match.
+type AuthorizingClaimMatchValueType struct {
+	ClaimMatchOperator *string `json:"claimMatchOperator,omitempty"`
+	// The value or values to match for.
+	//
+	//    * Include a matchValueString with the EQUALS operator to specify a string
+	//    that matches the claim field value.
+	//
+	//    * Include a matchValueArray to specify an array of string values. You
+	//    can use the following operators: Use CONTAINS to yield a match if the
+	//    claim field value is in the array. Use CONTAINS_ANY to yield a match if
+	//    the claim field value contains any of the strings in the array.
+	ClaimMatchValue *ClaimMatchValueType `json:"claimMatchValue,omitempty"`
+}
+
 // The network configuration for a browser. This structure defines how the browser
 // connects to the network.
 type BrowserNetworkConfiguration struct {
@@ -76,12 +121,61 @@ type BrowserNetworkConfiguration struct {
 	VPCConfig *VPCConfig `json:"vpcConfig,omitempty"`
 }
 
+// Contains summary information about a browser profile. A browser profile stores
+// persistent browser data that can be reused across browser sessions.
+type BrowserProfileSummary struct {
+	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
+	Description   *string      `json:"description,omitempty"`
+	LastSavedAt   *metav1.Time `json:"lastSavedAt,omitempty"`
+	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+}
+
 // Contains summary information about a browser. A browser enables Amazon Bedrock
-// Agent to interact with web content.
+// AgentCore Agent to interact with web content.
 type BrowserSummary struct {
 	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
 	Description   *string      `json:"description,omitempty"`
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+}
+
+// The definition of a categorical rating scale option that provides a named
+// category with its description for evaluation scoring.
+type CategoricalScaleDefinition struct {
+	Definition *string `json:"definition,omitempty"`
+	Label      *string `json:"label,omitempty"`
+}
+
+// The value or values to match for.
+//
+//   - Include a matchValueString with the EQUALS operator to specify a string
+//     that matches the claim field value.
+//
+//   - Include a matchValueArray to specify an array of string values. You
+//     can use the following operators: Use CONTAINS to yield a match if the
+//     claim field value is in the array. Use CONTAINS_ANY to yield a match if
+//     the claim field value contains any of the strings in the array.
+type ClaimMatchValueType struct {
+	MatchValueString     *string   `json:"matchValueString,omitempty"`
+	MatchValueStringList []*string `json:"matchValueStringList,omitempty"`
+}
+
+// The source code configuration that specifies the location and details of
+// the code to be executed.
+type Code struct {
+	// The Amazon S3 location for storing data. This structure defines where in
+	// Amazon S3 data is stored.
+	S3 *S3Location `json:"s3,omitempty"`
+}
+
+// The configuration for the source code that defines how the agent runtime
+// code should be executed, including the code location, runtime environment,
+// and entry point.
+type CodeConfiguration struct {
+	// The source code configuration that specifies the location and details of
+	// the code to be executed.
+	Code       *Code     `json:"code,omitempty"`
+	EntryPoint []*string `json:"entryPoint,omitempty"`
+	Runtime    *string   `json:"runtime,omitempty"`
 }
 
 // The network configuration for a code interpreter. This structure defines
@@ -92,7 +186,7 @@ type CodeInterpreterNetworkConfiguration struct {
 }
 
 // Contains summary information about a code interpreter. A code interpreter
-// enables Amazon Bedrock Agent to execute code.
+// enables Amazon Bedrock AgentCore Agent to execute code.
 type CodeInterpreterSummary struct {
 	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
 	Description   *string      `json:"description,omitempty"`
@@ -104,12 +198,23 @@ type ContainerConfiguration struct {
 	ContainerURI *string `json:"containerURI,omitempty"`
 }
 
+// Defines the name of a custom claim field and rules for finding matches to
+// authenticate its value.
+type CustomClaimValidationType struct {
+	// Defines the value or values to match for and the relationship of the match.
+	AuthorizingClaimMatchValue *AuthorizingClaimMatchValueType `json:"authorizingClaimMatchValue,omitempty"`
+	InboundTokenClaimName      *string                         `json:"inboundTokenClaimName,omitempty"`
+	InboundTokenClaimValueType *string                         `json:"inboundTokenClaimValueType,omitempty"`
+}
+
 // Configuration for inbound JWT-based authorization, specifying how incoming
 // requests should be authenticated.
 type CustomJWTAuthorizerConfiguration struct {
-	AllowedAudience []*string `json:"allowedAudience,omitempty"`
-	AllowedClients  []*string `json:"allowedClients,omitempty"`
-	DiscoveryURL    *string   `json:"discoveryURL,omitempty"`
+	AllowedAudience []*string                    `json:"allowedAudience,omitempty"`
+	AllowedClients  []*string                    `json:"allowedClients,omitempty"`
+	AllowedScopes   []*string                    `json:"allowedScopes,omitempty"`
+	CustomClaims    []*CustomClaimValidationType `json:"customClaims,omitempty"`
+	DiscoveryURL    *string                      `json:"discoveryURL,omitempty"`
 }
 
 // Input for creating a custom memory strategy.
@@ -122,27 +227,169 @@ type DeleteMemoryStrategyInput struct {
 	MemoryStrategyID *string `json:"memoryStrategyID,omitempty"`
 }
 
+// Contains configurations to override the default consolidation step for the
+// episodic memory strategy.
+type EpisodicConsolidationOverride struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// Contains configurations to override the default extraction step for the episodic
+// memory strategy.
+type EpisodicExtractionOverride struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// Input for creating an episodic memory strategy.
+type EpisodicMemoryStrategyInput struct {
+	Description *string `json:"description,omitempty"`
+}
+
+// Configurations for overriding the consolidation step of the episodic memory
+// strategy.
+type EpisodicOverrideConsolidationConfigurationInput struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// Configurations for overriding the extraction step of the episodic memory
+// strategy.
+type EpisodicOverrideExtractionConfigurationInput struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// Configurations for overriding the reflection step of the episodic memory
+// strategy.
+type EpisodicOverrideReflectionConfigurationInput struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// Contains configurations to override the default reflection step for the episodic
+// memory strategy.
+type EpisodicReflectionOverride struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
+// The summary information about an evaluator, including basic metadata and
+// status information.
+type EvaluatorSummary struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// The filter that applies conditions to agent traces during online evaluation
+// to determine which traces should be evaluated.
+type Filter struct {
+	Key *string `json:"key,omitempty"`
+}
+
+// The value used in filter comparisons, supporting different data types for
+// flexible filtering criteria.
+type FilterValue struct {
+	StringValue *string `json:"stringValue,omitempty"`
+}
+
+// Represents a finding or issue discovered during policy generation or validation.
+// Findings provide insights about potential problems, recommendations, or validation
+// results from policy analysis operations. Finding types include: VALID (policy
+// is ready to use), INVALID (policy has validation errors that must be fixed),
+// NOT_TRANSLATABLE (input couldn't be converted to policy), ALLOW_ALL (policy
+// would allow all actions, potential security risk), ALLOW_NONE (policy would
+// allow no actions, unusable), DENY_ALL (policy would deny all actions, may
+// be too restrictive), and DENY_NONE (policy would deny no actions, ineffective).
+// Review all findings before creating policies from generated assets to ensure
+// they match your security requirements.
+type Finding struct {
+	Description *string `json:"description,omitempty"`
+}
+
 // Contains summary information about a gateway.
 type GatewaySummary struct {
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
 	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
 }
 
+// The gateway target.
+type GatewayTarget struct {
+	CreatedAt          *metav1.Time `json:"createdAt,omitempty"`
+	LastSynchronizedAt *metav1.Time `json:"lastSynchronizedAt,omitempty"`
+	UpdatedAt          *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// The configuration parameters that control how the foundation model behaves
+// during evaluation, including response generation settings.
+type InferenceConfiguration struct {
+	MaxTokens *int64 `json:"maxTokens,omitempty"`
+}
+
+// The configuration to invoke a self-managed memory processing pipeline with.
+type InvocationConfiguration struct {
+	PayloadDeliveryBucketName *string `json:"payloadDeliveryBucketName,omitempty"`
+}
+
+// The configuration to invoke a self-managed memory processing pipeline with.
+type InvocationConfigurationInput struct {
+	PayloadDeliveryBucketName *string `json:"payloadDeliveryBucketName,omitempty"`
+}
+
+// LifecycleConfiguration lets you manage the lifecycle of runtime sessions
+// and resources in AgentCore Runtime. This configuration helps optimize resource
+// utilization by automatically cleaning up idle sessions and preventing long-running
+// instances from consuming resources indefinitely.
+type LifecycleConfiguration struct {
+	IdleRuntimeSessionTimeout *int64 `json:"idleRuntimeSessionTimeout,omitempty"`
+	MaxLifetime               *int64 `json:"maxLifetime,omitempty"`
+}
+
+// The target configuration for the MCP server.
+type McpServerTargetConfiguration struct {
+	Endpoint *string `json:"endpoint,omitempty"`
+}
+
 // Contains information about a memory resource.
 type Memory struct {
-	Description   *string `json:"description,omitempty"`
-	FailureReason *string `json:"failureReason,omitempty"`
+	CreatedAt           *metav1.Time `json:"createdAt,omitempty"`
+	Description         *string      `json:"description,omitempty"`
+	EventExpiryDuration *int64       `json:"eventExpiryDuration,omitempty"`
+	FailureReason       *string      `json:"failureReason,omitempty"`
+	UpdatedAt           *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Contains information about a memory strategy.
 type MemoryStrategy struct {
-	Description *string `json:"description,omitempty"`
+	CreatedAt   *metav1.Time `json:"createdAt,omitempty"`
+	Description *string      `json:"description,omitempty"`
+	UpdatedAt   *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Contains summary information about a memory resource.
+type MemorySummary struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// The trigger configuration based on a message.
+type MessageBasedTrigger struct {
+	MessageCount *int64 `json:"messageCount,omitempty"`
+}
+
+// The trigger configuration based on a message.
+type MessageBasedTriggerInput struct {
+	MessageCount *int64 `json:"messageCount,omitempty"`
+}
+
+// The configuration for updating invocation settings.
+type ModifyInvocationConfigurationInput struct {
+	PayloadDeliveryBucketName *string `json:"payloadDeliveryBucketName,omitempty"`
 }
 
 // Input for modifying a memory strategy.
 type ModifyMemoryStrategyInput struct {
 	Description      *string `json:"description,omitempty"`
 	MemoryStrategyID *string `json:"memoryStrategyID,omitempty"`
+}
+
+// The configuration for updating the self-managed memory strategy.
+type ModifySelfManagedConfiguration struct {
+	HistoricalContextWindowSize *int64 `json:"historicalContextWindowSize,omitempty"`
 }
 
 // SecurityConfig for the Agent.
@@ -152,10 +399,89 @@ type NetworkConfiguration struct {
 	NetworkModeConfig *VPCConfig `json:"networkModeConfig,omitempty"`
 }
 
+// The definition of a numerical rating scale option that provides a numeric
+// value with its description for evaluation scoring.
+type NumericalScaleDefinition struct {
+	Definition *string `json:"definition,omitempty"`
+	Label      *string `json:"label,omitempty"`
+}
+
+// Contains information about an OAuth2 credential provider.
+type Oauth2CredentialProviderItem struct {
+	CreatedTime     *metav1.Time `json:"createdTime,omitempty"`
+	LastUpdatedTime *metav1.Time `json:"lastUpdatedTime,omitempty"`
+}
+
+// The summary information about an online evaluation configuration, including
+// basic metadata and execution status.
+type OnlineEvaluationConfigSummary struct {
+	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
+	FailureReason *string      `json:"failureReason,omitempty"`
+	UpdatedAt     *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Represents a complete policy resource within the AgentCore Policy system.
+// Policies are ARN-able resources that contain Cedar policy statements and
+// associated metadata for controlling agent behavior and access decisions.
+// Each policy belongs to a policy engine and defines fine-grained authorization
+// rules that are evaluated in real-time as agents interact with tools through
+// Gateway. Policies use the Cedar policy language to specify who (principals
+// based on OAuth claims like username, role, or scope) can perform what actions
+// (tool calls) on which resources (Gateways), with optional conditions for
+// attribute-based access control. Multiple policies can apply to a single request,
+// with Cedar's forbid-wins semantics ensuring that security restrictions are
+// never accidentally overridden.
+type Policy struct {
+	CreatedAt   *metav1.Time `json:"createdAt,omitempty"`
+	Description *string      `json:"description,omitempty"`
+	UpdatedAt   *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Represents a policy engine resource within the AgentCore Policy system. Policy
+// engines serve as containers for grouping related policies and provide the
+// execution context for policy evaluation and management. Each policy engine
+// can be associated with one Gateway (one engine per Gateway), where it intercepts
+// all agent tool calls and evaluates them against the contained policies before
+// allowing tools to execute. The policy engine maintains the Cedar schema generated
+// from the Gateway's tool manifest, ensuring that policies are validated against
+// the actual tools and parameters available. Policy engines support two enforcement
+// modes that can be configured when associating with a Gateway: log-only mode
+// for testing (evaluates decisions without blocking) and enforce mode for production
+// (actively allows or denies based on policy evaluation).
+type PolicyEngine struct {
+	CreatedAt   *metav1.Time `json:"createdAt,omitempty"`
+	Description *string      `json:"description,omitempty"`
+	UpdatedAt   *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Represents a policy generation request within the AgentCore Policy system.
+// Tracks the AI-powered conversion of natural language descriptions into Cedar
+// policy statements, enabling users to author policies by describing authorization
+// requirements in plain English. The generation process analyzes the natural
+// language input along with the Gateway's tool context and Cedar schema to
+// produce one or more validated policy options. Each generation request tracks
+// the status of the conversion process and maintains findings about the generated
+// policies, including validation results and potential issues. Generated policy
+// assets remain available for one week after successful generation, allowing
+// time to review and create policies from the generated options.
+type PolicyGeneration struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	Findings  *string      `json:"findings,omitempty"`
+	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+}
+
 // The protocol configuration for an agent runtime. This structure defines how
 // the agent runtime communicates with clients.
 type ProtocolConfiguration struct {
 	ServerProtocol *string `json:"serverProtocol,omitempty"`
+}
+
+// The recording configuration for a browser. This structure defines how browser
+// sessions are recorded.
+type RecordingConfig struct {
+	// The Amazon S3 location for storing data. This structure defines where in
+	// Amazon S3 data is stored.
+	S3Location *S3Location `json:"s3Location,omitempty"`
 }
 
 // Configuration for HTTP request headers that will be passed through to the
@@ -167,14 +493,25 @@ type RequestHeaderConfiguration struct {
 // The Amazon S3 location for storing data. This structure defines where in
 // Amazon S3 data is stored.
 type S3Location struct {
-	Bucket *string `json:"bucket,omitempty"`
-	Prefix *string `json:"prefix,omitempty"`
+	Bucket    *string `json:"bucket,omitempty"`
+	Prefix    *string `json:"prefix,omitempty"`
+	VersionID *string `json:"versionID,omitempty"`
 }
 
 // A schema definition for a gateway target. This structure defines the structure
 // of the API that the target exposes.
 type SchemaDefinition struct {
 	Description *string `json:"description,omitempty"`
+}
+
+// A configuration for a self-managed memory strategy.
+type SelfManagedConfiguration struct {
+	HistoricalContextWindowSize *int64 `json:"historicalContextWindowSize,omitempty"`
+}
+
+// Input configuration for a self-managed memory strategy.
+type SelfManagedConfigurationInput struct {
+	HistoricalContextWindowSize *int64 `json:"historicalContextWindowSize,omitempty"`
 }
 
 // Contains semantic consolidation override configuration.
@@ -202,6 +539,12 @@ type SemanticOverrideExtractionConfigurationInput struct {
 	ModelID *string `json:"modelID,omitempty"`
 }
 
+// The configuration that defines how agent sessions are detected and when they
+// are considered complete for evaluation.
+type SessionConfig struct {
+	SessionTimeoutMinutes *int64 `json:"sessionTimeoutMinutes,omitempty"`
+}
+
 // Contains summary consolidation override configuration.
 type SummaryConsolidationOverride struct {
 	ModelID *string `json:"modelID,omitempty"`
@@ -222,6 +565,26 @@ type SummaryOverrideConsolidationConfigurationInput struct {
 type TargetSummary struct {
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
 	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Trigger configuration based on time.
+type TimeBasedTrigger struct {
+	IdleSessionTimeout *int64 `json:"idleSessionTimeout,omitempty"`
+}
+
+// Trigger configuration based on time.
+type TimeBasedTriggerInput struct {
+	IdleSessionTimeout *int64 `json:"idleSessionTimeout,omitempty"`
+}
+
+// Trigger configuration based on tokens.
+type TokenBasedTrigger struct {
+	TokenCount *int64 `json:"tokenCount,omitempty"`
+}
+
+// Trigger configuration based on tokens.
+type TokenBasedTriggerInput struct {
+	TokenCount *int64 `json:"tokenCount,omitempty"`
 }
 
 // A tool definition for a gateway target. This structure defines a tool that
@@ -272,5 +635,11 @@ type ValidationExceptionField struct {
 
 // The information about the workload identity.
 type WorkloadIdentityDetails struct {
+	WorkloadIdentityARN *string `json:"workloadIdentityARN,omitempty"`
+}
+
+// Contains information about a workload identity.
+type WorkloadIdentityType struct {
+	Name                *string `json:"name,omitempty"`
 	WorkloadIdentityARN *string `json:"workloadIdentityARN,omitempty"`
 }

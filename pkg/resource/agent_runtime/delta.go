@@ -20,6 +20,7 @@ import (
 
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	acktags "github.com/aws-controllers-k8s/runtime/pkg/tags"
+	"k8s.io/apimachinery/pkg/api/equality"
 )
 
 // Hack to avoid import errors during build...
@@ -44,6 +45,53 @@ func newResourceDelta(
 	if ackcompare.HasNilDifference(a.ko.Spec.AgentRuntimeArtifact, b.ko.Spec.AgentRuntimeArtifact) {
 		delta.Add("Spec.AgentRuntimeArtifact", a.ko.Spec.AgentRuntimeArtifact, b.ko.Spec.AgentRuntimeArtifact)
 	} else if a.ko.Spec.AgentRuntimeArtifact != nil && b.ko.Spec.AgentRuntimeArtifact != nil {
+		if ackcompare.HasNilDifference(a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration) {
+			delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration)
+		} else if a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration != nil && b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration != nil {
+			if ackcompare.HasNilDifference(a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code) {
+				delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.Code", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code)
+			} else if a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code != nil && b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code != nil {
+				if ackcompare.HasNilDifference(a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3) {
+					delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3)
+				} else if a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3 != nil && b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3 != nil {
+					if ackcompare.HasNilDifference(a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket) {
+						delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket)
+					} else if a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket != nil && b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket != nil {
+						if *a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket != *b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket {
+							delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Bucket)
+						}
+					}
+					if ackcompare.HasNilDifference(a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix) {
+						delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix)
+					} else if a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix != nil && b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix != nil {
+						if *a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix != *b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix {
+							delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.Prefix)
+						}
+					}
+					if ackcompare.HasNilDifference(a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID) {
+						delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID)
+					} else if a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID != nil && b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID != nil {
+						if *a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID != *b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID {
+							delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Code.S3.VersionID)
+						}
+					}
+				}
+			}
+			if len(a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint) != len(b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint) {
+				delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint)
+			} else if len(a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint) > 0 {
+				if !ackcompare.SliceStringPEqual(a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint) {
+					delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.EntryPoint)
+				}
+			}
+			if ackcompare.HasNilDifference(a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime) {
+				delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime)
+			} else if a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime != nil && b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime != nil {
+				if *a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime != *b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime {
+					delta.Add("Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime", a.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime, b.ko.Spec.AgentRuntimeArtifact.CodeConfiguration.Runtime)
+				}
+			}
+		}
 		if ackcompare.HasNilDifference(a.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration, b.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration) {
 			delta.Add("Spec.AgentRuntimeArtifact.ContainerConfiguration", a.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration, b.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration)
 		} else if a.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration != nil && b.ko.Spec.AgentRuntimeArtifact.ContainerConfiguration != nil {
@@ -83,6 +131,20 @@ func newResourceDelta(
 					delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedClients)
 				}
 			}
+			if len(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes) != len(b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes) {
+				delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes)
+			} else if len(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes) > 0 {
+				if !ackcompare.SliceStringPEqual(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes) {
+					delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.AllowedScopes)
+				}
+			}
+			if len(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims) != len(b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims) {
+				delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims)
+			} else if len(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims) > 0 {
+				if !equality.Semantic.Equalities.DeepEqual(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims) {
+					delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.CustomClaims)
+				}
+			}
 			if ackcompare.HasNilDifference(a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL) {
 				delta.Add("Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL", a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL, b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL)
 			} else if a.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL != nil && b.ko.Spec.AuthorizerConfiguration.CustomJWTAuthorizer.DiscoveryURL != nil {
@@ -104,6 +166,24 @@ func newResourceDelta(
 	} else if len(a.ko.Spec.EnvironmentVariables) > 0 {
 		if !ackcompare.MapStringStringPEqual(a.ko.Spec.EnvironmentVariables, b.ko.Spec.EnvironmentVariables) {
 			delta.Add("Spec.EnvironmentVariables", a.ko.Spec.EnvironmentVariables, b.ko.Spec.EnvironmentVariables)
+		}
+	}
+	if ackcompare.HasNilDifference(a.ko.Spec.LifecycleConfiguration, b.ko.Spec.LifecycleConfiguration) {
+		delta.Add("Spec.LifecycleConfiguration", a.ko.Spec.LifecycleConfiguration, b.ko.Spec.LifecycleConfiguration)
+	} else if a.ko.Spec.LifecycleConfiguration != nil && b.ko.Spec.LifecycleConfiguration != nil {
+		if ackcompare.HasNilDifference(a.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout, b.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout) {
+			delta.Add("Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout", a.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout, b.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout)
+		} else if a.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil && b.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil {
+			if *a.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout != *b.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout {
+				delta.Add("Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout", a.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout, b.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout)
+			}
+		}
+		if ackcompare.HasNilDifference(a.ko.Spec.LifecycleConfiguration.MaxLifetime, b.ko.Spec.LifecycleConfiguration.MaxLifetime) {
+			delta.Add("Spec.LifecycleConfiguration.MaxLifetime", a.ko.Spec.LifecycleConfiguration.MaxLifetime, b.ko.Spec.LifecycleConfiguration.MaxLifetime)
+		} else if a.ko.Spec.LifecycleConfiguration.MaxLifetime != nil && b.ko.Spec.LifecycleConfiguration.MaxLifetime != nil {
+			if *a.ko.Spec.LifecycleConfiguration.MaxLifetime != *b.ko.Spec.LifecycleConfiguration.MaxLifetime {
+				delta.Add("Spec.LifecycleConfiguration.MaxLifetime", a.ko.Spec.LifecycleConfiguration.MaxLifetime, b.ko.Spec.LifecycleConfiguration.MaxLifetime)
+			}
 		}
 	}
 	if ackcompare.HasNilDifference(a.ko.Spec.NetworkConfiguration, b.ko.Spec.NetworkConfiguration) {

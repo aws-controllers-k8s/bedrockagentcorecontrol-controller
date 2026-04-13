@@ -18,6 +18,7 @@ rules:
   resources:
   - agentruntimes
   - agentruntimeendpoints
+  - workloadidentities
   verbs:
   - create
   - delete
@@ -31,6 +32,7 @@ rules:
   resources:
   - agentruntimes
   - agentruntimeendpoints
+  - workloadidentities
   verbs:
   - get
   - patch

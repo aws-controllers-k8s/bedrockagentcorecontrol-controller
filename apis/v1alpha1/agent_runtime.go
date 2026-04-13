@@ -23,7 +23,7 @@ import (
 // AgentRuntimeSpec defines the desired state of AgentRuntime.
 //
 // Contains information about an agent runtime. An agent runtime is the execution
-// environment for a Amazon Bedrock Agent.
+// environment for a Amazon Bedrock AgentCore Agent.
 type AgentRuntimeSpec struct {
 
 	// The artifact of the AgentCore Runtime.
@@ -40,6 +40,8 @@ type AgentRuntimeSpec struct {
 	Description *string `json:"description,omitempty"`
 	// Environment variables to set in the AgentCore Runtime environment.
 	EnvironmentVariables map[string]*string `json:"environmentVariables,omitempty"`
+	// The life cycle configuration for the AgentCore Runtime.
+	LifecycleConfiguration *LifecycleConfiguration `json:"lifecycleConfiguration,omitempty"`
 	// The network configuration for the AgentCore Runtime.
 	// +kubebuilder:validation:Required
 	NetworkConfiguration  *NetworkConfiguration  `json:"networkConfiguration"`
