@@ -41,6 +41,7 @@ import (
 
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/agent_runtime"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/agent_runtime_endpoint"
+	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/workload_identity"
 
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/version"
 )

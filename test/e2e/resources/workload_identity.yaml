@@ -1,0 +1,7 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: WorkloadIdentity
+metadata:
+  name: $WORKLOAD_IDENTITY_NAME
+  namespace: default
+spec:
+  name: $WORKLOAD_IDENTITY_NAME
