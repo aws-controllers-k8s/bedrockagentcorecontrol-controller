@@ -193,6 +193,12 @@ type CodeInterpreterSummary struct {
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
 }
 
+// Contains consolidation configuration information for a memory strategy.
+type ConsolidationConfiguration struct {
+	// Contains custom consolidation configuration information.
+	CustomConsolidationConfiguration *CustomConsolidationConfiguration `json:"customConsolidationConfiguration,omitempty"`
+}
+
 // Representation of a container configuration.
 type ContainerConfiguration struct {
 	ContainerURI *string `json:"containerURI,omitempty"`
@@ -207,6 +213,69 @@ type CustomClaimValidationType struct {
 	InboundTokenClaimValueType *string                         `json:"inboundTokenClaimValueType,omitempty"`
 }
 
+// Input for custom configuration of a memory strategy.
+type CustomConfigurationInput struct {
+	// Input for the configuration to override the episodic memory strategy.
+	EpisodicOverride *EpisodicOverrideConfigurationInput `json:"episodicOverride,omitempty"`
+	// Input configuration for a self-managed memory strategy.
+	SelfManagedConfiguration *SelfManagedConfigurationInput `json:"selfManagedConfiguration,omitempty"`
+	// Input for semantic override configuration in a memory strategy.
+	SemanticOverride *SemanticOverrideConfigurationInput `json:"semanticOverride,omitempty"`
+	// Input for summary override configuration in a memory strategy.
+	SummaryOverride *SummaryOverrideConfigurationInput `json:"summaryOverride,omitempty"`
+	// Input for user preference override configuration in a memory strategy.
+	UserPreferenceOverride *UserPreferenceOverrideConfigurationInput `json:"userPreferenceOverride,omitempty"`
+}
+
+// Contains custom consolidation configuration information.
+type CustomConsolidationConfiguration struct {
+	// Contains configurations to override the default consolidation step for the
+	// episodic memory strategy.
+	EpisodicConsolidationOverride *EpisodicConsolidationOverride `json:"episodicConsolidationOverride,omitempty"`
+	// Contains semantic consolidation override configuration.
+	SemanticConsolidationOverride *SemanticConsolidationOverride `json:"semanticConsolidationOverride,omitempty"`
+	// Contains summary consolidation override configuration.
+	SummaryConsolidationOverride *SummaryConsolidationOverride `json:"summaryConsolidationOverride,omitempty"`
+	// Contains user preference consolidation override configuration.
+	UserPreferenceConsolidationOverride *UserPreferenceConsolidationOverride `json:"userPreferenceConsolidationOverride,omitempty"`
+}
+
+// Input for a custom consolidation configuration.
+type CustomConsolidationConfigurationInput struct {
+	// Configurations for overriding the consolidation step of the episodic memory
+	// strategy.
+	EpisodicConsolidationOverride *EpisodicOverrideConsolidationConfigurationInput `json:"episodicConsolidationOverride,omitempty"`
+	// Input for semantic override consolidation configuration in a memory strategy.
+	SemanticConsolidationOverride *SemanticOverrideConsolidationConfigurationInput `json:"semanticConsolidationOverride,omitempty"`
+	// Input for summary override consolidation configuration in a memory strategy.
+	SummaryConsolidationOverride *SummaryOverrideConsolidationConfigurationInput `json:"summaryConsolidationOverride,omitempty"`
+	// Input for user preference override consolidation configuration in a memory
+	// strategy.
+	UserPreferenceConsolidationOverride *UserPreferenceOverrideConsolidationConfigurationInput `json:"userPreferenceConsolidationOverride,omitempty"`
+}
+
+// Contains custom extraction configuration information.
+type CustomExtractionConfiguration struct {
+	// Contains configurations to override the default extraction step for the episodic
+	// memory strategy.
+	EpisodicExtractionOverride *EpisodicExtractionOverride `json:"episodicExtractionOverride,omitempty"`
+	// Contains semantic extraction override configuration.
+	SemanticExtractionOverride *SemanticExtractionOverride `json:"semanticExtractionOverride,omitempty"`
+	// Contains user preference extraction override configuration.
+	UserPreferenceExtractionOverride *UserPreferenceExtractionOverride `json:"userPreferenceExtractionOverride,omitempty"`
+}
+
+// Input for a custom extraction configuration.
+type CustomExtractionConfigurationInput struct {
+	// Configurations for overriding the extraction step of the episodic memory
+	// strategy.
+	EpisodicExtractionOverride *EpisodicOverrideExtractionConfigurationInput `json:"episodicExtractionOverride,omitempty"`
+	// Input for semantic override extraction configuration in a memory strategy.
+	SemanticExtractionOverride *SemanticOverrideExtractionConfigurationInput `json:"semanticExtractionOverride,omitempty"`
+	// Input for user preference override extraction configuration in a memory strategy.
+	UserPreferenceExtractionOverride *UserPreferenceOverrideExtractionConfigurationInput `json:"userPreferenceExtractionOverride,omitempty"`
+}
+
 // Configuration for inbound JWT-based authorization, specifying how incoming
 // requests should be authenticated.
 type CustomJWTAuthorizerConfiguration struct {
@@ -219,7 +288,25 @@ type CustomJWTAuthorizerConfiguration struct {
 
 // Input for creating a custom memory strategy.
 type CustomMemoryStrategyInput struct {
-	Description *string `json:"description,omitempty"`
+	// Input for custom configuration of a memory strategy.
+	Configuration *CustomConfigurationInput `json:"configuration,omitempty"`
+	Description   *string                   `json:"description,omitempty"`
+	Name          *string                   `json:"name,omitempty"`
+	Namespaces    []*string                 `json:"namespaces,omitempty"`
+}
+
+// Contains configurations for a custom reflection strategy.
+type CustomReflectionConfiguration struct {
+	// Contains configurations to override the default reflection step for the episodic
+	// memory strategy.
+	EpisodicReflectionOverride *EpisodicReflectionOverride `json:"episodicReflectionOverride,omitempty"`
+}
+
+// Input for a custom reflection configuration.
+type CustomReflectionConfigurationInput struct {
+	// Configurations for overriding the reflection step of the episodic memory
+	// strategy.
+	EpisodicReflectionOverride *EpisodicOverrideReflectionConfigurationInput `json:"episodicReflectionOverride,omitempty"`
 }
 
 // Input for deleting a memory strategy.
@@ -230,42 +317,77 @@ type DeleteMemoryStrategyInput struct {
 // Contains configurations to override the default consolidation step for the
 // episodic memory strategy.
 type EpisodicConsolidationOverride struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Contains configurations to override the default extraction step for the episodic
 // memory strategy.
 type EpisodicExtractionOverride struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Input for creating an episodic memory strategy.
 type EpisodicMemoryStrategyInput struct {
-	Description *string `json:"description,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	Name        *string   `json:"name,omitempty"`
+	Namespaces  []*string `json:"namespaces,omitempty"`
+	// An episodic reflection configuration input.
+	ReflectionConfiguration *EpisodicReflectionConfigurationInput `json:"reflectionConfiguration,omitempty"`
+}
+
+// Input for the configuration to override the episodic memory strategy.
+type EpisodicOverrideConfigurationInput struct {
+	// Configurations for overriding the consolidation step of the episodic memory
+	// strategy.
+	Consolidation *EpisodicOverrideConsolidationConfigurationInput `json:"consolidation,omitempty"`
+	// Configurations for overriding the extraction step of the episodic memory
+	// strategy.
+	Extraction *EpisodicOverrideExtractionConfigurationInput `json:"extraction,omitempty"`
+	// Configurations for overriding the reflection step of the episodic memory
+	// strategy.
+	Reflection *EpisodicOverrideReflectionConfigurationInput `json:"reflection,omitempty"`
 }
 
 // Configurations for overriding the consolidation step of the episodic memory
 // strategy.
 type EpisodicOverrideConsolidationConfigurationInput struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Configurations for overriding the extraction step of the episodic memory
 // strategy.
 type EpisodicOverrideExtractionConfigurationInput struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Configurations for overriding the reflection step of the episodic memory
 // strategy.
 type EpisodicOverrideReflectionConfigurationInput struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string   `json:"appendToPrompt,omitempty"`
+	ModelID        *string   `json:"modelID,omitempty"`
+	Namespaces     []*string `json:"namespaces,omitempty"`
+}
+
+// The configuration for the reflections created with the episodic memory strategy.
+type EpisodicReflectionConfiguration struct {
+	Namespaces []*string `json:"namespaces,omitempty"`
+}
+
+// An episodic reflection configuration input.
+type EpisodicReflectionConfigurationInput struct {
+	Namespaces []*string `json:"namespaces,omitempty"`
 }
 
 // Contains configurations to override the default reflection step for the episodic
 // memory strategy.
 type EpisodicReflectionOverride struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string   `json:"appendToPrompt,omitempty"`
+	ModelID        *string   `json:"modelID,omitempty"`
+	Namespaces     []*string `json:"namespaces,omitempty"`
 }
 
 // The summary information about an evaluator, including basic metadata and
@@ -273,6 +395,12 @@ type EpisodicReflectionOverride struct {
 type EvaluatorSummary struct {
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
 	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Contains extraction configuration information for a memory strategy.
+type ExtractionConfiguration struct {
+	// Contains custom extraction configuration information.
+	CustomExtractionConfiguration *CustomExtractionConfiguration `json:"customExtractionConfiguration,omitempty"`
 }
 
 // The filter that applies conditions to agent traces during online evaluation
@@ -323,11 +451,13 @@ type InferenceConfiguration struct {
 // The configuration to invoke a self-managed memory processing pipeline with.
 type InvocationConfiguration struct {
 	PayloadDeliveryBucketName *string `json:"payloadDeliveryBucketName,omitempty"`
+	TopicARN                  *string `json:"topicARN,omitempty"`
 }
 
 // The configuration to invoke a self-managed memory processing pipeline with.
 type InvocationConfigurationInput struct {
 	PayloadDeliveryBucketName *string `json:"payloadDeliveryBucketName,omitempty"`
+	TopicARN                  *string `json:"topicARN,omitempty"`
 }
 
 // LifecycleConfiguration lets you manage the lifecycle of runtime sessions
@@ -344,26 +474,57 @@ type McpServerTargetConfiguration struct {
 	Endpoint *string `json:"endpoint,omitempty"`
 }
 
-// Contains information about a memory resource.
-type Memory struct {
-	CreatedAt           *metav1.Time `json:"createdAt,omitempty"`
-	Description         *string      `json:"description,omitempty"`
-	EventExpiryDuration *int64       `json:"eventExpiryDuration,omitempty"`
-	FailureReason       *string      `json:"failureReason,omitempty"`
-	UpdatedAt           *metav1.Time `json:"updatedAt,omitempty"`
-}
-
 // Contains information about a memory strategy.
 type MemoryStrategy struct {
-	CreatedAt   *metav1.Time `json:"createdAt,omitempty"`
-	Description *string      `json:"description,omitempty"`
-	UpdatedAt   *metav1.Time `json:"updatedAt,omitempty"`
+	// Contains configuration information for a memory strategy.
+	Configuration *StrategyConfiguration `json:"configuration,omitempty"`
+	CreatedAt     *metav1.Time           `json:"createdAt,omitempty"`
+	Description   *string                `json:"description,omitempty"`
+	Name          *string                `json:"name,omitempty"`
+	Namespaces    []*string              `json:"namespaces,omitempty"`
+	Status        *string                `json:"status,omitempty"`
+	StrategyID    *string                `json:"strategyID,omitempty"`
+	Type          *string                `json:"type_,omitempty"`
+	UpdatedAt     *metav1.Time           `json:"updatedAt,omitempty"`
+}
+
+// Contains input information for creating a memory strategy.
+type MemoryStrategyInput struct {
+	// Input for creating a custom memory strategy.
+	CustomMemoryStrategy *CustomMemoryStrategyInput `json:"customMemoryStrategy,omitempty"`
+	// Input for creating an episodic memory strategy.
+	EpisodicMemoryStrategy *EpisodicMemoryStrategyInput `json:"episodicMemoryStrategy,omitempty"`
+	// Input for creating a semantic memory strategy.
+	SemanticMemoryStrategy *SemanticMemoryStrategyInput `json:"semanticMemoryStrategy,omitempty"`
+	// Input for creating a summary memory strategy.
+	SummaryMemoryStrategy *SummaryMemoryStrategyInput `json:"summaryMemoryStrategy,omitempty"`
+	// Input for creating a user preference memory strategy.
+	UserPreferenceMemoryStrategy *UserPreferenceMemoryStrategyInput `json:"userPreferenceMemoryStrategy,omitempty"`
 }
 
 // Contains summary information about a memory resource.
 type MemorySummary struct {
+	ARN       *string      `json:"arn,omitempty"`
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	ID        *string      `json:"id,omitempty"`
+	Status    *string      `json:"status,omitempty"`
 	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Contains information about a memory resource.
+type Memory_SDK struct {
+	ARN                    *string           `json:"arn,omitempty"`
+	CreatedAt              *metav1.Time      `json:"createdAt,omitempty"`
+	Description            *string           `json:"description,omitempty"`
+	EncryptionKeyARN       *string           `json:"encryptionKeyARN,omitempty"`
+	EventExpiryDuration    *int64            `json:"eventExpiryDuration,omitempty"`
+	FailureReason          *string           `json:"failureReason,omitempty"`
+	ID                     *string           `json:"id,omitempty"`
+	MemoryExecutionRoleARN *string           `json:"memoryExecutionRoleARN,omitempty"`
+	Name                   *string           `json:"name,omitempty"`
+	Status                 *string           `json:"status,omitempty"`
+	Strategies             []*MemoryStrategy `json:"strategies,omitempty"`
+	UpdatedAt              *metav1.Time      `json:"updatedAt,omitempty"`
 }
 
 // The trigger configuration based on a message.
@@ -379,17 +540,31 @@ type MessageBasedTriggerInput struct {
 // The configuration for updating invocation settings.
 type ModifyInvocationConfigurationInput struct {
 	PayloadDeliveryBucketName *string `json:"payloadDeliveryBucketName,omitempty"`
+	TopicARN                  *string `json:"topicARN,omitempty"`
+}
+
+// Contains information for modifying memory strategies.
+type ModifyMemoryStrategies struct {
+	AddMemoryStrategies []*MemoryStrategyInput `json:"addMemoryStrategies,omitempty"`
 }
 
 // Input for modifying a memory strategy.
 type ModifyMemoryStrategyInput struct {
-	Description      *string `json:"description,omitempty"`
-	MemoryStrategyID *string `json:"memoryStrategyID,omitempty"`
+	Description      *string   `json:"description,omitempty"`
+	MemoryStrategyID *string   `json:"memoryStrategyID,omitempty"`
+	Namespaces       []*string `json:"namespaces,omitempty"`
+}
+
+// Contains information for modifying a reflection configuration.
+type ModifyReflectionConfiguration struct {
+	// An episodic reflection configuration input.
+	EpisodicReflectionConfiguration *EpisodicReflectionConfigurationInput `json:"episodicReflectionConfiguration,omitempty"`
 }
 
 // The configuration for updating the self-managed memory strategy.
 type ModifySelfManagedConfiguration struct {
-	HistoricalContextWindowSize *int64 `json:"historicalContextWindowSize,omitempty"`
+	HistoricalContextWindowSize *int64                   `json:"historicalContextWindowSize,omitempty"`
+	TriggerConditions           []*TriggerConditionInput `json:"triggerConditions,omitempty"`
 }
 
 // SecurityConfig for the Agent.
@@ -484,6 +659,14 @@ type RecordingConfig struct {
 	S3Location *S3Location `json:"s3Location,omitempty"`
 }
 
+// Contains reflection configuration information for a memory strategy.
+type ReflectionConfiguration struct {
+	// Contains configurations for a custom reflection strategy.
+	CustomReflectionConfiguration *CustomReflectionConfiguration `json:"customReflectionConfiguration,omitempty"`
+	// The configuration for the reflections created with the episodic memory strategy.
+	EpisodicReflectionConfiguration *EpisodicReflectionConfiguration `json:"episodicReflectionConfiguration,omitempty"`
+}
+
 // Configuration for HTTP request headers that will be passed through to the
 // runtime.
 type RequestHeaderConfiguration struct {
@@ -507,36 +690,56 @@ type SchemaDefinition struct {
 // A configuration for a self-managed memory strategy.
 type SelfManagedConfiguration struct {
 	HistoricalContextWindowSize *int64 `json:"historicalContextWindowSize,omitempty"`
+	// The configuration to invoke a self-managed memory processing pipeline with.
+	InvocationConfiguration *InvocationConfiguration `json:"invocationConfiguration,omitempty"`
+	TriggerConditions       []*TriggerCondition      `json:"triggerConditions,omitempty"`
 }
 
 // Input configuration for a self-managed memory strategy.
 type SelfManagedConfigurationInput struct {
 	HistoricalContextWindowSize *int64 `json:"historicalContextWindowSize,omitempty"`
+	// The configuration to invoke a self-managed memory processing pipeline with.
+	InvocationConfiguration *InvocationConfigurationInput `json:"invocationConfiguration,omitempty"`
+	TriggerConditions       []*TriggerConditionInput      `json:"triggerConditions,omitempty"`
 }
 
 // Contains semantic consolidation override configuration.
 type SemanticConsolidationOverride struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Contains semantic extraction override configuration.
 type SemanticExtractionOverride struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Input for creating a semantic memory strategy.
 type SemanticMemoryStrategyInput struct {
-	Description *string `json:"description,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	Name        *string   `json:"name,omitempty"`
+	Namespaces  []*string `json:"namespaces,omitempty"`
+}
+
+// Input for semantic override configuration in a memory strategy.
+type SemanticOverrideConfigurationInput struct {
+	// Input for semantic override consolidation configuration in a memory strategy.
+	Consolidation *SemanticOverrideConsolidationConfigurationInput `json:"consolidation,omitempty"`
+	// Input for semantic override extraction configuration in a memory strategy.
+	Extraction *SemanticOverrideExtractionConfigurationInput `json:"extraction,omitempty"`
 }
 
 // Input for semantic override consolidation configuration in a memory strategy.
 type SemanticOverrideConsolidationConfigurationInput struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Input for semantic override extraction configuration in a memory strategy.
 type SemanticOverrideExtractionConfigurationInput struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // The configuration that defines how agent sessions are detected and when they
@@ -545,19 +748,42 @@ type SessionConfig struct {
 	SessionTimeoutMinutes *int64 `json:"sessionTimeoutMinutes,omitempty"`
 }
 
+// Contains configuration information for a memory strategy.
+type StrategyConfiguration struct {
+	// Contains consolidation configuration information for a memory strategy.
+	Consolidation *ConsolidationConfiguration `json:"consolidation,omitempty"`
+	// Contains extraction configuration information for a memory strategy.
+	Extraction *ExtractionConfiguration `json:"extraction,omitempty"`
+	// Contains reflection configuration information for a memory strategy.
+	Reflection *ReflectionConfiguration `json:"reflection,omitempty"`
+	// A configuration for a self-managed memory strategy.
+	SelfManagedConfiguration *SelfManagedConfiguration `json:"selfManagedConfiguration,omitempty"`
+	Type                     *string                   `json:"type_,omitempty"`
+}
+
 // Contains summary consolidation override configuration.
 type SummaryConsolidationOverride struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Input for creating a summary memory strategy.
 type SummaryMemoryStrategyInput struct {
-	Description *string `json:"description,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	Name        *string   `json:"name,omitempty"`
+	Namespaces  []*string `json:"namespaces,omitempty"`
+}
+
+// Input for summary override configuration in a memory strategy.
+type SummaryOverrideConfigurationInput struct {
+	// Input for summary override consolidation configuration in a memory strategy.
+	Consolidation *SummaryOverrideConsolidationConfigurationInput `json:"consolidation,omitempty"`
 }
 
 // Input for summary override consolidation configuration in a memory strategy.
 type SummaryOverrideConsolidationConfigurationInput struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Contains summary information about a gateway target. A target represents
@@ -594,30 +820,65 @@ type ToolDefinition struct {
 	Name        *string `json:"name,omitempty"`
 }
 
+// Condition that triggers memory processing.
+type TriggerCondition struct {
+	// The trigger configuration based on a message.
+	MessageBasedTrigger *MessageBasedTrigger `json:"messageBasedTrigger,omitempty"`
+	// Trigger configuration based on time.
+	TimeBasedTrigger *TimeBasedTrigger `json:"timeBasedTrigger,omitempty"`
+	// Trigger configuration based on tokens.
+	TokenBasedTrigger *TokenBasedTrigger `json:"tokenBasedTrigger,omitempty"`
+}
+
+// Condition that triggers memory processing.
+type TriggerConditionInput struct {
+	// The trigger configuration based on a message.
+	MessageBasedTrigger *MessageBasedTriggerInput `json:"messageBasedTrigger,omitempty"`
+	// Trigger configuration based on time.
+	TimeBasedTrigger *TimeBasedTriggerInput `json:"timeBasedTrigger,omitempty"`
+	// Trigger configuration based on tokens.
+	TokenBasedTrigger *TokenBasedTriggerInput `json:"tokenBasedTrigger,omitempty"`
+}
+
 // Contains user preference consolidation override configuration.
 type UserPreferenceConsolidationOverride struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Contains user preference extraction override configuration.
 type UserPreferenceExtractionOverride struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Input for creating a user preference memory strategy.
 type UserPreferenceMemoryStrategyInput struct {
-	Description *string `json:"description,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	Name        *string   `json:"name,omitempty"`
+	Namespaces  []*string `json:"namespaces,omitempty"`
+}
+
+// Input for user preference override configuration in a memory strategy.
+type UserPreferenceOverrideConfigurationInput struct {
+	// Input for user preference override consolidation configuration in a memory
+	// strategy.
+	Consolidation *UserPreferenceOverrideConsolidationConfigurationInput `json:"consolidation,omitempty"`
+	// Input for user preference override extraction configuration in a memory strategy.
+	Extraction *UserPreferenceOverrideExtractionConfigurationInput `json:"extraction,omitempty"`
 }
 
 // Input for user preference override consolidation configuration in a memory
 // strategy.
 type UserPreferenceOverrideConsolidationConfigurationInput struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // Input for user preference override extraction configuration in a memory strategy.
 type UserPreferenceOverrideExtractionConfigurationInput struct {
-	ModelID *string `json:"modelID,omitempty"`
+	AppendToPrompt *string `json:"appendToPrompt,omitempty"`
+	ModelID        *string `json:"modelID,omitempty"`
 }
 
 // VpcConfig for the Agent.

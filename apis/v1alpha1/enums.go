@@ -255,13 +255,13 @@ const (
 	KeyType_ServiceManagedKey  KeyType = "ServiceManagedKey"
 )
 
-type MemoryStatus string
+type MemoryStatus_SDK string
 
 const (
-	MemoryStatus_ACTIVE   MemoryStatus = "ACTIVE"
-	MemoryStatus_CREATING MemoryStatus = "CREATING"
-	MemoryStatus_DELETING MemoryStatus = "DELETING"
-	MemoryStatus_FAILED   MemoryStatus = "FAILED"
+	MemoryStatus_SDK_ACTIVE   MemoryStatus_SDK = "ACTIVE"
+	MemoryStatus_SDK_CREATING MemoryStatus_SDK = "CREATING"
+	MemoryStatus_SDK_DELETING MemoryStatus_SDK = "DELETING"
+	MemoryStatus_SDK_FAILED   MemoryStatus_SDK = "FAILED"
 )
 
 type MemoryStrategyStatus string

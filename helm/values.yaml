@@ -152,6 +152,7 @@ reconcile:
   resources:
     - AgentRuntime
     - AgentRuntimeEndpoint
+    - Memory
     - WorkloadIdentity
 
 serviceAccount:
