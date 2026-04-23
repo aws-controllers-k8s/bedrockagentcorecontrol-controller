@@ -1,0 +1,17 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: AgentRuntime
+metadata:
+  name: my-agent-runtime
+spec:
+  agentRuntimeName: "<AGENT_RUNTIME_NAME>"
+  roleARN: "<AGENT_ROLE_ARN>"
+  agentRuntimeArtifact:
+    containerConfiguration:
+      containerURI: "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/my-agent:<IMAGE_TAG>"
+  networkConfiguration:
+    networkMode: PUBLIC
+  protocolConfiguration:
+    serverProtocol: HTTP
+  environmentVariables:
+    AWS_REGION: "<REGION>"
+    BEDROCK_MODEL_ID: "<BEDROCK_MODEL_ID>"
