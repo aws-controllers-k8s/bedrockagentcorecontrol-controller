@@ -130,6 +130,18 @@ type BrowserProfileSummary struct {
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
 }
 
+// Configuration for enabling browser signing capabilities that allow agents
+// to cryptographically identify themselves to websites using HTTP message signatures.
+type BrowserSigningConfigInput struct {
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
+// The current browser signing configuration that shows whether cryptographic
+// agent identification is enabled for web bot authentication.
+type BrowserSigningConfigOutput struct {
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
 // Contains summary information about a browser. A browser enables Amazon Bedrock
 // AgentCore Agent to interact with web content.
 type BrowserSummary struct {
@@ -271,8 +283,9 @@ type EpisodicReflectionOverride struct {
 // The summary information about an evaluator, including basic metadata and
 // status information.
 type EvaluatorSummary struct {
-	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
-	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+	CreatedAt             *metav1.Time `json:"createdAt,omitempty"`
+	LockedForModification *bool        `json:"lockedForModification,omitempty"`
+	UpdatedAt             *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // The filter that applies conditions to agent traces during online evaluation
@@ -284,7 +297,8 @@ type Filter struct {
 // The value used in filter comparisons, supporting different data types for
 // flexible filtering criteria.
 type FilterValue struct {
-	StringValue *string `json:"stringValue,omitempty"`
+	BooleanValue *bool   `json:"booleanValue,omitempty"`
+	StringValue  *string `json:"stringValue,omitempty"`
 }
 
 // Represents a finding or issue discovered during policy generation or validation.
@@ -301,16 +315,53 @@ type Finding struct {
 	Description *string `json:"description,omitempty"`
 }
 
+// The configuration for an interceptor on a gateway. This structure defines
+// settings for an interceptor that will be invoked during the invocation of
+// the gateway.
+type GatewayInterceptorConfiguration struct {
+	// The input configuration of the interceptor.
+	InputConfiguration *InterceptorInputConfiguration `json:"inputConfiguration,omitempty"`
+	InterceptionPoints []*string                      `json:"interceptionPoints,omitempty"`
+	// The interceptor configuration.
+	Interceptor *InterceptorConfiguration `json:"interceptor,omitempty"`
+}
+
+// The configuration for a policy engine associated with a gateway. A policy
+// engine is a collection of policies that evaluates and authorizes agent tool
+// calls. When associated with a gateway, the policy engine intercepts all agent
+// requests and determines whether to allow or deny each action based on the
+// defined policies.
+type GatewayPolicyEngineConfiguration struct {
+	ARN  *string `json:"arn,omitempty"`
+	Mode *string `json:"mode,omitempty"`
+}
+
+// The configuration for a gateway protocol. This structure defines how the
+// gateway communicates with external services.
+type GatewayProtocolConfiguration struct {
+	// The configuration for a Model Context Protocol (MCP) gateway. This structure
+	// defines how the gateway implements the MCP protocol.
+	Mcp *MCPGatewayConfiguration `json:"mcp,omitempty"`
+}
+
 // Contains summary information about a gateway.
 type GatewaySummary struct {
-	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
-	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+	AuthorizerType *string      `json:"authorizerType,omitempty"`
+	CreatedAt      *metav1.Time `json:"createdAt,omitempty"`
+	Description    *string      `json:"description,omitempty"`
+	GatewayID      *string      `json:"gatewayID,omitempty"`
+	Name           *string      `json:"name,omitempty"`
+	ProtocolType   *string      `json:"protocolType,omitempty"`
+	Status         *string      `json:"status,omitempty"`
+	UpdatedAt      *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // The gateway target.
 type GatewayTarget struct {
 	CreatedAt          *metav1.Time `json:"createdAt,omitempty"`
+	GatewayARN         *string      `json:"gatewayARN,omitempty"`
 	LastSynchronizedAt *metav1.Time `json:"lastSynchronizedAt,omitempty"`
+	StatusReasons      []*string    `json:"statusReasons,omitempty"`
 	UpdatedAt          *metav1.Time `json:"updatedAt,omitempty"`
 }
 
@@ -318,6 +369,17 @@ type GatewayTarget struct {
 // during evaluation, including response generation settings.
 type InferenceConfiguration struct {
 	MaxTokens *int64 `json:"maxTokens,omitempty"`
+}
+
+// The interceptor configuration.
+type InterceptorConfiguration struct {
+	// The lambda configuration for the interceptor
+	Lambda *LambdaInterceptorConfiguration `json:"lambda,omitempty"`
+}
+
+// The input configuration of the interceptor.
+type InterceptorInputConfiguration struct {
+	PassRequestHeaders *bool `json:"passRequestHeaders,omitempty"`
 }
 
 // The configuration to invoke a self-managed memory processing pipeline with.
@@ -330,6 +392,16 @@ type InvocationConfigurationInput struct {
 	PayloadDeliveryBucketName *string `json:"payloadDeliveryBucketName,omitempty"`
 }
 
+// Contains the KMS configuration for a resource.
+type KMSConfiguration struct {
+	KMSKeyARN *string `json:"kmsKeyARN,omitempty"`
+}
+
+// The lambda configuration for the interceptor
+type LambdaInterceptorConfiguration struct {
+	ARN *string `json:"arn,omitempty"`
+}
+
 // LifecycleConfiguration lets you manage the lifecycle of runtime sessions
 // and resources in AgentCore Runtime. This configuration helps optimize resource
 // utilization by automatically cleaning up idle sessions and preventing long-running
@@ -337,6 +409,20 @@ type InvocationConfigurationInput struct {
 type LifecycleConfiguration struct {
 	IdleRuntimeSessionTimeout *int64 `json:"idleRuntimeSessionTimeout,omitempty"`
 	MaxLifetime               *int64 `json:"maxLifetime,omitempty"`
+}
+
+// The configuration for a Model Context Protocol (MCP) gateway. This structure
+// defines how the gateway implements the MCP protocol.
+type MCPGatewayConfiguration struct {
+	Instructions      *string   `json:"instructions,omitempty"`
+	SearchType        *string   `json:"searchType,omitempty"`
+	SupportedVersions []*string `json:"supportedVersions,omitempty"`
+}
+
+// The Lambda configuration for a Model Context Protocol target. This structure
+// defines how the gateway uses a Lambda function to communicate with the target.
+type McpLambdaTargetConfiguration struct {
+	LambdaARN *string `json:"lambdaARN,omitempty"`
 }
 
 // The target configuration for the MCP server.
@@ -479,6 +565,7 @@ type ProtocolConfiguration struct {
 // The recording configuration for a browser. This structure defines how browser
 // sessions are recorded.
 type RecordingConfig struct {
+	Enabled *bool `json:"enabled,omitempty"`
 	// The Amazon S3 location for storing data. This structure defines where in
 	// Amazon S3 data is stored.
 	S3Location *S3Location `json:"s3Location,omitempty"`

@@ -74,6 +74,7 @@ rules:
   resources:
   - agentruntimeendpoints
   - agentruntimes
+  - gateways
   - workloadidentities
   verbs:
   - create
@@ -88,11 +89,28 @@ rules:
   resources:
   - agentruntimeendpoints/status
   - agentruntimes/status
+  - gateways/status
   - workloadidentities/status
   verbs:
   - get
   - patch
   - update
+- apiGroups:
+  - iam.services.k8s.aws
+  resources:
+  - roles
+  - roles/status
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - kms.services.k8s.aws
+  resources:
+  - keys
+  - keys/status
+  verbs:
+  - get
+  - list
 - apiGroups:
   - services.k8s.aws
   resources:

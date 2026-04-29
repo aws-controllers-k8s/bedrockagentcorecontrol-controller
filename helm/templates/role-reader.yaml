@@ -18,6 +18,7 @@ rules:
   resources:
   - agentruntimes
   - agentruntimeendpoints
+  - gateways
   - workloadidentities
   verbs:
   - get

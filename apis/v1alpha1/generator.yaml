@@ -7,7 +7,7 @@ ignore:
     - BrowserProfile
     - CodeInterpreter
     - Evaluator
-    - Gateway
+    # Gateway
     - GatewayTarget
     - Memory
     - Oauth2CredentialProvider
@@ -15,9 +15,11 @@ ignore:
     - Policy
     - PolicyEngine
     # - WorkloadIdentity
+
   field_paths:
     - CreateAgentRuntimeInput.ClientToken
     - CreateAgentRuntimeEndpointInput.ClientToken
+    - CreateGatewayInput.ClientToken
 
 sdk_names:
   model_name: bedrock-agentcore-control
@@ -80,3 +82,45 @@ resources:
         template_path: hooks/workloadidentity/sdk_read_one_post_set_output.go.tpl
       sdk_update_pre_build_request:
         template_path: hooks/workloadidentity/sdk_update_pre_build_request.go.tpl
+
+  Gateway:
+    renames:
+      operations:
+        GetGateway:
+          input_fields:
+            GatewayIdentifier: GatewayId
+        UpdateGateway:
+          input_fields:
+            GatewayIdentifier: GatewayId
+        DeleteGateway:
+          input_fields:
+            GatewayIdentifier: GatewayId
+    fields:
+      KmsKeyArn:
+        references:
+          resource: Key
+          path: Status.ACKResourceMetadata.ARN
+          service_name: kms
+      RoleArn:
+        references:
+          resource: Role
+          path: Status.ACKResourceMetadata.ARN
+          service_name: iam
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+    hooks:
+      sdk_update_pre_build_request:
+        template_path: hooks/gateway/sdk_update_pre_build_request.go.tpl
+      sdk_read_one_post_set_output:
+        template_path: hooks/gateway/sdk_read_one_post_set_output.go.tpl
+      sdk_delete_pre_build_request:
+        template_path: hooks/gateway/sdk_delete_pre_build_request.go.tpl
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
