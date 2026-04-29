@@ -30,20 +30,34 @@ var (
 
 // The configuration for an Amazon API Gateway target.
 type APIGatewayTargetConfiguration struct {
-	RestAPIID *string `json:"restAPIID,omitempty"`
-	Stage     *string `json:"stage,omitempty"`
+	// The configuration for defining REST API tool filters and overrides for the
+	// gateway target.
+	APIGatewayToolConfiguration *APIGatewayToolConfiguration `json:"apiGatewayToolConfiguration,omitempty"`
+	RestAPIID                   *string                      `json:"restAPIID,omitempty"`
+	// Reference field for RestAPIID
+	RestAPIRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"restAPIRef,omitempty"`
+	Stage      *string                                  `json:"stage,omitempty"`
+}
+
+// The configuration for defining REST API tool filters and overrides for the
+// gateway target.
+type APIGatewayToolConfiguration struct {
+	ToolFilters   []*APIGatewayToolFilter   `json:"toolFilters,omitempty"`
+	ToolOverrides []*APIGatewayToolOverride `json:"toolOverrides,omitempty"`
 }
 
 // Specifies which operations from an API Gateway REST API are exposed as tools.
 // Tool names and descriptions are derived from the operationId and description
 // fields in the API's exported OpenAPI specification.
 type APIGatewayToolFilter struct {
-	FilterPath *string `json:"filterPath,omitempty"`
+	FilterPath *string   `json:"filterPath,omitempty"`
+	Methods    []*string `json:"methods,omitempty"`
 }
 
 // Settings to override configurations for a tool.
 type APIGatewayToolOverride struct {
 	Description *string `json:"description,omitempty"`
+	Method      *string `json:"method,omitempty"`
 	Name        *string `json:"name,omitempty"`
 	Path        *string `json:"path,omitempty"`
 }
@@ -52,6 +66,14 @@ type APIGatewayToolOverride struct {
 type APIKeyCredentialProviderItem struct {
 	CreatedTime     *metav1.Time `json:"createdTime,omitempty"`
 	LastUpdatedTime *metav1.Time `json:"lastUpdatedTime,omitempty"`
+}
+
+// Configuration for API schema.
+type APISchemaConfiguration struct {
+	InlinePayload *string `json:"inlinePayload,omitempty"`
+	// The Amazon S3 configuration for a gateway. This structure defines how the
+	// gateway accesses files in Amazon S3.
+	S3 *S3Configuration `json:"s3,omitempty"`
 }
 
 // The artifact of the agent.
@@ -210,6 +232,27 @@ type ContainerConfiguration struct {
 	ContainerURI *string `json:"containerURI,omitempty"`
 }
 
+// A credential provider for gateway authentication. This structure contains
+// the configuration for authenticating with the target endpoint.
+type CredentialProvider struct {
+	// An API key credential provider for gateway authentication. This structure
+	// contains the configuration for authenticating with the target endpoint using
+	// an API key.
+	APIKeyCredentialProvider *GatewayAPIKeyCredentialProvider `json:"apiKeyCredentialProvider,omitempty"`
+	// An OAuth credential provider for gateway authentication. This structure contains
+	// the configuration for authenticating with the target endpoint using OAuth.
+	OauthCredentialProvider *OAuthCredentialProvider `json:"oauthCredentialProvider,omitempty"`
+}
+
+// The configuration for a credential provider. This structure defines how the
+// gateway authenticates with the target endpoint.
+type CredentialProviderConfiguration struct {
+	// A credential provider for gateway authentication. This structure contains
+	// the configuration for authenticating with the target endpoint.
+	CredentialProvider     *CredentialProvider `json:"credentialProvider,omitempty"`
+	CredentialProviderType *string             `json:"credentialProviderType,omitempty"`
+}
+
 // Defines the name of a custom claim field and rules for finding matches to
 // authenticate its value.
 type CustomClaimValidationType struct {
@@ -315,6 +358,16 @@ type Finding struct {
 	Description *string `json:"description,omitempty"`
 }
 
+// An API key credential provider for gateway authentication. This structure
+// contains the configuration for authenticating with the target endpoint using
+// an API key.
+type GatewayAPIKeyCredentialProvider struct {
+	CredentialLocation      *string `json:"credentialLocation,omitempty"`
+	CredentialParameterName *string `json:"credentialParameterName,omitempty"`
+	CredentialPrefix        *string `json:"credentialPrefix,omitempty"`
+	ProviderARN             *string `json:"providerARN,omitempty"`
+}
+
 // The configuration for an interceptor on a gateway. This structure defines
 // settings for an interceptor that will be invoked during the invocation of
 // the gateway.
@@ -357,12 +410,23 @@ type GatewaySummary struct {
 }
 
 // The gateway target.
-type GatewayTarget struct {
-	CreatedAt          *metav1.Time `json:"createdAt,omitempty"`
-	GatewayARN         *string      `json:"gatewayARN,omitempty"`
-	LastSynchronizedAt *metav1.Time `json:"lastSynchronizedAt,omitempty"`
-	StatusReasons      []*string    `json:"statusReasons,omitempty"`
-	UpdatedAt          *metav1.Time `json:"updatedAt,omitempty"`
+type GatewayTarget_SDK struct {
+	CreatedAt                        *metav1.Time                       `json:"createdAt,omitempty"`
+	CredentialProviderConfigurations []*CredentialProviderConfiguration `json:"credentialProviderConfigurations,omitempty"`
+	Description                      *string                            `json:"description,omitempty"`
+	GatewayARN                       *string                            `json:"gatewayARN,omitempty"`
+	LastSynchronizedAt               *metav1.Time                       `json:"lastSynchronizedAt,omitempty"`
+	// Configuration for HTTP header and query parameter propagation between the
+	// gateway and target servers.
+	MetadataConfiguration *MetadataConfiguration `json:"metadataConfiguration,omitempty"`
+	Name                  *string                `json:"name,omitempty"`
+	Status                *string                `json:"status,omitempty"`
+	StatusReasons         []*string              `json:"statusReasons,omitempty"`
+	// The configuration for a gateway target. This structure defines how the gateway
+	// connects to and interacts with the target endpoint.
+	TargetConfiguration *TargetConfiguration `json:"targetConfiguration,omitempty"`
+	TargetID            *string              `json:"targetID,omitempty"`
+	UpdatedAt           *metav1.Time         `json:"updatedAt,omitempty"`
 }
 
 // The configuration parameters that control how the foundation model behaves
@@ -423,11 +487,30 @@ type MCPGatewayConfiguration struct {
 // defines how the gateway uses a Lambda function to communicate with the target.
 type McpLambdaTargetConfiguration struct {
 	LambdaARN *string `json:"lambdaARN,omitempty"`
+	// A tool schema for a gateway target. This structure defines the schema for
+	// a tool that the target exposes through the Model Context Protocol.
+	ToolSchema *ToolSchema `json:"toolSchema,omitempty"`
 }
 
 // The target configuration for the MCP server.
 type McpServerTargetConfiguration struct {
 	Endpoint *string `json:"endpoint,omitempty"`
+}
+
+// The Model Context Protocol (MCP) configuration for a target. This structure
+// defines how the gateway uses MCP to communicate with the target.
+type McpTargetConfiguration struct {
+	// The configuration for an Amazon API Gateway target.
+	APIGateway *APIGatewayTargetConfiguration `json:"apiGateway,omitempty"`
+	// The Lambda configuration for a Model Context Protocol target. This structure
+	// defines how the gateway uses a Lambda function to communicate with the target.
+	Lambda *McpLambdaTargetConfiguration `json:"lambda,omitempty"`
+	// The target configuration for the MCP server.
+	McpServer *McpServerTargetConfiguration `json:"mcpServer,omitempty"`
+	// Configuration for API schema.
+	OpenAPISchema *APISchemaConfiguration `json:"openAPISchema,omitempty"`
+	// Configuration for API schema.
+	SmithyModel *APISchemaConfiguration `json:"smithyModel,omitempty"`
 }
 
 // Contains information about a memory resource.
@@ -462,6 +545,14 @@ type MessageBasedTriggerInput struct {
 	MessageCount *int64 `json:"messageCount,omitempty"`
 }
 
+// Configuration for HTTP header and query parameter propagation between the
+// gateway and target servers.
+type MetadataConfiguration struct {
+	AllowedQueryParameters []*string `json:"allowedQueryParameters,omitempty"`
+	AllowedRequestHeaders  []*string `json:"allowedRequestHeaders,omitempty"`
+	AllowedResponseHeaders []*string `json:"allowedResponseHeaders,omitempty"`
+}
+
 // The configuration for updating invocation settings.
 type ModifyInvocationConfigurationInput struct {
 	PayloadDeliveryBucketName *string `json:"payloadDeliveryBucketName,omitempty"`
@@ -490,6 +581,16 @@ type NetworkConfiguration struct {
 type NumericalScaleDefinition struct {
 	Definition *string `json:"definition,omitempty"`
 	Label      *string `json:"label,omitempty"`
+}
+
+// An OAuth credential provider for gateway authentication. This structure contains
+// the configuration for authenticating with the target endpoint using OAuth.
+type OAuthCredentialProvider struct {
+	CustomParameters map[string]*string `json:"customParameters,omitempty"`
+	DefaultReturnURL *string            `json:"defaultReturnURL,omitempty"`
+	GrantType        *string            `json:"grantType,omitempty"`
+	ProviderARN      *string            `json:"providerARN,omitempty"`
+	Scopes           []*string          `json:"scopes,omitempty"`
 }
 
 // Contains information about an OAuth2 credential provider.
@@ -577,6 +678,13 @@ type RequestHeaderConfiguration struct {
 	RequestHeaderAllowlist []*string `json:"requestHeaderAllowlist,omitempty"`
 }
 
+// The Amazon S3 configuration for a gateway. This structure defines how the
+// gateway accesses files in Amazon S3.
+type S3Configuration struct {
+	BucketOwnerAccountID *string `json:"bucketOwnerAccountID,omitempty"`
+	URI                  *string `json:"uri,omitempty"`
+}
+
 // The Amazon S3 location for storing data. This structure defines where in
 // Amazon S3 data is stored.
 type S3Location struct {
@@ -647,11 +755,23 @@ type SummaryOverrideConsolidationConfigurationInput struct {
 	ModelID *string `json:"modelID,omitempty"`
 }
 
+// The configuration for a gateway target. This structure defines how the gateway
+// connects to and interacts with the target endpoint.
+type TargetConfiguration struct {
+	// The Model Context Protocol (MCP) configuration for a target. This structure
+	// defines how the gateway uses MCP to communicate with the target.
+	Mcp *McpTargetConfiguration `json:"mcp,omitempty"`
+}
+
 // Contains summary information about a gateway target. A target represents
 // an endpoint that the gateway can connect to.
 type TargetSummary struct {
-	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
-	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+	CreatedAt   *metav1.Time `json:"createdAt,omitempty"`
+	Description *string      `json:"description,omitempty"`
+	Name        *string      `json:"name,omitempty"`
+	Status      *string      `json:"status,omitempty"`
+	TargetID    *string      `json:"targetID,omitempty"`
+	UpdatedAt   *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Trigger configuration based on time.
@@ -677,8 +797,19 @@ type TokenBasedTriggerInput struct {
 // A tool definition for a gateway target. This structure defines a tool that
 // the target exposes through the Model Context Protocol.
 type ToolDefinition struct {
-	Description *string `json:"description,omitempty"`
-	Name        *string `json:"name,omitempty"`
+	Description  *string `json:"description,omitempty"`
+	InputSchema  *string `json:"inputSchema,omitempty"`
+	Name         *string `json:"name,omitempty"`
+	OutputSchema *string `json:"outputSchema,omitempty"`
+}
+
+// A tool schema for a gateway target. This structure defines the schema for
+// a tool that the target exposes through the Model Context Protocol.
+type ToolSchema struct {
+	InlinePayload []*ToolDefinition `json:"inlinePayload,omitempty"`
+	// The Amazon S3 configuration for a gateway. This structure defines how the
+	// gateway accesses files in Amazon S3.
+	S3 *S3Configuration `json:"s3,omitempty"`
 }
 
 // Contains user preference consolidation override configuration.

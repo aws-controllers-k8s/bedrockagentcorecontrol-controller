@@ -19,6 +19,7 @@ rules:
   - agentruntimes
   - agentruntimeendpoints
   - gateways
+  - gatewaytargets
   - workloadidentities
   verbs:
   - get

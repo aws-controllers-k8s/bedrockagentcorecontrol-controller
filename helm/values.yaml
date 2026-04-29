@@ -153,6 +153,7 @@ reconcile:
     - AgentRuntime
     - AgentRuntimeEndpoint
     - Gateway
+    - GatewayTarget
     - WorkloadIdentity
 
 serviceAccount:
