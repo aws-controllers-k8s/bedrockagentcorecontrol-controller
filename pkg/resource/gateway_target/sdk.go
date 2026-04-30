@@ -726,6 +726,13 @@ func (rm *resourceManager) sdkCreate(
 	}
 
 	rm.setStatusDefaults(ko)
+	if desired.ko.Spec.TargetConfiguration != nil &&
+		desired.ko.Spec.TargetConfiguration.Mcp != nil &&
+		desired.ko.Spec.TargetConfiguration.Mcp.Lambda != nil &&
+		desired.ko.Spec.TargetConfiguration.Mcp.Lambda.ToolSchema != nil &&
+		desired.ko.Spec.TargetConfiguration.Mcp.Lambda.ToolSchema.InlinePayload != nil {
+		ko.Spec.TargetConfiguration.Mcp.Lambda.ToolSchema.InlinePayload = desired.ko.Spec.TargetConfiguration.Mcp.Lambda.ToolSchema.InlinePayload
+	}
 	return &resource{ko}, nil
 }
 
@@ -1351,6 +1358,13 @@ func (rm *resourceManager) sdkUpdate(
 	}
 
 	rm.setStatusDefaults(ko)
+	if desired.ko.Spec.TargetConfiguration != nil &&
+		desired.ko.Spec.TargetConfiguration.Mcp != nil &&
+		desired.ko.Spec.TargetConfiguration.Mcp.Lambda != nil &&
+		desired.ko.Spec.TargetConfiguration.Mcp.Lambda.ToolSchema != nil &&
+		desired.ko.Spec.TargetConfiguration.Mcp.Lambda.ToolSchema.InlinePayload != nil {
+		ko.Spec.TargetConfiguration.Mcp.Lambda.ToolSchema.InlinePayload = desired.ko.Spec.TargetConfiguration.Mcp.Lambda.ToolSchema.InlinePayload
+	}
 	return &resource{ko}, nil
 }
 
