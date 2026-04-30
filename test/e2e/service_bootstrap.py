@@ -15,10 +15,11 @@
 """
 
 import logging
-import os
 from acktest.bootstrapping import Resources, BootstrapFailureException
 from acktest.bootstrapping.iam import Role
 from acktest.bootstrapping.cognito_identity import UserPool
+from acktest.bootstrapping.function import Function
+from acktest.aws.identity import get_region, get_account_id
 from e2e import bootstrap_directory
 from e2e.bootstrap_resources import BootstrapResources
 
@@ -26,15 +27,25 @@ from e2e.bootstrap_resources import BootstrapResources
 
 def service_bootstrap() -> Resources:
     logging.getLogger().setLevel(logging.INFO)
+    aws_region = get_region()
+    account_id = get_account_id()
+    lambda_code_uri = f"{account_id}.dkr.ecr.{aws_region}.amazonaws.com/ack-e2e-testing-bedrockagentcorecontrol-controller:v1"
     
     resources = BootstrapResources(
         GatewayRole=Role(
             name_prefix="ack-bedrock-gateway",
-            principal_service="bedrock.amazonaws.com",
+            principal_service="bedrock-agentcore.amazonaws.com",
             description="IAM role for ACK Bedrock Gateway e2e tests",
+            managed_policies=["arn:aws:iam::aws:policy/service-role/AWSLambdaRole"],
         ),
         GatewayUserPool=UserPool(
             name_prefix="ack-bedrock-gateway",
+        ),
+        GatewayTargetLambda=Function(
+            name_prefix="ack-bedrock-gw-target",
+            code_uri=lambda_code_uri,
+            service="bedrock-agentcore",
+            description="Lambda function for ACK Bedrock Gateway Target e2e tests",
         ),
     )
     
