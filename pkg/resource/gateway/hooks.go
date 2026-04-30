@@ -34,6 +34,10 @@ var (
 		fmt.Errorf("gateway is in a transitional state, cannot be modified or deleted"),
 		15*time.Second,
 	)
+	requeueGateTargetDeleting = ackrequeue.NeededAfter(
+		fmt.Errorf("Gateway still has targets, requeuing"),
+		10*time.Second,
+	)
 )
 
 // gatewaySettled returns true when the gateway is not in a transitional state

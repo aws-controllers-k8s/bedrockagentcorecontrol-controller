@@ -1262,6 +1262,12 @@ func (rm *resourceManager) sdkDelete(
 	_ = resp
 	resp, err = rm.sdkapi.DeleteGateway(ctx, input)
 	rm.metrics.RecordAPICall("DELETE", "DeleteGateway", err)
+	if err != nil {
+		var awsErr smithy.APIError
+		if errors.As(err, &awsErr) && awsErr.ErrorCode() == "ValidationException" && strings.HasSuffix(awsErr.ErrorMessage(), "Delete all targets before deleting the gateway.") {
+			return nil, requeueGateTargetDeleting
+		}
+	}
 	return nil, err
 }
 
