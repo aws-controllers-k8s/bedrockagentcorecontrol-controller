@@ -1,0 +1,24 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: Gateway
+metadata:
+  name: $GATEWAY_NAME
+  namespace: default
+spec:
+  name: $GATEWAY_NAME
+  description: "ACK e2e test gateway"
+  authorizerType: CUSTOM_JWT
+  authorizerConfiguration:
+    customJWTAuthorizer:
+      discoveryURL: $DISCOVERY_URL
+      allowedAudience:
+        - $CLIENT_ID
+      allowedClients:
+        - $CLIENT_ID
+  protocolType: MCP
+  protocolConfiguration:
+    mcp:
+      instructions: "ACK e2e test gateway instructions"
+      searchType: SEMANTIC
+      supportedVersions:
+        - "2025-03-26"
+  roleARN: $ROLE_ARN

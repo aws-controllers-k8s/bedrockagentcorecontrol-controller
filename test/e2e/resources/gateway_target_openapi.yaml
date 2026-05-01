@@ -1,0 +1,18 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: GatewayTarget
+metadata:
+  name: $GATEWAY_TARGET_NAME
+  namespace: default
+spec:
+  name: $GATEWAY_TARGET_NAME
+  description: "ACK e2e test gateway target with openApiSchema"
+  gatewayIdentifier: $GATEWAY_ID
+  credentialProviderConfigurations:
+    - credentialProviderType: API_KEY
+      credentialProvider:
+        apiKeyCredentialProvider:
+          providerARN: $API_KEY_CREDENTIAL_PROVIDER_ARN
+  targetConfiguration:
+    mcp:
+      openAPISchema:
+        inlinePayload: '$OPENAPI_SCHEMA_PAYLOAD'

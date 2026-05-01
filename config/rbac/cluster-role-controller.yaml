@@ -23,10 +23,20 @@ rules:
   - list
   - watch
 - apiGroups:
+  - apigateway.services.k8s.aws
+  resources:
+  - restapis
+  - restapis/status
+  verbs:
+  - get
+  - list
+- apiGroups:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
   - agentruntimeendpoints
   - agentruntimes
+  - gateways
+  - gatewaytargets
   - workloadidentities
   verbs:
   - create
@@ -41,11 +51,29 @@ rules:
   resources:
   - agentruntimeendpoints/status
   - agentruntimes/status
+  - gateways/status
+  - gatewaytargets/status
   - workloadidentities/status
   verbs:
   - get
   - patch
   - update
+- apiGroups:
+  - iam.services.k8s.aws
+  resources:
+  - roles
+  - roles/status
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - kms.services.k8s.aws
+  resources:
+  - keys
+  - keys/status
+  verbs:
+  - get
+  - list
 - apiGroups:
   - services.k8s.aws
   resources:
