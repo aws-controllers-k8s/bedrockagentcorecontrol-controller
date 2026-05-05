@@ -1,0 +1,1 @@
+compareInlinePayloadToolDefinitions(delta, a, b)

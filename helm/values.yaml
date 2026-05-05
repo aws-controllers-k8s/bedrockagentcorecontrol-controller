@@ -152,6 +152,8 @@ reconcile:
   resources:
     - AgentRuntime
     - AgentRuntimeEndpoint
+    - Gateway
+    - GatewayTarget
     - WorkloadIdentity
 
 serviceAccount:

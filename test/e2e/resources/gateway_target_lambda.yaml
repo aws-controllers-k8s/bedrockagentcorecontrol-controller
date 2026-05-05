@@ -1,0 +1,21 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: GatewayTarget
+metadata:
+  name: $GATEWAY_TARGET_NAME
+  namespace: default
+spec:
+  name: $GATEWAY_TARGET_NAME
+  description: "ACK e2e test gateway target with Lambda"
+  gatewayIdentifier: $GATEWAY_ID
+  credentialProviderConfigurations:
+    - credentialProviderType: GATEWAY_IAM_ROLE
+  targetConfiguration:
+    mcp:
+      lambda:
+        lambdaARN: $LAMBDA_FUNCTION_ARN
+        toolSchema:
+          inlinePayload:
+            - name: "SayHello"
+              description: "Returns a greeting message"
+              inputSchema: '$INPUT_SCHEMA'
+              outputSchema: '$OUTPUT_SCHEMA'

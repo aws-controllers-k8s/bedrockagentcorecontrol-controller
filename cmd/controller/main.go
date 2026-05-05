@@ -19,6 +19,9 @@ import (
 	"context"
 	"os"
 
+	apigatewayapitypes "github.com/aws-controllers-k8s/apigateway-controller/apis/v1alpha1"
+	iamapitypes "github.com/aws-controllers-k8s/iam-controller/apis/v1alpha1"
+	kmsapitypes "github.com/aws-controllers-k8s/kms-controller/apis/v1alpha1"
 	ackv1alpha1 "github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
 	ackcfg "github.com/aws-controllers-k8s/runtime/pkg/config"
 	ackrt "github.com/aws-controllers-k8s/runtime/pkg/runtime"
@@ -41,6 +44,8 @@ import (
 
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/agent_runtime"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/agent_runtime_endpoint"
+	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway"
+	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway_target"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/workload_identity"
 
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/version"
@@ -58,6 +63,9 @@ func init() {
 
 	_ = svctypes.AddToScheme(scheme)
 	_ = ackv1alpha1.AddToScheme(scheme)
+	_ = apigatewayapitypes.AddToScheme(scheme)
+	_ = iamapitypes.AddToScheme(scheme)
+	_ = kmsapitypes.AddToScheme(scheme)
 }
 
 func main() {
