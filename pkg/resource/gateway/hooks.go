@@ -22,7 +22,6 @@ import (
 	ackrtlog "github.com/aws-controllers-k8s/runtime/pkg/runtime/log"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	svcsdk "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol"
-	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol/types"
 
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/tags"
 )
@@ -35,23 +34,6 @@ var (
 		15*time.Second,
 	)
 )
-
-// gatewaySettled returns true when the gateway is not in a transitional state
-// (CREATING, UPDATING, DELETING). This allows updates from READY, FAILED, and
-// UPDATE_UNSUCCESSFUL states so the user can attempt to fix issues.
-func gatewaySettled(r *resource) bool {
-	if r.ko.Status.Status == nil {
-		return false
-	}
-	switch svcsdktypes.GatewayStatus(*r.ko.Status.Status) {
-	case svcsdktypes.GatewayStatusCreating,
-		svcsdktypes.GatewayStatusUpdating,
-		svcsdktypes.GatewayStatusDeleting:
-		return false
-	default:
-		return true
-	}
-}
 
 // getTags retrieves the tags for a given resource ARN using the
 // ListTagsForResource API and returns them as a map of string pointers.

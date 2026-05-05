@@ -111,13 +111,26 @@ resources:
         - path: Status.Status
           in:
             - READY
+    updateable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - FAILED
+            - UPDATE_UNSUCCESSFUL
+
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - FAILED
+            - UPDATE_UNSUCCESSFUL
     hooks:
       sdk_update_pre_build_request:
         template_path: hooks/gateway/sdk_update_pre_build_request.go.tpl
       sdk_read_one_post_set_output:
         template_path: hooks/gateway/sdk_read_one_post_set_output.go.tpl
-      sdk_delete_pre_build_request:
-        template_path: hooks/gateway/sdk_delete_pre_build_request.go.tpl
     exceptions:
       errors:
         404:
