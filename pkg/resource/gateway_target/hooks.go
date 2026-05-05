@@ -16,12 +16,12 @@ package gateway_target
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	svcapitypes "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/apis/v1alpha1"
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	svcsdk "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol"
 	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol/types"
+	"k8s.io/apimachinery/pkg/api/equality"
 )
 
 // stringToSchemaDefinition unmarshals a JSON string into an SDK
@@ -179,52 +179,33 @@ func setSchemaDefinitionsFromSDKResponse(
 	return nil
 }
 
-// normalizeJSON takes a JSON string, unmarshals it, and re-marshals it to
-// produce a canonical representation. This eliminates differences caused by
-// key ordering, whitespace variations, and explicit null fields that the AWS
-// API may add for unset values.
-func normalizeJSON(s *string) string {
-	if s == nil || *s == "" {
-		return ""
+// schemasEqual compares two JSON schema strings by unmarshaling them into
+// SDK SchemaDefinition structs and using equality.Semantic.Equalities.DeepEqual.
+// This naturally handles differences in key casing (Go's json.Unmarshal is
+// case-insensitive) and explicit null fields (they unmarshal to nil pointers,
+// same as absent fields).
+func schemasEqual(a, b *string) bool {
+	sdA, errA := stringToSchemaDefinition(a)
+	sdB, errB := stringToSchemaDefinition(b)
+	if errA != nil || errB != nil {
+		// If either fails to parse, fall back to raw string comparison.
+		return ptrStringVal(a) == ptrStringVal(b)
 	}
-	var v any
-	if err := json.Unmarshal([]byte(*s), &v); err != nil {
-		// If it's not valid JSON, return the raw string so the comparison
-		// still detects a difference.
-		return *s
+	if sdA == nil && sdB == nil {
+		return true
 	}
-	v = canonicalizeJSON(v)
-	b, err := json.Marshal(v)
-	if err != nil {
-		return *s
+	if sdA == nil || sdB == nil {
+		return false
 	}
-	return string(b)
+	return equality.Semantic.Equalities.DeepEqual(sdA, sdB)
 }
 
-// canonicalizeJSON recursively normalizes an unmarshaled JSON value by removing
-// map entries whose value is nil and lowercasing all map keys. This ensures
-// that explicit null fields returned by the AWS API (e.g. "Description":null)
-// are treated the same as absent fields, and that key casing differences
-// (e.g. "type" vs "Type") do not cause false mismatches.
-func canonicalizeJSON(v any) any {
-	switch val := v.(type) {
-	case map[string]any:
-		cleaned := make(map[string]any, len(val))
-		for k, child := range val {
-			if child == nil {
-				continue
-			}
-			cleaned[strings.ToLower(k)] = canonicalizeJSON(child)
-		}
-		return cleaned
-	case []any:
-		for i, child := range val {
-			val[i] = canonicalizeJSON(child)
-		}
-		return val
-	default:
-		return v
+// ptrStringVal safely dereferences a *string, returning "" if nil.
+func ptrStringVal(s *string) string {
+	if s == nil {
+		return ""
 	}
+	return *s
 }
 
 // toolDefinitionByName returns a map of ToolDefinition keyed by Name for
@@ -291,22 +272,22 @@ func compareInlinePayloadToolDefinitions(
 			return
 		}
 
-		// Compare InputSchema using normalized JSON.
+		// Compare InputSchema using typed SchemaDefinition comparison.
 		if ackcompare.HasNilDifference(aTD.InputSchema, bTD.InputSchema) {
 			delta.Add(fieldPath, aToolDefs, bToolDefs)
 			return
 		}
-		if aTD.InputSchema != nil && normalizeJSON(aTD.InputSchema) != normalizeJSON(bTD.InputSchema) {
+		if aTD.InputSchema != nil && !schemasEqual(aTD.InputSchema, bTD.InputSchema) {
 			delta.Add(fieldPath, aToolDefs, bToolDefs)
 			return
 		}
 
-		// Compare OutputSchema using normalized JSON.
+		// Compare OutputSchema using typed SchemaDefinition comparison.
 		if ackcompare.HasNilDifference(aTD.OutputSchema, bTD.OutputSchema) {
 			delta.Add(fieldPath, aToolDefs, bToolDefs)
 			return
 		}
-		if aTD.OutputSchema != nil && normalizeJSON(aTD.OutputSchema) != normalizeJSON(bTD.OutputSchema) {
+		if aTD.OutputSchema != nil && !schemasEqual(aTD.OutputSchema, bTD.OutputSchema) {
 			delta.Add(fieldPath, aToolDefs, bToolDefs)
 			return
 		}
