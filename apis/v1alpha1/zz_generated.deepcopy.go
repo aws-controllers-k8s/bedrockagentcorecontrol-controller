@@ -259,7 +259,7 @@ func (in *APIKeyCredentialProviderSpec) DeepCopyInto(out *APIKeyCredentialProvid
 	*out = *in
 	if in.APIKey != nil {
 		in, out := &in.APIKey, &out.APIKey
-		*out = new(string)
+		*out = new(corev1alpha1.SecretKeyReference)
 		**out = **in
 	}
 	if in.Name != nil {
@@ -318,11 +318,6 @@ func (in *APIKeyCredentialProviderStatus) DeepCopyInto(out *APIKeyCredentialProv
 		in, out := &in.APIKeySecretARN, &out.APIKeySecretARN
 		*out = new(Secret)
 		(*in).DeepCopyInto(*out)
-	}
-	if in.CredentialProviderARN != nil {
-		in, out := &in.CredentialProviderARN, &out.CredentialProviderARN
-		*out = new(string)
-		**out = **in
 	}
 }
 

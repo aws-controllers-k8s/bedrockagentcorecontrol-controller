@@ -98,10 +98,12 @@ func (rm *resourceManager) sdkFind(
 	} else {
 		ko.Status.APIKeySecretARN = nil
 	}
+	if ko.Status.ACKResourceMetadata == nil {
+		ko.Status.ACKResourceMetadata = &ackv1alpha1.ResourceMetadata{}
+	}
 	if resp.CredentialProviderArn != nil {
-		ko.Status.CredentialProviderARN = resp.CredentialProviderArn
-	} else {
-		ko.Status.CredentialProviderARN = nil
+		arn := ackv1alpha1.AWSResourceName(*resp.CredentialProviderArn)
+		ko.Status.ACKResourceMetadata.ARN = &arn
 	}
 	if resp.Name != nil {
 		ko.Spec.Name = resp.Name
@@ -110,6 +112,12 @@ func (rm *resourceManager) sdkFind(
 	}
 
 	rm.setStatusDefaults(ko)
+	tags, err := rm.getTags(ctx, string(*ko.Status.ACKResourceMetadata.ARN))
+	if err != nil {
+		return nil, err
+	}
+	ko.Spec.Tags = tags
+
 	return &resource{ko}, nil
 }
 
@@ -174,10 +182,12 @@ func (rm *resourceManager) sdkCreate(
 	} else {
 		ko.Status.APIKeySecretARN = nil
 	}
+	if ko.Status.ACKResourceMetadata == nil {
+		ko.Status.ACKResourceMetadata = &ackv1alpha1.ResourceMetadata{}
+	}
 	if resp.CredentialProviderArn != nil {
-		ko.Status.CredentialProviderARN = resp.CredentialProviderArn
-	} else {
-		ko.Status.CredentialProviderARN = nil
+		arn := ackv1alpha1.AWSResourceName(*resp.CredentialProviderArn)
+		ko.Status.ACKResourceMetadata.ARN = &arn
 	}
 	if resp.Name != nil {
 		ko.Spec.Name = resp.Name
@@ -198,7 +208,13 @@ func (rm *resourceManager) newCreateRequestPayload(
 	res := &svcsdk.CreateApiKeyCredentialProviderInput{}
 
 	if r.ko.Spec.APIKey != nil {
-		res.ApiKey = r.ko.Spec.APIKey
+		tmpSecret, err := rm.rr.SecretValueFromReference(ctx, r.ko.Spec.APIKey)
+		if err != nil {
+			return nil, ackrequeue.Needed(err)
+		}
+		if tmpSecret != "" {
+			res.ApiKey = aws.String(tmpSecret)
+		}
 	}
 	if r.ko.Spec.Name != nil {
 		res.Name = r.ko.Spec.Name
@@ -223,6 +239,20 @@ func (rm *resourceManager) sdkUpdate(
 	defer func() {
 		exit(err)
 	}()
+	if delta.DifferentAt("Spec.Tags") {
+		err := rm.syncTags(
+			ctx,
+			desired,
+			latest,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if !delta.DifferentExcept("Spec.Tags") {
+		return desired, nil
+	}
+
 	input, err := rm.newUpdateRequestPayload(ctx, desired, delta)
 	if err != nil {
 		return nil, err
@@ -248,10 +278,12 @@ func (rm *resourceManager) sdkUpdate(
 	} else {
 		ko.Status.APIKeySecretARN = nil
 	}
+	if ko.Status.ACKResourceMetadata == nil {
+		ko.Status.ACKResourceMetadata = &ackv1alpha1.ResourceMetadata{}
+	}
 	if resp.CredentialProviderArn != nil {
-		ko.Status.CredentialProviderARN = resp.CredentialProviderArn
-	} else {
-		ko.Status.CredentialProviderARN = nil
+		arn := ackv1alpha1.AWSResourceName(*resp.CredentialProviderArn)
+		ko.Status.ACKResourceMetadata.ARN = &arn
 	}
 	if resp.Name != nil {
 		ko.Spec.Name = resp.Name
@@ -273,7 +305,13 @@ func (rm *resourceManager) newUpdateRequestPayload(
 	res := &svcsdk.UpdateApiKeyCredentialProviderInput{}
 
 	if r.ko.Spec.APIKey != nil {
-		res.ApiKey = r.ko.Spec.APIKey
+		tmpSecret, err := rm.rr.SecretValueFromReference(ctx, r.ko.Spec.APIKey)
+		if err != nil {
+			return nil, ackrequeue.Needed(err)
+		}
+		if tmpSecret != "" {
+			res.ApiKey = aws.String(tmpSecret)
+		}
 	}
 	if r.ko.Spec.Name != nil {
 		res.Name = r.ko.Spec.Name
@@ -416,6 +454,18 @@ func (rm *resourceManager) updateConditions(
 // and if the exception indicates that it is a Terminal exception
 // 'Terminal' exception are specified in generator configuration
 func (rm *resourceManager) terminalAWSError(err error) bool {
-	// No terminal_errors specified for this resource in generator config
-	return false
+	if err == nil {
+		return false
+	}
+
+	var terminalErr smithy.APIError
+	if !errors.As(err, &terminalErr) {
+		return false
+	}
+	switch terminalErr.ErrorCode() {
+	case "ValidationException":
+		return true
+	default:
+		return false
+	}
 }

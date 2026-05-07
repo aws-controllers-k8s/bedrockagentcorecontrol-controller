@@ -26,11 +26,12 @@ type APIKeyCredentialProviderSpec struct {
 	// The API key to use for authentication. This value is encrypted and stored
 	// securely.
 	// +kubebuilder:validation:Required
-	APIKey *string `json:"apiKey"`
+	APIKey *ackv1alpha1.SecretKeyReference `json:"apiKey"`
 	// The name of the API key credential provider. The name must be unique within
 	// your account.
 	//
 	// Regex Pattern: `^[a-zA-Z0-9\-_]+$`
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable once set"
 	// +kubebuilder:validation:Required
 	Name *string `json:"name"`
 	// A map of tag keys and values to assign to the API key credential provider.
@@ -55,11 +56,6 @@ type APIKeyCredentialProviderStatus struct {
 	// The Amazon Resource Name (ARN) of the secret containing the API key.
 	// +kubebuilder:validation:Optional
 	APIKeySecretARN *Secret `json:"apiKeySecretARN,omitempty"`
-	// The Amazon Resource Name (ARN) of the created API key credential provider.
-	//
-	// Regex Pattern: `^arn:(aws|aws-us-gov):acps:[A-Za-z0-9-]{1,64}:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$`
-	// +kubebuilder:validation:Optional
-	CredentialProviderARN *string `json:"credentialProviderARN,omitempty"`
 }
 
 // APIKeyCredentialProvider is the Schema for the APIKeyCredentialProviders API
