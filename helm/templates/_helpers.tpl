@@ -82,6 +82,7 @@ rules:
   resources:
   - agentruntimeendpoints
   - agentruntimes
+  - apikeycredentialproviders
   - gateways
   - gatewaytargets
   - workloadidentities
@@ -98,6 +99,7 @@ rules:
   resources:
   - agentruntimeendpoints/status
   - agentruntimes/status
+  - apikeycredentialproviders/status
   - gateways/status
   - gatewaytargets/status
   - workloadidentities/status

@@ -64,8 +64,10 @@ type APIGatewayToolOverride struct {
 
 // Contains information about an API key credential provider.
 type APIKeyCredentialProviderItem struct {
-	CreatedTime     *metav1.Time `json:"createdTime,omitempty"`
-	LastUpdatedTime *metav1.Time `json:"lastUpdatedTime,omitempty"`
+	CreatedTime           *metav1.Time `json:"createdTime,omitempty"`
+	CredentialProviderARN *string      `json:"credentialProviderARN,omitempty"`
+	LastUpdatedTime       *metav1.Time `json:"lastUpdatedTime,omitempty"`
+	Name                  *string      `json:"name,omitempty"`
 }
 
 // Configuration for API schema.
@@ -597,6 +599,7 @@ type OAuthCredentialProvider struct {
 type Oauth2CredentialProviderItem struct {
 	CreatedTime     *metav1.Time `json:"createdTime,omitempty"`
 	LastUpdatedTime *metav1.Time `json:"lastUpdatedTime,omitempty"`
+	Name            *string      `json:"name,omitempty"`
 }
 
 // The summary information about an online evaluation configuration, including
@@ -697,6 +700,11 @@ type S3Location struct {
 // of the API that the target exposes.
 type SchemaDefinition struct {
 	Description *string `json:"description,omitempty"`
+}
+
+// Contains information about a secret in AWS Secrets Manager.
+type Secret struct {
+	SecretARN *string `json:"secretARN,omitempty"`
 }
 
 // A configuration for a self-managed memory strategy.

@@ -16,6 +16,7 @@ rules:
 - apiGroups:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
+  - apikeycredentialproviders
   - agentruntimes
   - agentruntimeendpoints
   - gateways
@@ -32,6 +33,7 @@ rules:
 - apiGroups:
   - bedrockagentcorecontrol.services.k8s.aws
   resources:
+  - apikeycredentialproviders
   - agentruntimes
   - agentruntimeendpoints
   - gateways

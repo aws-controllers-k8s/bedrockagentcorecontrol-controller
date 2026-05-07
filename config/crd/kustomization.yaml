@@ -2,6 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - common
+  - bases/bedrockagentcorecontrol.services.k8s.aws_apikeycredentialproviders.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_agentruntimes.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_agentruntimeendpoints.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_gateways.yaml

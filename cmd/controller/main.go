@@ -44,6 +44,7 @@ import (
 
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/agent_runtime"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/agent_runtime_endpoint"
+	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/api_key_credential_provider"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway_target"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/workload_identity"

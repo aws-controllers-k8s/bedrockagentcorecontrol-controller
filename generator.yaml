@@ -2,7 +2,7 @@ ignore:
   resource_names:
     # AgentRuntime
     # AgentRuntimeEndpoint
-    - ApiKeyCredentialProvider
+    # - ApiKeyCredentialProvider
     - Browser
     - BrowserProfile
     - CodeInterpreter
