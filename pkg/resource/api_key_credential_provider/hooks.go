@@ -23,8 +23,6 @@ import (
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/tags"
 )
 
-var syncTags = tags.SyncTags
-
 // getTags retrieves the tags for a given resource ARN using the
 // ListTagsForResource API and returns them as a map of string pointers.
 func (rm *resourceManager) getTags(
@@ -57,7 +55,7 @@ func (rm *resourceManager) syncTags(
 	desiredTags := aws.ToStringMap(desired.ko.Spec.Tags)
 	existingTags := aws.ToStringMap(latest.ko.Spec.Tags)
 
-	return syncTags(
+	return tags.SyncTags(
 		ctx,
 		rm.sdkapi,
 		rm.metrics,
