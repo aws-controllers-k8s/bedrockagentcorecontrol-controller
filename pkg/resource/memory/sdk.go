@@ -448,6 +448,8 @@ func (rm *resourceManager) sdkFind(
 	}
 
 	rm.setStatusDefaults(ko)
+	ko.Spec.MemoryStrategies = strategiesToMemoryStrategyInputs(ko.Status.Strategies)
+
 	tags, err := rm.getTags(ctx, string(*ko.Status.ACKResourceMetadata.ARN))
 	if err != nil {
 		return nil, err
