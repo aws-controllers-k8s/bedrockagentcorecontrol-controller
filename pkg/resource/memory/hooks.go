@@ -2,6 +2,10 @@ package memory
 
 import (
 	"context"
+	"sort"
+
+	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
+	"k8s.io/apimachinery/pkg/api/equality"
 
 	svcapitypes "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/apis/v1alpha1"
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/tags"
@@ -43,6 +47,158 @@ func (rm *resourceManager) syncTags(
 		ctx, rm.sdkapi, rm.metrics,
 		resourceARN, desiredTags, existingTags,
 	)
+}
+
+func compareMemoryStrategies(
+	delta *ackcompare.Delta,
+	a *resource,
+	b *resource,
+) {
+	const fieldPath = "Spec.MemoryStrategies"
+
+	aStrats := a.ko.Spec.MemoryStrategies
+	bStrats := b.ko.Spec.MemoryStrategies
+
+	if len(aStrats) == 0 && len(bStrats) == 0 {
+		return
+	}
+	if len(aStrats) != len(bStrats) {
+		delta.Add(fieldPath, aStrats, bStrats)
+		return
+	}
+
+	aSorted := make([]*svcapitypes.MemoryStrategyInput, len(aStrats))
+	copy(aSorted, aStrats)
+	bSorted := make([]*svcapitypes.MemoryStrategyInput, len(bStrats))
+	copy(bSorted, bStrats)
+
+	sort.Slice(aSorted, func(i, j int) bool {
+		return desiredStrategyName(aSorted[i]) < desiredStrategyName(aSorted[j])
+	})
+	sort.Slice(bSorted, func(i, j int) bool {
+		return desiredStrategyName(bSorted[i]) < desiredStrategyName(bSorted[j])
+	})
+
+	for i := range aSorted {
+		bNorm := stripAWSDefaults(aSorted[i], bSorted[i])
+		if !equality.Semantic.Equalities.DeepEqual(aSorted[i], bNorm) {
+			delta.Add(fieldPath, aStrats, bStrats)
+			return
+		}
+	}
+}
+
+func isDefaultNamespaces(ns []*string) bool {
+	return len(ns) == 1 && ns[0] != nil && *ns[0] == "default"
+}
+
+// stripAWSDefaults returns a copy of latest with AWS-populated default
+// values removed, but only when the corresponding field in desired is
+// nil/empty. This preserves the distinction when the user explicitly
+// sets a value.
+//
+// AWS applies two default behaviors:
+// 1. If neither namespaces nor namespaceTemplates is set, both default to ["default"].
+// 2. If only one is set, the other is mirrored to the same value.
+func stripAWSDefaults(desired, latest *svcapitypes.MemoryStrategyInput) *svcapitypes.MemoryStrategyInput {
+	if latest == nil {
+		return nil
+	}
+	out := latest.DeepCopy()
+	if desired == nil {
+		return out
+	}
+
+	if desired.EpisodicMemoryStrategy != nil && out.EpisodicMemoryStrategy != nil {
+		normalizeNamespacePair(
+			desired.EpisodicMemoryStrategy.Namespaces, desired.EpisodicMemoryStrategy.NamespaceTemplates,
+			&out.EpisodicMemoryStrategy.Namespaces, &out.EpisodicMemoryStrategy.NamespaceTemplates,
+		)
+		if out.EpisodicMemoryStrategy.ReflectionConfiguration != nil {
+			if desired.EpisodicMemoryStrategy.ReflectionConfiguration == nil {
+				// User didn't set reflection config; strip if AWS only populated defaults
+				rc := out.EpisodicMemoryStrategy.ReflectionConfiguration
+				if (len(rc.Namespaces) == 0 || isDefaultNamespaces(rc.Namespaces)) &&
+					(len(rc.NamespaceTemplates) == 0 || isDefaultNamespaces(rc.NamespaceTemplates)) {
+					out.EpisodicMemoryStrategy.ReflectionConfiguration = nil
+				}
+			} else {
+				normalizeNamespacePair(
+					desired.EpisodicMemoryStrategy.ReflectionConfiguration.Namespaces,
+					desired.EpisodicMemoryStrategy.ReflectionConfiguration.NamespaceTemplates,
+					&out.EpisodicMemoryStrategy.ReflectionConfiguration.Namespaces,
+					&out.EpisodicMemoryStrategy.ReflectionConfiguration.NamespaceTemplates,
+				)
+			}
+		}
+	}
+	if desired.SemanticMemoryStrategy != nil && out.SemanticMemoryStrategy != nil {
+		normalizeNamespacePair(
+			desired.SemanticMemoryStrategy.Namespaces, desired.SemanticMemoryStrategy.NamespaceTemplates,
+			&out.SemanticMemoryStrategy.Namespaces, &out.SemanticMemoryStrategy.NamespaceTemplates,
+		)
+	}
+	if desired.SummaryMemoryStrategy != nil && out.SummaryMemoryStrategy != nil {
+		normalizeNamespacePair(
+			desired.SummaryMemoryStrategy.Namespaces, desired.SummaryMemoryStrategy.NamespaceTemplates,
+			&out.SummaryMemoryStrategy.Namespaces, &out.SummaryMemoryStrategy.NamespaceTemplates,
+		)
+	}
+	if desired.UserPreferenceMemoryStrategy != nil && out.UserPreferenceMemoryStrategy != nil {
+		normalizeNamespacePair(
+			desired.UserPreferenceMemoryStrategy.Namespaces, desired.UserPreferenceMemoryStrategy.NamespaceTemplates,
+			&out.UserPreferenceMemoryStrategy.Namespaces, &out.UserPreferenceMemoryStrategy.NamespaceTemplates,
+		)
+	}
+	if desired.CustomMemoryStrategy != nil && out.CustomMemoryStrategy != nil {
+		normalizeNamespacePair(
+			desired.CustomMemoryStrategy.Namespaces, desired.CustomMemoryStrategy.NamespaceTemplates,
+			&out.CustomMemoryStrategy.Namespaces, &out.CustomMemoryStrategy.NamespaceTemplates,
+		)
+	}
+	return out
+}
+
+// normalizeNamespacePair strips AWS-populated defaults from the latest
+// namespaces/namespaceTemplates pair based on what the user set in desired.
+//
+// Rules:
+// - If desired didn't set a field (nil/empty) and latest has ["default"], strip it.
+// - If desired didn't set a field but latest mirrors the value from the other
+//   field (because AWS copies one to the other), strip the mirrored value.
+func normalizeNamespacePair(
+	desiredNS, desiredNST []*string,
+	latestNS, latestNST *[]*string,
+) {
+	if len(desiredNS) == 0 {
+		if isDefaultNamespaces(*latestNS) {
+			*latestNS = nil
+		} else if len(desiredNST) > 0 && ptrSliceEqual(*latestNS, desiredNST) {
+			*latestNS = nil
+		}
+	}
+	if len(desiredNST) == 0 {
+		if isDefaultNamespaces(*latestNST) {
+			*latestNST = nil
+		} else if len(desiredNS) > 0 && ptrSliceEqual(*latestNST, desiredNS) {
+			*latestNST = nil
+		}
+	}
+}
+
+func ptrSliceEqual(a, b []*string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if (a[i] == nil) != (b[i] == nil) {
+			return false
+		}
+		if a[i] != nil && *a[i] != *b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // desiredStrategyName extracts the name from a MemoryStrategyInput union.

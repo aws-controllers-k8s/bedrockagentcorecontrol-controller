@@ -41,6 +41,7 @@ func newResourceDelta(
 		delta.Add("", a, b)
 		return delta
 	}
+	compareMemoryStrategies(delta, a, b)
 
 	if ackcompare.HasNilDifference(a.ko.Spec.Description, b.ko.Spec.Description) {
 		delta.Add("Spec.Description", a.ko.Spec.Description, b.ko.Spec.Description)
@@ -75,13 +76,6 @@ func newResourceDelta(
 	}
 	if !equality.Semantic.Equalities.DeepEqual(a.ko.Spec.MemoryExecutionRoleRef, b.ko.Spec.MemoryExecutionRoleRef) {
 		delta.Add("Spec.MemoryExecutionRoleRef", a.ko.Spec.MemoryExecutionRoleRef, b.ko.Spec.MemoryExecutionRoleRef)
-	}
-	if len(a.ko.Spec.MemoryStrategies) != len(b.ko.Spec.MemoryStrategies) {
-		delta.Add("Spec.MemoryStrategies", a.ko.Spec.MemoryStrategies, b.ko.Spec.MemoryStrategies)
-	} else if len(a.ko.Spec.MemoryStrategies) > 0 {
-		if !equality.Semantic.Equalities.DeepEqual(a.ko.Spec.MemoryStrategies, b.ko.Spec.MemoryStrategies) {
-			delta.Add("Spec.MemoryStrategies", a.ko.Spec.MemoryStrategies, b.ko.Spec.MemoryStrategies)
-		}
 	}
 	if ackcompare.HasNilDifference(a.ko.Spec.Name, b.ko.Spec.Name) {
 		delta.Add("Spec.Name", a.ko.Spec.Name, b.ko.Spec.Name)

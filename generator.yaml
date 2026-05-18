@@ -139,6 +139,8 @@ resources:
         - ValidationException
         - ConflictException
     hooks:
+      delta_pre_compare:
+        template_path: hooks/memory/delta_pre_compare.go.tpl
       sdk_read_one_post_set_output:
         template_path: hooks/memory/sdk_read_one_post_set_output.go.tpl
       sdk_update_pre_build_request:
