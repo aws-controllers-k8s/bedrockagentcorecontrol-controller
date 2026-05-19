@@ -19,6 +19,8 @@ from acktest.bootstrapping import Resources, BootstrapFailureException
 from acktest.bootstrapping.iam import Role
 from acktest.bootstrapping.cognito_identity import UserPool
 from acktest.bootstrapping.function import Function
+from acktest.bootstrapping.sns import Topic
+from acktest.bootstrapping.s3 import Bucket
 from acktest.aws.identity import get_region, get_account_id
 from e2e import bootstrap_directory
 from e2e.bootstrap_resources import BootstrapResources
@@ -46,6 +48,17 @@ def service_bootstrap() -> Resources:
             code_uri=lambda_code_uri,
             service="bedrock-agentcore",
             description="Lambda function for ACK Bedrock Gateway Target e2e tests",
+        ),
+        MemoryRole=Role(
+            name_prefix="ack-bedrock-memory",
+            principal_service="bedrock-agentcore.amazonaws.com",
+            description="IAM role for ACK Bedrock Memory e2e tests",
+        ),
+        MemorySNSTopic=Topic(
+            name_prefix="ack-bedrock-memory",
+        ),
+        MemoryS3Bucket=Bucket(
+            name_prefix="ack-bedrock-memory",
         ),
     )
     

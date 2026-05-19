@@ -1,0 +1,14 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: Memory
+metadata:
+  name: $MEMORY_NAME
+  namespace: default
+spec:
+  name: $MEMORY_NAME
+  description: "ACK e2e test memory"
+  memoryExecutionRoleARN: $ROLE_ARN
+  eventExpiryDuration: 30
+  memoryStrategies:
+    - semanticMemoryStrategy:
+        name: "ack-test-semantic"
+        description: "ACK e2e test semantic strategy"
