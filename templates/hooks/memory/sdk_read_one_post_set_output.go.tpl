@@ -1,4 +1,4 @@
-	ko.Spec.MemoryStrategies = strategiesToMemoryStrategyInputs(ko.Status.Strategies)
+	ko.Spec.MemoryStrategies = sdkStrategiesToMemoryStrategyInputs(resp.Memory.Strategies)
 
 	tags, err := rm.getTags(ctx, string(*ko.Status.ACKResourceMetadata.ARN))
 	if err != nil {

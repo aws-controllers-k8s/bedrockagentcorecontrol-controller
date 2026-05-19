@@ -6,6 +6,6 @@
 			return nil, err
 		}
 	}
-	if !delta.DifferentExcept("Spec.Tags", "Spec.MemoryStrategies") {
+	if !delta.DifferentExcept("Spec.Tags") {
 		return desired, nil
 	}

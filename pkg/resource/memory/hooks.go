@@ -163,9 +163,9 @@ func stripAWSDefaults(desired, latest *svcapitypes.MemoryStrategyInput) *svcapit
 // namespaces/namespaceTemplates pair based on what the user set in desired.
 //
 // Rules:
-// - If desired didn't set a field (nil/empty) and latest has ["default"], strip it.
-// - If desired didn't set a field but latest mirrors the value from the other
-//   field (because AWS copies one to the other), strip the mirrored value.
+//   - If desired didn't set a field (nil/empty) and latest has ["default"], strip it.
+//   - If desired didn't set a field but latest mirrors the value from the other
+//     field (because AWS copies one to the other), strip the mirrored value.
 func normalizeNamespacePair(
 	desiredNS, desiredNST []*string,
 	latestNS, latestNST *[]*string,
@@ -228,107 +228,165 @@ func desiredStrategyName(s *svcapitypes.MemoryStrategyInput) string {
 // converted with their full nested structure.
 func memoryStrategyInputToSDK(s *svcapitypes.MemoryStrategyInput) svcsdktypes.MemoryStrategyInput {
 	if s.EpisodicMemoryStrategy != nil {
+		ep := s.EpisodicMemoryStrategy
 		out := &svcsdktypes.MemoryStrategyInputMemberEpisodicMemoryStrategy{}
-		out.Value.Name = s.EpisodicMemoryStrategy.Name
-		out.Value.Description = s.EpisodicMemoryStrategy.Description
-		out.Value.Namespaces = aws.ToStringSlice(s.EpisodicMemoryStrategy.Namespaces)
-		if s.EpisodicMemoryStrategy.ReflectionConfiguration != nil {
-			out.Value.ReflectionConfiguration = &svcsdktypes.EpisodicReflectionConfigurationInput{
-				Namespaces: aws.ToStringSlice(s.EpisodicMemoryStrategy.ReflectionConfiguration.Namespaces),
+		out.Value.Name = ep.Name
+		out.Value.Description = ep.Description
+		if len(ep.Namespaces) > 0 {
+			out.Value.Namespaces = aws.ToStringSlice(ep.Namespaces)
+		}
+		if len(ep.NamespaceTemplates) > 0 {
+			out.Value.NamespaceTemplates = aws.ToStringSlice(ep.NamespaceTemplates)
+		}
+		if ep.ReflectionConfiguration != nil {
+			rc := &svcsdktypes.EpisodicReflectionConfigurationInput{}
+			if len(ep.ReflectionConfiguration.Namespaces) > 0 {
+				rc.Namespaces = aws.ToStringSlice(ep.ReflectionConfiguration.Namespaces)
 			}
+			if len(ep.ReflectionConfiguration.NamespaceTemplates) > 0 {
+				rc.NamespaceTemplates = aws.ToStringSlice(ep.ReflectionConfiguration.NamespaceTemplates)
+			}
+			out.Value.ReflectionConfiguration = rc
 		}
 		return out
 	}
 	if s.SemanticMemoryStrategy != nil {
+		sem := s.SemanticMemoryStrategy
 		out := &svcsdktypes.MemoryStrategyInputMemberSemanticMemoryStrategy{}
-		out.Value.Name = s.SemanticMemoryStrategy.Name
-		out.Value.Description = s.SemanticMemoryStrategy.Description
-		out.Value.Namespaces = aws.ToStringSlice(s.SemanticMemoryStrategy.Namespaces)
+		out.Value.Name = sem.Name
+		out.Value.Description = sem.Description
+		if len(sem.Namespaces) > 0 {
+			out.Value.Namespaces = aws.ToStringSlice(sem.Namespaces)
+		}
+		if len(sem.NamespaceTemplates) > 0 {
+			out.Value.NamespaceTemplates = aws.ToStringSlice(sem.NamespaceTemplates)
+		}
 		return out
 	}
 	if s.SummaryMemoryStrategy != nil {
+		sum := s.SummaryMemoryStrategy
 		out := &svcsdktypes.MemoryStrategyInputMemberSummaryMemoryStrategy{}
-		out.Value.Name = s.SummaryMemoryStrategy.Name
-		out.Value.Description = s.SummaryMemoryStrategy.Description
-		out.Value.Namespaces = aws.ToStringSlice(s.SummaryMemoryStrategy.Namespaces)
+		out.Value.Name = sum.Name
+		out.Value.Description = sum.Description
+		if len(sum.Namespaces) > 0 {
+			out.Value.Namespaces = aws.ToStringSlice(sum.Namespaces)
+		}
+		if len(sum.NamespaceTemplates) > 0 {
+			out.Value.NamespaceTemplates = aws.ToStringSlice(sum.NamespaceTemplates)
+		}
 		return out
 	}
 	if s.UserPreferenceMemoryStrategy != nil {
+		up := s.UserPreferenceMemoryStrategy
 		out := &svcsdktypes.MemoryStrategyInputMemberUserPreferenceMemoryStrategy{}
-		out.Value.Name = s.UserPreferenceMemoryStrategy.Name
-		out.Value.Description = s.UserPreferenceMemoryStrategy.Description
-		out.Value.Namespaces = aws.ToStringSlice(s.UserPreferenceMemoryStrategy.Namespaces)
+		out.Value.Name = up.Name
+		out.Value.Description = up.Description
+		if len(up.Namespaces) > 0 {
+			out.Value.Namespaces = aws.ToStringSlice(up.Namespaces)
+		}
+		if len(up.NamespaceTemplates) > 0 {
+			out.Value.NamespaceTemplates = aws.ToStringSlice(up.NamespaceTemplates)
+		}
 		return out
 	}
 	if s.CustomMemoryStrategy != nil {
+		custom := s.CustomMemoryStrategy
 		out := &svcsdktypes.MemoryStrategyInputMemberCustomMemoryStrategy{}
-		out.Value.Name = s.CustomMemoryStrategy.Name
-		out.Value.Description = s.CustomMemoryStrategy.Description
-		out.Value.Namespaces = aws.ToStringSlice(s.CustomMemoryStrategy.Namespaces)
-		// Custom strategy configuration is complex (deep union types).
-		// For now we pass the top-level fields; full configuration
-		// conversion can be added when custom strategy updates are tested.
+		out.Value.Name = custom.Name
+		out.Value.Description = custom.Description
+		if len(custom.Namespaces) > 0 {
+			out.Value.Namespaces = aws.ToStringSlice(custom.Namespaces)
+		}
+		if len(custom.NamespaceTemplates) > 0 {
+			out.Value.NamespaceTemplates = aws.ToStringSlice(custom.NamespaceTemplates)
+		}
 		return out
 	}
 	return nil
 }
 
-func strategiesToMemoryStrategyInputs(strategies []*svcapitypes.MemoryStrategy) []*svcapitypes.MemoryStrategyInput {
+func sdkStrategiesToMemoryStrategyInputs(strategies []svcsdktypes.MemoryStrategy) []*svcapitypes.MemoryStrategyInput {
 	if len(strategies) == 0 {
 		return nil
 	}
 	out := make([]*svcapitypes.MemoryStrategyInput, 0, len(strategies))
-	for _, s := range strategies {
-		if s == nil || s.Type == nil {
-			continue
-		}
+	for i := range strategies {
+		s := &strategies[i]
 		input := &svcapitypes.MemoryStrategyInput{}
-		switch *s.Type {
-		case "EPISODIC":
+		switch s.Type {
+		case svcsdktypes.MemoryStrategyTypeEpisodic:
 			ep := &svcapitypes.EpisodicMemoryStrategyInput{
-				Name:               s.Name,
-				Description:        s.Description,
-				Namespaces:         s.Namespaces,
-				NamespaceTemplates: s.NamespaceTemplates,
+				Name:        s.Name,
+				Description: s.Description,
 			}
-			if s.Configuration != nil && s.Configuration.Reflection != nil &&
-				s.Configuration.Reflection.EpisodicReflectionConfiguration != nil {
-				ep.ReflectionConfiguration = &svcapitypes.EpisodicReflectionConfigurationInput{
-					Namespaces:         s.Configuration.Reflection.EpisodicReflectionConfiguration.Namespaces,
-					NamespaceTemplates: s.Configuration.Reflection.EpisodicReflectionConfiguration.NamespaceTemplates,
+			if s.Namespaces != nil {
+				ep.Namespaces = aws.StringSlice(s.Namespaces)
+			}
+			if s.NamespaceTemplates != nil {
+				ep.NamespaceTemplates = aws.StringSlice(s.NamespaceTemplates)
+			}
+			if s.Configuration != nil && s.Configuration.Reflection != nil {
+				if rc, ok := s.Configuration.Reflection.(*svcsdktypes.ReflectionConfigurationMemberEpisodicReflectionConfiguration); ok {
+					refCfg := &svcapitypes.EpisodicReflectionConfigurationInput{}
+					if rc.Value.Namespaces != nil {
+						refCfg.Namespaces = aws.StringSlice(rc.Value.Namespaces)
+					}
+					if rc.Value.NamespaceTemplates != nil {
+						refCfg.NamespaceTemplates = aws.StringSlice(rc.Value.NamespaceTemplates)
+					}
+					ep.ReflectionConfiguration = refCfg
 				}
 			}
 			input.EpisodicMemoryStrategy = ep
-		case "SEMANTIC":
-			input.SemanticMemoryStrategy = &svcapitypes.SemanticMemoryStrategyInput{
-				Name:               s.Name,
-				Description:        s.Description,
-				Namespaces:         s.Namespaces,
-				NamespaceTemplates: s.NamespaceTemplates,
+		case svcsdktypes.MemoryStrategyTypeSemantic:
+			sem := &svcapitypes.SemanticMemoryStrategyInput{
+				Name:        s.Name,
+				Description: s.Description,
 			}
-		case "SUMMARIZATION":
-			input.SummaryMemoryStrategy = &svcapitypes.SummaryMemoryStrategyInput{
-				Name:               s.Name,
-				Description:        s.Description,
-				Namespaces:         s.Namespaces,
-				NamespaceTemplates: s.NamespaceTemplates,
+			if s.Namespaces != nil {
+				sem.Namespaces = aws.StringSlice(s.Namespaces)
 			}
-		case "USER_PREFERENCE":
-			input.UserPreferenceMemoryStrategy = &svcapitypes.UserPreferenceMemoryStrategyInput{
-				Name:               s.Name,
-				Description:        s.Description,
-				Namespaces:         s.Namespaces,
-				NamespaceTemplates: s.NamespaceTemplates,
+			if s.NamespaceTemplates != nil {
+				sem.NamespaceTemplates = aws.StringSlice(s.NamespaceTemplates)
 			}
-		case "CUSTOM":
+			input.SemanticMemoryStrategy = sem
+		case svcsdktypes.MemoryStrategyTypeSummarization:
+			sum := &svcapitypes.SummaryMemoryStrategyInput{
+				Name:        s.Name,
+				Description: s.Description,
+			}
+			if s.Namespaces != nil {
+				sum.Namespaces = aws.StringSlice(s.Namespaces)
+			}
+			if s.NamespaceTemplates != nil {
+				sum.NamespaceTemplates = aws.StringSlice(s.NamespaceTemplates)
+			}
+			input.SummaryMemoryStrategy = sum
+		case svcsdktypes.MemoryStrategyTypeUserPreference:
+			up := &svcapitypes.UserPreferenceMemoryStrategyInput{
+				Name:        s.Name,
+				Description: s.Description,
+			}
+			if s.Namespaces != nil {
+				up.Namespaces = aws.StringSlice(s.Namespaces)
+			}
+			if s.NamespaceTemplates != nil {
+				up.NamespaceTemplates = aws.StringSlice(s.NamespaceTemplates)
+			}
+			input.UserPreferenceMemoryStrategy = up
+		case svcsdktypes.MemoryStrategyTypeCustom:
 			custom := &svcapitypes.CustomMemoryStrategyInput{
-				Name:               s.Name,
-				Description:        s.Description,
-				Namespaces:         s.Namespaces,
-				NamespaceTemplates: s.NamespaceTemplates,
+				Name:        s.Name,
+				Description: s.Description,
+			}
+			if s.Namespaces != nil {
+				custom.Namespaces = aws.StringSlice(s.Namespaces)
+			}
+			if s.NamespaceTemplates != nil {
+				custom.NamespaceTemplates = aws.StringSlice(s.NamespaceTemplates)
 			}
 			if s.Configuration != nil {
-				custom.Configuration = strategyConfigToCustomConfigInput(s.Configuration)
+				custom.Configuration = sdkStrategyConfigToCustomConfigInput(s.Configuration)
 			}
 			input.CustomMemoryStrategy = custom
 		default:
@@ -339,104 +397,135 @@ func strategiesToMemoryStrategyInputs(strategies []*svcapitypes.MemoryStrategy) 
 	return out
 }
 
-func strategyConfigToCustomConfigInput(cfg *svcapitypes.StrategyConfiguration) *svcapitypes.CustomConfigurationInput {
+func sdkStrategyConfigToCustomConfigInput(cfg *svcsdktypes.StrategyConfiguration) *svcapitypes.CustomConfigurationInput {
 	out := &svcapitypes.CustomConfigurationInput{}
 
 	if cfg.SelfManagedConfiguration != nil {
-		out.SelfManagedConfiguration = selfManagedConfigToInput(cfg.SelfManagedConfiguration)
+		smc := cfg.SelfManagedConfiguration
+		smcInput := &svcapitypes.SelfManagedConfigurationInput{}
+		if smc.HistoricalContextWindowSize != nil {
+			v := int64(*smc.HistoricalContextWindowSize)
+			smcInput.HistoricalContextWindowSize = &v
+		}
+		if smc.InvocationConfiguration != nil {
+			smcInput.InvocationConfiguration = &svcapitypes.InvocationConfigurationInput{
+				PayloadDeliveryBucketName: smc.InvocationConfiguration.PayloadDeliveryBucketName,
+				TopicARN:                  smc.InvocationConfiguration.TopicArn,
+			}
+		}
+		if smc.TriggerConditions != nil {
+			triggers := make([]*svcapitypes.TriggerConditionInput, 0, len(smc.TriggerConditions))
+			for _, tc := range smc.TriggerConditions {
+				tci := &svcapitypes.TriggerConditionInput{}
+				switch v := tc.(type) {
+				case *svcsdktypes.TriggerConditionMemberMessageBasedTrigger:
+					msgCount := int64(*v.Value.MessageCount)
+					tci.MessageBasedTrigger = &svcapitypes.MessageBasedTriggerInput{MessageCount: &msgCount}
+				case *svcsdktypes.TriggerConditionMemberTimeBasedTrigger:
+					timeout := int64(*v.Value.IdleSessionTimeout)
+					tci.TimeBasedTrigger = &svcapitypes.TimeBasedTriggerInput{IdleSessionTimeout: &timeout}
+				case *svcsdktypes.TriggerConditionMemberTokenBasedTrigger:
+					count := int64(*v.Value.TokenCount)
+					tci.TokenBasedTrigger = &svcapitypes.TokenBasedTriggerInput{TokenCount: &count}
+				}
+				triggers = append(triggers, tci)
+			}
+			smcInput.TriggerConditions = triggers
+		}
+		out.SelfManagedConfiguration = smcInput
 	}
-
-	// Transpose status (grouped by step) → input (grouped by strategy type).
-	// Status: Consolidation/Extraction/Reflection each contain per-strategy overrides.
-	// Input: EpisodicOverride/SemanticOverride/etc. each contain per-step overrides.
 
 	var episodicOverride *svcapitypes.EpisodicOverrideConfigurationInput
 	var semanticOverride *svcapitypes.SemanticOverrideConfigurationInput
 	var summaryOverride *svcapitypes.SummaryOverrideConfigurationInput
 	var userPrefOverride *svcapitypes.UserPreferenceOverrideConfigurationInput
 
-	if cfg.Consolidation != nil && cfg.Consolidation.CustomConsolidationConfiguration != nil {
-		cc := cfg.Consolidation.CustomConsolidationConfiguration
-		if cc.EpisodicConsolidationOverride != nil {
-			if episodicOverride == nil {
-				episodicOverride = &svcapitypes.EpisodicOverrideConfigurationInput{}
-			}
-			episodicOverride.Consolidation = &svcapitypes.EpisodicOverrideConsolidationConfigurationInput{
-				AppendToPrompt: cc.EpisodicConsolidationOverride.AppendToPrompt,
-				ModelID:        cc.EpisodicConsolidationOverride.ModelID,
-			}
-		}
-		if cc.SemanticConsolidationOverride != nil {
-			if semanticOverride == nil {
-				semanticOverride = &svcapitypes.SemanticOverrideConfigurationInput{}
-			}
-			semanticOverride.Consolidation = &svcapitypes.SemanticOverrideConsolidationConfigurationInput{
-				AppendToPrompt: cc.SemanticConsolidationOverride.AppendToPrompt,
-				ModelID:        cc.SemanticConsolidationOverride.ModelID,
-			}
-		}
-		if cc.SummaryConsolidationOverride != nil {
-			if summaryOverride == nil {
-				summaryOverride = &svcapitypes.SummaryOverrideConfigurationInput{}
-			}
-			summaryOverride.Consolidation = &svcapitypes.SummaryOverrideConsolidationConfigurationInput{
-				AppendToPrompt: cc.SummaryConsolidationOverride.AppendToPrompt,
-				ModelID:        cc.SummaryConsolidationOverride.ModelID,
-			}
-		}
-		if cc.UserPreferenceConsolidationOverride != nil {
-			if userPrefOverride == nil {
-				userPrefOverride = &svcapitypes.UserPreferenceOverrideConfigurationInput{}
-			}
-			userPrefOverride.Consolidation = &svcapitypes.UserPreferenceOverrideConsolidationConfigurationInput{
-				AppendToPrompt: cc.UserPreferenceConsolidationOverride.AppendToPrompt,
-				ModelID:        cc.UserPreferenceConsolidationOverride.ModelID,
-			}
-		}
-	}
-
-	if cfg.Extraction != nil && cfg.Extraction.CustomExtractionConfiguration != nil {
-		ce := cfg.Extraction.CustomExtractionConfiguration
-		if ce.EpisodicExtractionOverride != nil {
-			if episodicOverride == nil {
-				episodicOverride = &svcapitypes.EpisodicOverrideConfigurationInput{}
-			}
-			episodicOverride.Extraction = &svcapitypes.EpisodicOverrideExtractionConfigurationInput{
-				AppendToPrompt: ce.EpisodicExtractionOverride.AppendToPrompt,
-				ModelID:        ce.EpisodicExtractionOverride.ModelID,
-			}
-		}
-		if ce.SemanticExtractionOverride != nil {
-			if semanticOverride == nil {
-				semanticOverride = &svcapitypes.SemanticOverrideConfigurationInput{}
-			}
-			semanticOverride.Extraction = &svcapitypes.SemanticOverrideExtractionConfigurationInput{
-				AppendToPrompt: ce.SemanticExtractionOverride.AppendToPrompt,
-				ModelID:        ce.SemanticExtractionOverride.ModelID,
-			}
-		}
-		if ce.UserPreferenceExtractionOverride != nil {
-			if userPrefOverride == nil {
-				userPrefOverride = &svcapitypes.UserPreferenceOverrideConfigurationInput{}
-			}
-			userPrefOverride.Extraction = &svcapitypes.UserPreferenceOverrideExtractionConfigurationInput{
-				AppendToPrompt: ce.UserPreferenceExtractionOverride.AppendToPrompt,
-				ModelID:        ce.UserPreferenceExtractionOverride.ModelID,
+	if cfg.Consolidation != nil {
+		if cc, ok := cfg.Consolidation.(*svcsdktypes.ConsolidationConfigurationMemberCustomConsolidationConfiguration); ok {
+			switch v := cc.Value.(type) {
+			case *svcsdktypes.CustomConsolidationConfigurationMemberEpisodicConsolidationOverride:
+				if episodicOverride == nil {
+					episodicOverride = &svcapitypes.EpisodicOverrideConfigurationInput{}
+				}
+				episodicOverride.Consolidation = &svcapitypes.EpisodicOverrideConsolidationConfigurationInput{
+					AppendToPrompt: v.Value.AppendToPrompt,
+					ModelID:        v.Value.ModelId,
+				}
+			case *svcsdktypes.CustomConsolidationConfigurationMemberSemanticConsolidationOverride:
+				if semanticOverride == nil {
+					semanticOverride = &svcapitypes.SemanticOverrideConfigurationInput{}
+				}
+				semanticOverride.Consolidation = &svcapitypes.SemanticOverrideConsolidationConfigurationInput{
+					AppendToPrompt: v.Value.AppendToPrompt,
+					ModelID:        v.Value.ModelId,
+				}
+			case *svcsdktypes.CustomConsolidationConfigurationMemberSummaryConsolidationOverride:
+				if summaryOverride == nil {
+					summaryOverride = &svcapitypes.SummaryOverrideConfigurationInput{}
+				}
+				summaryOverride.Consolidation = &svcapitypes.SummaryOverrideConsolidationConfigurationInput{
+					AppendToPrompt: v.Value.AppendToPrompt,
+					ModelID:        v.Value.ModelId,
+				}
+			case *svcsdktypes.CustomConsolidationConfigurationMemberUserPreferenceConsolidationOverride:
+				if userPrefOverride == nil {
+					userPrefOverride = &svcapitypes.UserPreferenceOverrideConfigurationInput{}
+				}
+				userPrefOverride.Consolidation = &svcapitypes.UserPreferenceOverrideConsolidationConfigurationInput{
+					AppendToPrompt: v.Value.AppendToPrompt,
+					ModelID:        v.Value.ModelId,
+				}
 			}
 		}
 	}
 
-	if cfg.Reflection != nil && cfg.Reflection.CustomReflectionConfiguration != nil {
-		cr := cfg.Reflection.CustomReflectionConfiguration
-		if cr.EpisodicReflectionOverride != nil {
-			if episodicOverride == nil {
-				episodicOverride = &svcapitypes.EpisodicOverrideConfigurationInput{}
+	if cfg.Extraction != nil {
+		if ce, ok := cfg.Extraction.(*svcsdktypes.ExtractionConfigurationMemberCustomExtractionConfiguration); ok {
+			switch v := ce.Value.(type) {
+			case *svcsdktypes.CustomExtractionConfigurationMemberEpisodicExtractionOverride:
+				if episodicOverride == nil {
+					episodicOverride = &svcapitypes.EpisodicOverrideConfigurationInput{}
+				}
+				episodicOverride.Extraction = &svcapitypes.EpisodicOverrideExtractionConfigurationInput{
+					AppendToPrompt: v.Value.AppendToPrompt,
+					ModelID:        v.Value.ModelId,
+				}
+			case *svcsdktypes.CustomExtractionConfigurationMemberSemanticExtractionOverride:
+				if semanticOverride == nil {
+					semanticOverride = &svcapitypes.SemanticOverrideConfigurationInput{}
+				}
+				semanticOverride.Extraction = &svcapitypes.SemanticOverrideExtractionConfigurationInput{
+					AppendToPrompt: v.Value.AppendToPrompt,
+					ModelID:        v.Value.ModelId,
+				}
+			case *svcsdktypes.CustomExtractionConfigurationMemberUserPreferenceExtractionOverride:
+				if userPrefOverride == nil {
+					userPrefOverride = &svcapitypes.UserPreferenceOverrideConfigurationInput{}
+				}
+				userPrefOverride.Extraction = &svcapitypes.UserPreferenceOverrideExtractionConfigurationInput{
+					AppendToPrompt: v.Value.AppendToPrompt,
+					ModelID:        v.Value.ModelId,
+				}
 			}
-			episodicOverride.Reflection = &svcapitypes.EpisodicOverrideReflectionConfigurationInput{
-				AppendToPrompt:     cr.EpisodicReflectionOverride.AppendToPrompt,
-				ModelID:            cr.EpisodicReflectionOverride.ModelID,
-				Namespaces:         cr.EpisodicReflectionOverride.Namespaces,
-				NamespaceTemplates: cr.EpisodicReflectionOverride.NamespaceTemplates,
+		}
+	}
+
+	if cfg.Reflection != nil {
+		if cr, ok := cfg.Reflection.(*svcsdktypes.ReflectionConfigurationMemberCustomReflectionConfiguration); ok {
+			if ero, ok := cr.Value.(*svcsdktypes.CustomReflectionConfigurationMemberEpisodicReflectionOverride); ok {
+				if episodicOverride == nil {
+					episodicOverride = &svcapitypes.EpisodicOverrideConfigurationInput{}
+				}
+				episodicOverride.Reflection = &svcapitypes.EpisodicOverrideReflectionConfigurationInput{
+					AppendToPrompt: ero.Value.AppendToPrompt,
+					ModelID:        ero.Value.ModelId,
+				}
+				if ero.Value.Namespaces != nil {
+					episodicOverride.Reflection.Namespaces = aws.StringSlice(ero.Value.Namespaces)
+				}
+				if ero.Value.NamespaceTemplates != nil {
+					episodicOverride.Reflection.NamespaceTemplates = aws.StringSlice(ero.Value.NamespaceTemplates)
+				}
 			}
 		}
 	}
@@ -446,7 +535,6 @@ func strategyConfigToCustomConfigInput(cfg *svcapitypes.StrategyConfiguration) *
 	out.SummaryOverride = summaryOverride
 	out.UserPreferenceOverride = userPrefOverride
 
-	// If everything is nil, return nil to avoid an empty struct in the spec
 	if out.SelfManagedConfiguration == nil &&
 		out.EpisodicOverride == nil &&
 		out.SemanticOverride == nil &&
@@ -457,61 +545,26 @@ func strategyConfigToCustomConfigInput(cfg *svcapitypes.StrategyConfiguration) *
 	return out
 }
 
-func selfManagedConfigToInput(smc *svcapitypes.SelfManagedConfiguration) *svcapitypes.SelfManagedConfigurationInput {
-	if smc == nil {
-		return nil
-	}
-	out := &svcapitypes.SelfManagedConfigurationInput{
-		HistoricalContextWindowSize: smc.HistoricalContextWindowSize,
-	}
-	if smc.InvocationConfiguration != nil {
-		out.InvocationConfiguration = &svcapitypes.InvocationConfigurationInput{
-			PayloadDeliveryBucketName: smc.InvocationConfiguration.PayloadDeliveryBucketName,
-			TopicARN:                  smc.InvocationConfiguration.TopicARN,
-		}
-	}
-	if smc.TriggerConditions != nil {
-		triggers := make([]*svcapitypes.TriggerConditionInput, 0, len(smc.TriggerConditions))
-		for _, tc := range smc.TriggerConditions {
-			if tc == nil {
-				continue
-			}
-			tci := &svcapitypes.TriggerConditionInput{}
-			if tc.MessageBasedTrigger != nil {
-				tci.MessageBasedTrigger = &svcapitypes.MessageBasedTriggerInput{
-					MessageCount: tc.MessageBasedTrigger.MessageCount,
-				}
-			}
-			if tc.TimeBasedTrigger != nil {
-				tci.TimeBasedTrigger = &svcapitypes.TimeBasedTriggerInput{
-					IdleSessionTimeout: tc.TimeBasedTrigger.IdleSessionTimeout,
-				}
-			}
-			if tc.TokenBasedTrigger != nil {
-				tci.TokenBasedTrigger = &svcapitypes.TokenBasedTriggerInput{
-					TokenCount: tc.TokenBasedTrigger.TokenCount,
-				}
-			}
-			triggers = append(triggers, tci)
-		}
-		out.TriggerConditions = triggers
-	}
-	return out
-}
-
-// buildModifyMemoryStrategies computes the add/delete sets needed to reconcile
-// desired spec.memoryStrategies against the current status.strategies.
-// Strategies are matched by name. Changed strategies are handled as
-// delete + re-add since the ModifyMemoryStrategyInput uses a different
-// configuration shape that doesn't map 1:1 from the create input.
+// buildModifyMemoryStrategies computes the add/modify/delete sets needed to
+// reconcile desired spec.memoryStrategies against latest spec.memoryStrategies.
+// Strategies are matched by name. Strategy IDs are looked up from status.
 func buildModifyMemoryStrategies(
 	desired []*svcapitypes.MemoryStrategyInput,
-	current []*svcapitypes.MemoryStrategy,
+	latest []*svcapitypes.MemoryStrategyInput,
+	statusStrategies []*svcapitypes.MemoryStrategy,
 ) *svcsdktypes.ModifyMemoryStrategies {
-	currentByName := make(map[string]string, len(current))
-	for _, s := range current {
+	// Build strategy ID lookup from status
+	strategyIDByName := make(map[string]string, len(statusStrategies))
+	for _, s := range statusStrategies {
 		if s.Name != nil && s.StrategyID != nil {
-			currentByName[*s.Name] = *s.StrategyID
+			strategyIDByName[*s.Name] = *s.StrategyID
+		}
+	}
+
+	latestByName := make(map[string]*svcapitypes.MemoryStrategyInput, len(latest))
+	for _, s := range latest {
+		if name := desiredStrategyName(s); name != "" {
+			latestByName[name] = s
 		}
 	}
 
@@ -523,33 +576,306 @@ func buildModifyMemoryStrategies(
 	}
 
 	var adds []svcsdktypes.MemoryStrategyInput
+	var modifies []svcsdktypes.ModifyMemoryStrategyInput
 	var deletes []svcsdktypes.DeleteMemoryStrategyInput
 
-	// Strategies in desired but not in current → add
 	for _, s := range desired {
 		name := desiredStrategyName(s)
-		if _, exists := currentByName[name]; !exists {
+		latestStrategy, exists := latestByName[name]
+		if !exists {
 			if sdk := memoryStrategyInputToSDK(s); sdk != nil {
 				adds = append(adds, sdk)
+			}
+		} else {
+			strategyID := strategyIDByName[name]
+			if mod := buildModifyStrategyInput(s, latestStrategy, strategyID); mod != nil {
+				modifies = append(modifies, *mod)
 			}
 		}
 	}
 
-	// Strategies in current but not in desired → delete
-	for name, id := range currentByName {
+	for name := range latestByName {
 		if _, exists := desiredNames[name]; !exists {
-			idCopy := id
-			deletes = append(deletes, svcsdktypes.DeleteMemoryStrategyInput{
-				MemoryStrategyId: &idCopy,
-			})
+			if id, ok := strategyIDByName[name]; ok {
+				idCopy := id
+				deletes = append(deletes, svcsdktypes.DeleteMemoryStrategyInput{
+					MemoryStrategyId: &idCopy,
+				})
+			}
 		}
 	}
 
-	if len(adds) == 0 && len(deletes) == 0 {
+	if len(adds) == 0 && len(deletes) == 0 && len(modifies) == 0 {
 		return nil
 	}
 	return &svcsdktypes.ModifyMemoryStrategies{
 		AddMemoryStrategies:    adds,
 		DeleteMemoryStrategies: deletes,
+		ModifyMemoryStrategies: modifies,
+	}
+}
+
+// buildModifyStrategyInput builds a ModifyMemoryStrategyInput if the desired
+// strategy differs from the latest (already normalized from spec). Returns nil
+// if no change is needed.
+func buildModifyStrategyInput(
+	desired *svcapitypes.MemoryStrategyInput,
+	latest *svcapitypes.MemoryStrategyInput,
+	strategyID string,
+) *svcsdktypes.ModifyMemoryStrategyInput {
+	normalized := stripAWSDefaults(desired, latest)
+	if equality.Semantic.Equalities.DeepEqual(desired, normalized) {
+		return nil
+	}
+
+	mod := &svcsdktypes.ModifyMemoryStrategyInput{
+		MemoryStrategyId: &strategyID,
+	}
+
+	var desiredDesc *string
+	var desiredNS []*string
+	var desiredNST []*string
+
+	switch {
+	case desired.EpisodicMemoryStrategy != nil:
+		desiredDesc = desired.EpisodicMemoryStrategy.Description
+		desiredNS = desired.EpisodicMemoryStrategy.Namespaces
+		desiredNST = desired.EpisodicMemoryStrategy.NamespaceTemplates
+	case desired.SemanticMemoryStrategy != nil:
+		desiredDesc = desired.SemanticMemoryStrategy.Description
+		desiredNS = desired.SemanticMemoryStrategy.Namespaces
+		desiredNST = desired.SemanticMemoryStrategy.NamespaceTemplates
+	case desired.SummaryMemoryStrategy != nil:
+		desiredDesc = desired.SummaryMemoryStrategy.Description
+		desiredNS = desired.SummaryMemoryStrategy.Namespaces
+		desiredNST = desired.SummaryMemoryStrategy.NamespaceTemplates
+	case desired.UserPreferenceMemoryStrategy != nil:
+		desiredDesc = desired.UserPreferenceMemoryStrategy.Description
+		desiredNS = desired.UserPreferenceMemoryStrategy.Namespaces
+		desiredNST = desired.UserPreferenceMemoryStrategy.NamespaceTemplates
+	case desired.CustomMemoryStrategy != nil:
+		desiredDesc = desired.CustomMemoryStrategy.Description
+		desiredNS = desired.CustomMemoryStrategy.Namespaces
+		desiredNST = desired.CustomMemoryStrategy.NamespaceTemplates
+	}
+
+	mod.Description = desiredDesc
+	if len(desiredNS) > 0 {
+		mod.Namespaces = aws.ToStringSlice(desiredNS)
+	}
+	if len(desiredNST) > 0 {
+		mod.NamespaceTemplates = aws.ToStringSlice(desiredNST)
+	}
+
+	if modCfg := buildModifyStrategyConfiguration(desired, latest); modCfg != nil {
+		mod.Configuration = modCfg
+	}
+
+	return mod
+}
+
+func ptrStringEqual(a, b *string) bool {
+	if a == nil && b == nil {
+		return true
+	}
+	if a == nil || b == nil {
+		return false
+	}
+	return *a == *b
+}
+
+func buildModifyStrategyConfiguration(
+	desired *svcapitypes.MemoryStrategyInput,
+	latest *svcapitypes.MemoryStrategyInput,
+) *svcsdktypes.ModifyStrategyConfiguration {
+	cfg := &svcsdktypes.ModifyStrategyConfiguration{}
+	hasChange := false
+
+	// Episodic reflection configuration
+	if desired.EpisodicMemoryStrategy != nil && desired.EpisodicMemoryStrategy.ReflectionConfiguration != nil {
+		desiredRef := desired.EpisodicMemoryStrategy.ReflectionConfiguration
+		var latestRefNS, latestRefNST []*string
+		if latest != nil && latest.EpisodicMemoryStrategy != nil &&
+			latest.EpisodicMemoryStrategy.ReflectionConfiguration != nil {
+			latestRefNS = latest.EpisodicMemoryStrategy.ReflectionConfiguration.Namespaces
+			latestRefNST = latest.EpisodicMemoryStrategy.ReflectionConfiguration.NamespaceTemplates
+		}
+		normalizeNamespacePair(desiredRef.Namespaces, desiredRef.NamespaceTemplates, &latestRefNS, &latestRefNST)
+
+		refChanged := false
+		refInput := svcsdktypes.EpisodicReflectionConfigurationInput{}
+		if len(desiredRef.Namespaces) > 0 && !ptrSliceEqual(desiredRef.Namespaces, latestRefNS) {
+			refInput.Namespaces = aws.ToStringSlice(desiredRef.Namespaces)
+			refChanged = true
+		}
+		if len(desiredRef.NamespaceTemplates) > 0 && !ptrSliceEqual(desiredRef.NamespaceTemplates, latestRefNST) {
+			refInput.NamespaceTemplates = aws.ToStringSlice(desiredRef.NamespaceTemplates)
+			refChanged = true
+		}
+		if refChanged {
+			cfg.Reflection = &svcsdktypes.ModifyReflectionConfigurationMemberEpisodicReflectionConfiguration{
+				Value: refInput,
+			}
+			hasChange = true
+		}
+	}
+
+	// Custom strategy configuration
+	if desired.CustomMemoryStrategy != nil && desired.CustomMemoryStrategy.Configuration != nil {
+		customCfg := desired.CustomMemoryStrategy.Configuration
+
+		if customCfg.SelfManagedConfiguration != nil {
+			smc := customCfg.SelfManagedConfiguration
+			modSmc := &svcsdktypes.ModifySelfManagedConfiguration{}
+			if smc.HistoricalContextWindowSize != nil {
+				v := int32(*smc.HistoricalContextWindowSize)
+				modSmc.HistoricalContextWindowSize = &v
+			}
+			if smc.InvocationConfiguration != nil {
+				modSmc.InvocationConfiguration = &svcsdktypes.ModifyInvocationConfigurationInput{
+					PayloadDeliveryBucketName: smc.InvocationConfiguration.PayloadDeliveryBucketName,
+					TopicArn:                  smc.InvocationConfiguration.TopicARN,
+				}
+			}
+			if smc.TriggerConditions != nil {
+				for _, tc := range smc.TriggerConditions {
+					if tc == nil {
+						continue
+					}
+					if tc.MessageBasedTrigger != nil {
+						v := int32(*tc.MessageBasedTrigger.MessageCount)
+						modSmc.TriggerConditions = append(modSmc.TriggerConditions,
+							&svcsdktypes.TriggerConditionInputMemberMessageBasedTrigger{
+								Value: svcsdktypes.MessageBasedTriggerInput{MessageCount: &v},
+							})
+					}
+					if tc.TimeBasedTrigger != nil {
+						v := int32(*tc.TimeBasedTrigger.IdleSessionTimeout)
+						modSmc.TriggerConditions = append(modSmc.TriggerConditions,
+							&svcsdktypes.TriggerConditionInputMemberTimeBasedTrigger{
+								Value: svcsdktypes.TimeBasedTriggerInput{IdleSessionTimeout: &v},
+							})
+					}
+					if tc.TokenBasedTrigger != nil {
+						v := int32(*tc.TokenBasedTrigger.TokenCount)
+						modSmc.TriggerConditions = append(modSmc.TriggerConditions,
+							&svcsdktypes.TriggerConditionInputMemberTokenBasedTrigger{
+								Value: svcsdktypes.TokenBasedTriggerInput{TokenCount: &v},
+							})
+					}
+				}
+			}
+			cfg.SelfManagedConfiguration = modSmc
+			hasChange = true
+		}
+
+		if customCfg.EpisodicOverride != nil {
+			cfg.Consolidation = buildModifyConsolidation(customCfg)
+			cfg.Extraction = buildModifyExtraction(customCfg)
+			cfg.Reflection = buildModifyCustomReflection(customCfg)
+			hasChange = true
+		} else if customCfg.SemanticOverride != nil || customCfg.SummaryOverride != nil || customCfg.UserPreferenceOverride != nil {
+			cfg.Consolidation = buildModifyConsolidation(customCfg)
+			cfg.Extraction = buildModifyExtraction(customCfg)
+			hasChange = true
+		}
+	}
+
+	if !hasChange {
+		return nil
+	}
+	return cfg
+}
+
+func buildModifyConsolidation(cfg *svcapitypes.CustomConfigurationInput) svcsdktypes.ModifyConsolidationConfiguration {
+	// Each override type is a separate union member — only one can be active
+	switch {
+	case cfg.EpisodicOverride != nil && cfg.EpisodicOverride.Consolidation != nil:
+		return &svcsdktypes.ModifyConsolidationConfigurationMemberCustomConsolidationConfiguration{
+			Value: &svcsdktypes.CustomConsolidationConfigurationInputMemberEpisodicConsolidationOverride{
+				Value: svcsdktypes.EpisodicOverrideConsolidationConfigurationInput{
+					AppendToPrompt: cfg.EpisodicOverride.Consolidation.AppendToPrompt,
+					ModelId:        cfg.EpisodicOverride.Consolidation.ModelID,
+				},
+			},
+		}
+	case cfg.SemanticOverride != nil && cfg.SemanticOverride.Consolidation != nil:
+		return &svcsdktypes.ModifyConsolidationConfigurationMemberCustomConsolidationConfiguration{
+			Value: &svcsdktypes.CustomConsolidationConfigurationInputMemberSemanticConsolidationOverride{
+				Value: svcsdktypes.SemanticOverrideConsolidationConfigurationInput{
+					AppendToPrompt: cfg.SemanticOverride.Consolidation.AppendToPrompt,
+					ModelId:        cfg.SemanticOverride.Consolidation.ModelID,
+				},
+			},
+		}
+	case cfg.SummaryOverride != nil && cfg.SummaryOverride.Consolidation != nil:
+		return &svcsdktypes.ModifyConsolidationConfigurationMemberCustomConsolidationConfiguration{
+			Value: &svcsdktypes.CustomConsolidationConfigurationInputMemberSummaryConsolidationOverride{
+				Value: svcsdktypes.SummaryOverrideConsolidationConfigurationInput{
+					AppendToPrompt: cfg.SummaryOverride.Consolidation.AppendToPrompt,
+					ModelId:        cfg.SummaryOverride.Consolidation.ModelID,
+				},
+			},
+		}
+	case cfg.UserPreferenceOverride != nil && cfg.UserPreferenceOverride.Consolidation != nil:
+		return &svcsdktypes.ModifyConsolidationConfigurationMemberCustomConsolidationConfiguration{
+			Value: &svcsdktypes.CustomConsolidationConfigurationInputMemberUserPreferenceConsolidationOverride{
+				Value: svcsdktypes.UserPreferenceOverrideConsolidationConfigurationInput{
+					AppendToPrompt: cfg.UserPreferenceOverride.Consolidation.AppendToPrompt,
+					ModelId:        cfg.UserPreferenceOverride.Consolidation.ModelID,
+				},
+			},
+		}
+	}
+	return nil
+}
+
+func buildModifyExtraction(cfg *svcapitypes.CustomConfigurationInput) svcsdktypes.ModifyExtractionConfiguration {
+	switch {
+	case cfg.EpisodicOverride != nil && cfg.EpisodicOverride.Extraction != nil:
+		return &svcsdktypes.ModifyExtractionConfigurationMemberCustomExtractionConfiguration{
+			Value: &svcsdktypes.CustomExtractionConfigurationInputMemberEpisodicExtractionOverride{
+				Value: svcsdktypes.EpisodicOverrideExtractionConfigurationInput{
+					AppendToPrompt: cfg.EpisodicOverride.Extraction.AppendToPrompt,
+					ModelId:        cfg.EpisodicOverride.Extraction.ModelID,
+				},
+			},
+		}
+	case cfg.SemanticOverride != nil && cfg.SemanticOverride.Extraction != nil:
+		return &svcsdktypes.ModifyExtractionConfigurationMemberCustomExtractionConfiguration{
+			Value: &svcsdktypes.CustomExtractionConfigurationInputMemberSemanticExtractionOverride{
+				Value: svcsdktypes.SemanticOverrideExtractionConfigurationInput{
+					AppendToPrompt: cfg.SemanticOverride.Extraction.AppendToPrompt,
+					ModelId:        cfg.SemanticOverride.Extraction.ModelID,
+				},
+			},
+		}
+	case cfg.UserPreferenceOverride != nil && cfg.UserPreferenceOverride.Extraction != nil:
+		return &svcsdktypes.ModifyExtractionConfigurationMemberCustomExtractionConfiguration{
+			Value: &svcsdktypes.CustomExtractionConfigurationInputMemberUserPreferenceExtractionOverride{
+				Value: svcsdktypes.UserPreferenceOverrideExtractionConfigurationInput{
+					AppendToPrompt: cfg.UserPreferenceOverride.Extraction.AppendToPrompt,
+					ModelId:        cfg.UserPreferenceOverride.Extraction.ModelID,
+				},
+			},
+		}
+	}
+	return nil
+}
+
+func buildModifyCustomReflection(cfg *svcapitypes.CustomConfigurationInput) svcsdktypes.ModifyReflectionConfiguration {
+	if cfg.EpisodicOverride == nil || cfg.EpisodicOverride.Reflection == nil {
+		return nil
+	}
+	r := cfg.EpisodicOverride.Reflection
+	return &svcsdktypes.ModifyReflectionConfigurationMemberCustomReflectionConfiguration{
+		Value: &svcsdktypes.CustomReflectionConfigurationInputMemberEpisodicReflectionOverride{
+			Value: svcsdktypes.EpisodicOverrideReflectionConfigurationInput{
+				AppendToPrompt:     r.AppendToPrompt,
+				ModelId:            r.ModelID,
+				Namespaces:         aws.ToStringSlice(r.Namespaces),
+				NamespaceTemplates: aws.ToStringSlice(r.NamespaceTemplates),
+			},
+		},
 	}
 }

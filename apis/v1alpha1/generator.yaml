@@ -100,11 +100,26 @@ resources:
           resource: Role
           service_name: iam
           path: Status.ACKResourceMetadata.ARN
+      MemoryStrategies:
+        set:
+          - method: Update
+            ignore: all
+        compare:
+          is_ignored: true
       MemoryStrategies.CustomMemoryStrategy.Configuration.SelfManagedConfiguration.InvocationConfiguration.TopicArn:
         references:
           resource: Topic
           service_name: sns
           path: Status.ACKResourceMetadata.ARN
+      # MemoryStrategies.SemanticMemoryStrategy.Consolidation:
+      #   set:
+      #     - method: Create
+      #       ignore: all
+      #     - method: Update
+      #       ignore: all                                                                                         
+      #   from:
+      #     operation: UpdateMemory
+      #     path: MemoryStrategies.ModifyMemoryStrategies.Configuration.Consolidation.CustomConsolidationConfiguration.SemanticConsolidationOverride                                                                                        
       CreatedAt:
         is_read_only: true
         from:

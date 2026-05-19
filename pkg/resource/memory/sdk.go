@@ -448,7 +448,7 @@ func (rm *resourceManager) sdkFind(
 	}
 
 	rm.setStatusDefaults(ko)
-	ko.Spec.MemoryStrategies = strategiesToMemoryStrategyInputs(ko.Status.Strategies)
+	ko.Spec.MemoryStrategies = sdkStrategiesToMemoryStrategyInputs(resp.Memory.Strategies)
 
 	tags, err := rm.getTags(ctx, string(*ko.Status.ACKResourceMetadata.ARN))
 	if err != nil {
@@ -1318,7 +1318,7 @@ func (rm *resourceManager) sdkUpdate(
 			return nil, err
 		}
 	}
-	if !delta.DifferentExcept("Spec.Tags", "Spec.MemoryStrategies") {
+	if !delta.DifferentExcept("Spec.Tags") {
 		return desired, nil
 	}
 
@@ -1329,6 +1329,7 @@ func (rm *resourceManager) sdkUpdate(
 	if delta.DifferentAt("Spec.MemoryStrategies") {
 		input.MemoryStrategies = buildModifyMemoryStrategies(
 			desired.ko.Spec.MemoryStrategies,
+			latest.ko.Spec.MemoryStrategies,
 			latest.ko.Status.Strategies,
 		)
 	}
