@@ -117,13 +117,13 @@ class TestMemory:
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
-                            "name": "ack-test-semantic",
+                            "name": "ack_test_semantic",
                             "description": "ACK e2e test semantic strategy",
                         },
                     },
                     {
                         "summaryMemoryStrategy": {
-                            "name": "ack-test-summary",
+                            "name": "ack_test_summary",
                             "description": "ACK e2e test summary strategy",
                         },
                     },
@@ -141,16 +141,16 @@ class TestMemory:
         )
         strategies = aws_memory["memory"]["strategies"]
         strategy_names = {s["name"] for s in strategies}
-        assert "ack-test-semantic" in strategy_names
-        assert "ack-test-summary" in strategy_names
+        assert "ack_test_semantic" in strategy_names
+        assert "ack_test_summary" in strategy_names
 
         # Verify status strategies are populated on the CR
         cr = k8s.get_resource(ref)
         status_strategies = cr["status"]["strategies"]
         assert len(status_strategies) == 2
         status_strategy_names = {s["name"] for s in status_strategies}
-        assert "ack-test-semantic" in status_strategy_names
-        assert "ack-test-summary" in status_strategy_names
+        assert "ack_test_semantic" in status_strategy_names
+        assert "ack_test_summary" in status_strategy_names
 
     def test_update_modify_strategy(self, simple_memory, bedrockagentcorecontrol_client):
         """Test modifying an existing strategy's description."""
@@ -165,13 +165,13 @@ class TestMemory:
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
-                            "name": "ack-test-semantic",
+                            "name": "ack_test_semantic",
                             "description": "Updated semantic strategy description",
                         },
                     },
                     {
                         "summaryMemoryStrategy": {
-                            "name": "ack-test-summary",
+                            "name": "ack_test_summary",
                             "description": "ACK e2e test summary strategy",
                         },
                     },
@@ -188,7 +188,7 @@ class TestMemory:
             memoryId=memory_id
         )
         strategies = aws_memory["memory"]["strategies"]
-        semantic = next(s for s in strategies if s["name"] == "ack-test-semantic")
+        semantic = next(s for s in strategies if s["name"] == "ack_test_semantic")
         assert semantic["description"] == "Updated semantic strategy description"
 
     def test_update_delete_strategy(self, simple_memory, bedrockagentcorecontrol_client):
@@ -204,7 +204,7 @@ class TestMemory:
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
-                            "name": "ack-test-semantic",
+                            "name": "ack_test_semantic",
                             "description": "Updated semantic strategy description",
                         },
                     },
@@ -222,8 +222,8 @@ class TestMemory:
         )
         strategies = aws_memory["memory"]["strategies"]
         strategy_names = {s["name"] for s in strategies}
-        assert "ack-test-semantic" in strategy_names
-        assert "ack-test-summary" not in strategy_names
+        assert "ack_test_semantic" in strategy_names
+        assert "ack_test_summary" not in strategy_names
 
     def test_update_add_custom_strategy(self, simple_memory, bedrockagentcorecontrol_client):
         """Test adding a custom memory strategy with configuration."""
@@ -238,13 +238,13 @@ class TestMemory:
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
-                            "name": "ack-test-semantic",
+                            "name": "ack_test_semantic",
                             "description": "Updated semantic strategy description",
                         },
                     },
                     {
                         "customMemoryStrategy": {
-                            "name": "ack-test-custom",
+                            "name": "ack_test_custom",
                             "description": "ACK e2e test custom strategy",
                             "configuration": {
                                 "semanticOverride": {
@@ -268,7 +268,7 @@ class TestMemory:
             memoryId=memory_id
         )
         strategies = aws_memory["memory"]["strategies"]
-        custom = next(s for s in strategies if s["name"] == "ack-test-custom")
+        custom = next(s for s in strategies if s["name"] == "ack_test_custom")
         assert custom["type"] == "CUSTOM"
         assert custom["description"] == "ACK e2e test custom strategy"
 
@@ -285,13 +285,13 @@ class TestMemory:
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
-                            "name": "ack-test-semantic",
+                            "name": "ack_test_semantic",
                             "description": "Updated semantic strategy description",
                         },
                     },
                     {
                         "customMemoryStrategy": {
-                            "name": "ack-test-custom",
+                            "name": "ack_test_custom",
                             "description": "Updated custom strategy description",
                             "configuration": {
                                 "semanticOverride": {
@@ -318,7 +318,7 @@ class TestMemory:
             memoryId=memory_id
         )
         strategies = aws_memory["memory"]["strategies"]
-        custom = next(s for s in strategies if s["name"] == "ack-test-custom")
+        custom = next(s for s in strategies if s["name"] == "ack_test_custom")
         assert custom["description"] == "Updated custom strategy description"
 
     def test_update_add_self_managed_custom_strategy(self, simple_memory, bedrockagentcorecontrol_client):
@@ -338,13 +338,13 @@ class TestMemory:
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
-                            "name": "ack-test-semantic",
+                            "name": "ack_test_semantic",
                             "description": "Updated custom strategy description",
                         },
                     },
                     {
                         "customMemoryStrategy": {
-                            "name": "ack-test-self-managed",
+                            "name": "ack_test_self_managed",
                             "description": "ACK e2e test self-managed custom strategy",
                             "configuration": {
                                 "selfManagedConfiguration": {
@@ -377,7 +377,7 @@ class TestMemory:
             memoryId=memory_id
         )
         strategies = aws_memory["memory"]["strategies"]
-        custom = next(s for s in strategies if s["name"] == "ack-test-self-managed")
+        custom = next(s for s in strategies if s["name"] == "ack_test_self_managed")
         assert custom["type"] == "CUSTOM"
         assert custom["description"] == "ACK e2e test self-managed custom strategy"
 
@@ -407,13 +407,13 @@ class TestMemory:
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
-                            "name": "ack-test-semantic",
+                            "name": "ack_test_semantic",
                             "description": "Updated custom strategy description",
                         },
                     },
                     {
                         "customMemoryStrategy": {
-                            "name": "ack-test-self-managed",
+                            "name": "ack_test_self_managed",
                             "description": "Updated self-managed strategy",
                             "configuration": {
                                 "selfManagedConfiguration": {
@@ -451,7 +451,7 @@ class TestMemory:
             memoryId=memory_id
         )
         strategies = aws_memory["memory"]["strategies"]
-        custom = next(s for s in strategies if s["name"] == "ack-test-self-managed")
+        custom = next(s for s in strategies if s["name"] == "ack_test_self_managed")
         assert custom["description"] == "Updated self-managed strategy"
 
         # Verify updated self-managed configuration in AWS
@@ -473,7 +473,7 @@ class TestMemory:
         cr = k8s.get_resource(ref)
         spec_strategies = cr["spec"]["memoryStrategies"]
         self_managed = next(
-            s for s in spec_strategies if s.get("customMemoryStrategy", {}).get("name") == "ack-test-self-managed"
+            s for s in spec_strategies if s.get("customMemoryStrategy", {}).get("name") == "ack_test_self_managed"
         )
         sm_config = self_managed["customMemoryStrategy"]["configuration"]["selfManagedConfiguration"]
         assert sm_config["historicalContextWindowSize"] == 20
@@ -488,21 +488,21 @@ class TestMemory:
         memory_id = cr["status"]["id"]
 
         # In one update:
-        # - Delete "ack-test-self-managed" (omit it)
-        # - Modify "ack-test-semantic" (change description)
-        # - Add "ack-test-episodic" (new strategy)
+        # - Delete "ack_test_self_managed" (omit it)
+        # - Modify "ack_test_semantic" (change description)
+        # - Add "ack_test_episodic" (new strategy)
         updates = {
             "spec": {
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
-                            "name": "ack-test-semantic",
+                            "name": "ack_test_semantic",
                             "description": "Combined update semantic description",
                         },
                     },
                     {
                         "episodicMemoryStrategy": {
-                            "name": "ack-test-episodic",
+                            "name": "ack_test_episodic",
                             "description": "ACK e2e test episodic strategy",
                         },
                     },
@@ -522,18 +522,18 @@ class TestMemory:
         strategy_names = {s["name"] for s in strategies}
 
         # Added
-        assert "ack-test-episodic" in strategy_names
+        assert "ack_test_episodic" in strategy_names
         # Modified (still present)
-        assert "ack-test-semantic" in strategy_names
+        assert "ack_test_semantic" in strategy_names
         # Deleted
-        assert "ack-test-self-managed" not in strategy_names
+        assert "ack_test_self_managed" not in strategy_names
 
         # Verify the modification applied
-        semantic = next(s for s in strategies if s["name"] == "ack-test-semantic")
+        semantic = next(s for s in strategies if s["name"] == "ack_test_semantic")
         assert semantic["description"] == "Combined update semantic description"
 
         # Verify the new strategy has correct type
-        episodic = next(s for s in strategies if s["name"] == "ack-test-episodic")
+        episodic = next(s for s in strategies if s["name"] == "ack_test_episodic")
         assert episodic["type"] == "EPISODIC"
 
     def test_update_tags(self, simple_memory, bedrockagentcorecontrol_client):

@@ -10,5 +10,5 @@ spec:
   eventExpiryDuration: 30
   memoryStrategies:
     - semanticMemoryStrategy:
-        name: "ack-test-semantic"
+        name: "ack_test_semantic"
         description: "ACK e2e test semantic strategy"
