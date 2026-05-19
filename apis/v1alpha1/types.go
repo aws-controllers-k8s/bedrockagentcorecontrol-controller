@@ -229,12 +229,6 @@ type CodeInterpreterSummary struct {
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
 }
 
-// Contains consolidation configuration information for a memory strategy.
-type ConsolidationConfiguration struct {
-	// Contains custom consolidation configuration information.
-	CustomConsolidationConfiguration *CustomConsolidationConfiguration `json:"customConsolidationConfiguration,omitempty"`
-}
-
 // Representation of a container configuration.
 type ContainerConfiguration struct {
 	ContainerURI *string `json:"containerURI,omitempty"`
@@ -290,19 +284,6 @@ type CustomConfigurationInput struct {
 	UserPreferenceOverride *UserPreferenceOverrideConfigurationInput `json:"userPreferenceOverride,omitempty"`
 }
 
-// Contains custom consolidation configuration information.
-type CustomConsolidationConfiguration struct {
-	// Contains configurations to override the default consolidation step for the
-	// episodic memory strategy.
-	EpisodicConsolidationOverride *EpisodicConsolidationOverride `json:"episodicConsolidationOverride,omitempty"`
-	// Contains semantic consolidation override configuration.
-	SemanticConsolidationOverride *SemanticConsolidationOverride `json:"semanticConsolidationOverride,omitempty"`
-	// Contains summary consolidation override configuration.
-	SummaryConsolidationOverride *SummaryConsolidationOverride `json:"summaryConsolidationOverride,omitempty"`
-	// Contains user preference consolidation override configuration.
-	UserPreferenceConsolidationOverride *UserPreferenceConsolidationOverride `json:"userPreferenceConsolidationOverride,omitempty"`
-}
-
 // Input for a custom consolidation configuration.
 type CustomConsolidationConfigurationInput struct {
 	// Configurations for overriding the consolidation step of the episodic memory
@@ -315,17 +296,6 @@ type CustomConsolidationConfigurationInput struct {
 	// Input for user preference override consolidation configuration in a memory
 	// strategy.
 	UserPreferenceConsolidationOverride *UserPreferenceOverrideConsolidationConfigurationInput `json:"userPreferenceConsolidationOverride,omitempty"`
-}
-
-// Contains custom extraction configuration information.
-type CustomExtractionConfiguration struct {
-	// Contains configurations to override the default extraction step for the episodic
-	// memory strategy.
-	EpisodicExtractionOverride *EpisodicExtractionOverride `json:"episodicExtractionOverride,omitempty"`
-	// Contains semantic extraction override configuration.
-	SemanticExtractionOverride *SemanticExtractionOverride `json:"semanticExtractionOverride,omitempty"`
-	// Contains user preference extraction override configuration.
-	UserPreferenceExtractionOverride *UserPreferenceExtractionOverride `json:"userPreferenceExtractionOverride,omitempty"`
 }
 
 // Input for a custom extraction configuration.
@@ -357,13 +327,6 @@ type CustomMemoryStrategyInput struct {
 	Name               *string                   `json:"name,omitempty"`
 	NamespaceTemplates []*string                 `json:"namespaceTemplates,omitempty"`
 	Namespaces         []*string                 `json:"namespaces,omitempty"`
-}
-
-// Contains configurations for a custom reflection strategy.
-type CustomReflectionConfiguration struct {
-	// Contains configurations to override the default reflection step for the episodic
-	// memory strategy.
-	EpisodicReflectionOverride *EpisodicReflectionOverride `json:"episodicReflectionOverride,omitempty"`
 }
 
 // Input for a custom reflection configuration.
@@ -465,12 +428,6 @@ type EvaluatorSummary struct {
 	CreatedAt             *metav1.Time `json:"createdAt,omitempty"`
 	LockedForModification *bool        `json:"lockedForModification,omitempty"`
 	UpdatedAt             *metav1.Time `json:"updatedAt,omitempty"`
-}
-
-// Contains extraction configuration information for a memory strategy.
-type ExtractionConfiguration struct {
-	// Contains custom extraction configuration information.
-	CustomExtractionConfiguration *CustomExtractionConfiguration `json:"customExtractionConfiguration,omitempty"`
 }
 
 // Configuration for a filesystem that can be mounted into the AgentCore Runtime.
@@ -675,17 +632,12 @@ type McpTargetConfiguration struct {
 
 // Contains information about a memory strategy.
 type MemoryStrategy struct {
-	// Contains configuration information for a memory strategy.
-	Configuration      *StrategyConfiguration `json:"configuration,omitempty"`
-	CreatedAt          *metav1.Time           `json:"createdAt,omitempty"`
-	Description        *string                `json:"description,omitempty"`
-	Name               *string                `json:"name,omitempty"`
-	NamespaceTemplates []*string              `json:"namespaceTemplates,omitempty"`
-	Namespaces         []*string              `json:"namespaces,omitempty"`
-	Status             *string                `json:"status,omitempty"`
-	StrategyID         *string                `json:"strategyID,omitempty"`
-	Type               *string                `json:"type_,omitempty"`
-	UpdatedAt          *metav1.Time           `json:"updatedAt,omitempty"`
+	CreatedAt  *metav1.Time `json:"createdAt,omitempty"`
+	Name       *string      `json:"name,omitempty"`
+	Status     *string      `json:"status,omitempty"`
+	StrategyID *string      `json:"strategyID,omitempty"`
+	Type       *string      `json:"type_,omitempty"`
+	UpdatedAt  *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Contains input information for creating a memory strategy.
@@ -883,14 +835,6 @@ type RecordingConfig struct {
 	S3Location *S3Location `json:"s3Location,omitempty"`
 }
 
-// Contains reflection configuration information for a memory strategy.
-type ReflectionConfiguration struct {
-	// Contains configurations for a custom reflection strategy.
-	CustomReflectionConfiguration *CustomReflectionConfiguration `json:"customReflectionConfiguration,omitempty"`
-	// The configuration for the reflections created with the episodic memory strategy.
-	EpisodicReflectionConfiguration *EpisodicReflectionConfiguration `json:"episodicReflectionConfiguration,omitempty"`
-}
-
 // Configuration for HTTP request headers that will be passed through to the
 // runtime.
 type RequestHeaderConfiguration struct {
@@ -938,9 +882,6 @@ type Secret struct {
 // A configuration for a self-managed memory strategy.
 type SelfManagedConfiguration struct {
 	HistoricalContextWindowSize *int64 `json:"historicalContextWindowSize,omitempty"`
-	// The configuration to invoke a self-managed memory processing pipeline with.
-	InvocationConfiguration *InvocationConfiguration `json:"invocationConfiguration,omitempty"`
-	TriggerConditions       []*TriggerCondition      `json:"triggerConditions,omitempty"`
 }
 
 // Input configuration for a self-managed memory strategy.
@@ -1002,19 +943,6 @@ type SessionConfig struct {
 // AgentCore Runtime session invocations.
 type SessionStorageConfiguration struct {
 	MountPath *string `json:"mountPath,omitempty"`
-}
-
-// Contains configuration information for a memory strategy.
-type StrategyConfiguration struct {
-	// Contains consolidation configuration information for a memory strategy.
-	Consolidation *ConsolidationConfiguration `json:"consolidation,omitempty"`
-	// Contains extraction configuration information for a memory strategy.
-	Extraction *ExtractionConfiguration `json:"extraction,omitempty"`
-	// Contains reflection configuration information for a memory strategy.
-	Reflection *ReflectionConfiguration `json:"reflection,omitempty"`
-	// A configuration for a self-managed memory strategy.
-	SelfManagedConfiguration *SelfManagedConfiguration `json:"selfManagedConfiguration,omitempty"`
-	Type                     *string                   `json:"type_,omitempty"`
 }
 
 // Supported stream delivery resource types.
@@ -1109,16 +1037,6 @@ type ToolSchema struct {
 	// The Amazon S3 configuration for a gateway. This structure defines how the
 	// gateway accesses files in Amazon S3.
 	S3 *S3Configuration `json:"s3,omitempty"`
-}
-
-// Condition that triggers memory processing.
-type TriggerCondition struct {
-	// The trigger configuration based on a message.
-	MessageBasedTrigger *MessageBasedTrigger `json:"messageBasedTrigger,omitempty"`
-	// Trigger configuration based on time.
-	TimeBasedTrigger *TimeBasedTrigger `json:"timeBasedTrigger,omitempty"`
-	// Trigger configuration based on tokens.
-	TokenBasedTrigger *TokenBasedTrigger `json:"tokenBasedTrigger,omitempty"`
 }
 
 // Condition that triggers memory processing.

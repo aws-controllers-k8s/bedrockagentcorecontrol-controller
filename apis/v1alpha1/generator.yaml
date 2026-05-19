@@ -27,6 +27,13 @@ ignore:
     - CreateAgentRuntimeEndpointInput.ClientToken
     - CreateGatewayInput.ClientToken
     - UpdateMemoryInput.MemoryStrategies
+    # Redundant fields in Status.Strategies — already present in Spec.MemoryStrategies
+    # via the sdk_read_one_post_set_output hook. Only keep status-only fields
+    # (StrategyID, Name, Type, Status, CreatedAt, UpdatedAt).
+    - MemoryStrategy.Configuration
+    - MemoryStrategy.Description
+    - MemoryStrategy.Namespaces
+    - MemoryStrategy.NamespaceTemplates
 
 sdk_names:
   model_name: bedrock-agentcore-control
@@ -110,16 +117,7 @@ resources:
         references:
           resource: Topic
           service_name: sns
-          path: Status.ACKResourceMetadata.ARN
-      # MemoryStrategies.SemanticMemoryStrategy.Consolidation:
-      #   set:
-      #     - method: Create
-      #       ignore: all
-      #     - method: Update
-      #       ignore: all                                                                                         
-      #   from:
-      #     operation: UpdateMemory
-      #     path: MemoryStrategies.ModifyMemoryStrategies.Configuration.Consolidation.CustomConsolidationConfiguration.SemanticConsolidationOverride                                                                                        
+          path: Status.ACKResourceMetadata.ARN                                                                                       
       CreatedAt:
         is_read_only: true
         from:
@@ -135,11 +133,6 @@ resources:
         from:
           operation: GetMemory
           path: Memory.FailureReason
-      Strategies:
-        is_read_only: true
-        from:
-          operation: GetMemory
-          path: Memory.Strategies
     synced:
       when:
         - path: Status.Status
