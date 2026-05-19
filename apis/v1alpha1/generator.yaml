@@ -139,6 +139,17 @@ resources:
           in:
             - ACTIVE
             - FAILED
+    updateable:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+            - FAILED
     exceptions:
       errors:
         404:

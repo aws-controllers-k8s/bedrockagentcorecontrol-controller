@@ -53,6 +53,11 @@ def service_bootstrap() -> Resources:
             name_prefix="ack-bedrock-memory",
             principal_service="bedrock-agentcore.amazonaws.com",
             description="IAM role for ACK Bedrock Memory e2e tests",
+            managed_policies=[
+                "arn:aws:iam::aws:policy/AmazonBedrockFullAccess",
+                "arn:aws:iam::aws:policy/AmazonSNSFullAccess",
+                "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+            ],
         ),
         MemorySNSTopic=Topic(
             name_prefix="ack-bedrock-memory",

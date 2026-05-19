@@ -300,7 +300,134 @@ func memoryStrategyInputToSDK(s *svcapitypes.MemoryStrategyInput) svcsdktypes.Me
 		if len(custom.NamespaceTemplates) > 0 {
 			out.Value.NamespaceTemplates = aws.ToStringSlice(custom.NamespaceTemplates)
 		}
+		if custom.Configuration != nil {
+			out.Value.Configuration = customConfigInputToSDK(custom.Configuration)
+		}
 		return out
+	}
+	return nil
+}
+
+func customConfigInputToSDK(cfg *svcapitypes.CustomConfigurationInput) svcsdktypes.CustomConfigurationInput {
+	if cfg.SelfManagedConfiguration != nil {
+		smc := cfg.SelfManagedConfiguration
+		sdkSmc := svcsdktypes.SelfManagedConfigurationInput{
+			InvocationConfiguration: &svcsdktypes.InvocationConfigurationInput{
+				TopicArn:                  smc.InvocationConfiguration.TopicARN,
+				PayloadDeliveryBucketName: smc.InvocationConfiguration.PayloadDeliveryBucketName,
+			},
+		}
+		if smc.HistoricalContextWindowSize != nil {
+			v := int32(*smc.HistoricalContextWindowSize)
+			sdkSmc.HistoricalContextWindowSize = &v
+		}
+		for _, tc := range smc.TriggerConditions {
+			if tc == nil {
+				continue
+			}
+			if tc.MessageBasedTrigger != nil {
+				v := int32(*tc.MessageBasedTrigger.MessageCount)
+				sdkSmc.TriggerConditions = append(sdkSmc.TriggerConditions,
+					&svcsdktypes.TriggerConditionInputMemberMessageBasedTrigger{
+						Value: svcsdktypes.MessageBasedTriggerInput{MessageCount: &v},
+					})
+			}
+			if tc.TimeBasedTrigger != nil {
+				v := int32(*tc.TimeBasedTrigger.IdleSessionTimeout)
+				sdkSmc.TriggerConditions = append(sdkSmc.TriggerConditions,
+					&svcsdktypes.TriggerConditionInputMemberTimeBasedTrigger{
+						Value: svcsdktypes.TimeBasedTriggerInput{IdleSessionTimeout: &v},
+					})
+			}
+			if tc.TokenBasedTrigger != nil {
+				v := int32(*tc.TokenBasedTrigger.TokenCount)
+				sdkSmc.TriggerConditions = append(sdkSmc.TriggerConditions,
+					&svcsdktypes.TriggerConditionInputMemberTokenBasedTrigger{
+						Value: svcsdktypes.TokenBasedTriggerInput{TokenCount: &v},
+					})
+			}
+		}
+		return &svcsdktypes.CustomConfigurationInputMemberSelfManagedConfiguration{
+			Value: sdkSmc,
+		}
+	}
+	if cfg.EpisodicOverride != nil {
+		eo := cfg.EpisodicOverride
+		sdkEo := svcsdktypes.EpisodicOverrideConfigurationInput{}
+		if eo.Consolidation != nil {
+			sdkEo.Consolidation = &svcsdktypes.EpisodicOverrideConsolidationConfigurationInput{
+				AppendToPrompt: eo.Consolidation.AppendToPrompt,
+				ModelId:        eo.Consolidation.ModelID,
+			}
+		}
+		if eo.Extraction != nil {
+			sdkEo.Extraction = &svcsdktypes.EpisodicOverrideExtractionConfigurationInput{
+				AppendToPrompt: eo.Extraction.AppendToPrompt,
+				ModelId:        eo.Extraction.ModelID,
+			}
+		}
+		if eo.Reflection != nil {
+			sdkEo.Reflection = &svcsdktypes.EpisodicOverrideReflectionConfigurationInput{
+				AppendToPrompt:     eo.Reflection.AppendToPrompt,
+				ModelId:            eo.Reflection.ModelID,
+				Namespaces:         aws.ToStringSlice(eo.Reflection.Namespaces),
+				NamespaceTemplates: aws.ToStringSlice(eo.Reflection.NamespaceTemplates),
+			}
+		}
+		return &svcsdktypes.CustomConfigurationInputMemberEpisodicOverride{
+			Value: sdkEo,
+		}
+	}
+	if cfg.SemanticOverride != nil {
+		so := cfg.SemanticOverride
+		sdkSo := svcsdktypes.SemanticOverrideConfigurationInput{}
+		if so.Consolidation != nil {
+			sdkSo.Consolidation = &svcsdktypes.SemanticOverrideConsolidationConfigurationInput{
+				AppendToPrompt: so.Consolidation.AppendToPrompt,
+				ModelId:        so.Consolidation.ModelID,
+			}
+		}
+		if so.Extraction != nil {
+			sdkSo.Extraction = &svcsdktypes.SemanticOverrideExtractionConfigurationInput{
+				AppendToPrompt: so.Extraction.AppendToPrompt,
+				ModelId:        so.Extraction.ModelID,
+			}
+		}
+		return &svcsdktypes.CustomConfigurationInputMemberSemanticOverride{
+			Value: sdkSo,
+		}
+	}
+	if cfg.SummaryOverride != nil {
+		so := cfg.SummaryOverride
+		sdkSo := svcsdktypes.SummaryOverrideConfigurationInput{}
+		if so.Consolidation != nil {
+			sdkSo.Consolidation = &svcsdktypes.SummaryOverrideConsolidationConfigurationInput{
+				AppendToPrompt: so.Consolidation.AppendToPrompt,
+				ModelId:        so.Consolidation.ModelID,
+			}
+		}
+		return &svcsdktypes.CustomConfigurationInputMemberSummaryOverride{
+			Value: sdkSo,
+		}
+	}
+	if cfg.UserPreferenceOverride != nil {
+		upo := cfg.UserPreferenceOverride
+		sdkUpo := svcsdktypes.UserPreferenceOverrideConfigurationInput{}
+		if upo.Consolidation != nil {
+			sdkUpo.Consolidation = &svcsdktypes.UserPreferenceOverrideConsolidationConfigurationInput{
+				AppendToPrompt: upo.Consolidation.AppendToPrompt,
+				ModelId:        upo.Consolidation.ModelID,
+			}
+		}
+		if upo.Extraction != nil {
+			sdkUpo.Extraction = &svcsdktypes.UserPreferenceOverrideExtractionConfigurationInput{
+				AppendToPrompt: upo.Extraction.AppendToPrompt,
+				ModelId:        upo.Extraction.ModelID,
+			}
+		}
+		return &svcsdktypes.CustomConfigurationInputMemberUserPreferenceOverride{
+			Value: sdkUpo,
+		}
 	}
 	return nil
 }

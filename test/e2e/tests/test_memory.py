@@ -17,7 +17,6 @@
 import pytest
 import time
 
-from acktest.k8s import condition
 from acktest.k8s import resource as k8s
 from acktest.resources import random_suffix_name
 from e2e import service_marker, CRD_GROUP, CRD_VERSION, load_bedrockagentcorecontrol_resource
@@ -29,7 +28,7 @@ MEMORY_RESOURCE_PLURAL = "memories"
 UPDATE_WAIT_AFTER_SECONDS = 10
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def simple_memory():
     memory_name = random_suffix_name("acktestmem", 32, delimiter="")
 
@@ -80,11 +79,13 @@ class TestMemory:
         aws_memory = bedrockagentcorecontrol_client.get_memory(
             memoryId=memory_id
         )
-        assert aws_memory["memory"]["memoryId"] == memory_id
+        assert aws_memory["memory"]["id"] == memory_id
         assert aws_memory["memory"]["name"] == cr["spec"]["name"]
 
     def test_update_description(self, simple_memory, bedrockagentcorecontrol_client):
         (ref, cr) = simple_memory
+
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
 
         cr = k8s.get_resource(ref)
         memory_id = cr["status"]["id"]
@@ -108,10 +109,12 @@ class TestMemory:
         """Test adding a new strategy to an existing memory."""
         (ref, cr) = simple_memory
 
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
         cr = k8s.get_resource(ref)
         memory_id = cr["status"]["id"]
 
-        # Add an episodic strategy alongside the existing semantic strategy
+        # Add a summary strategy alongside the existing semantic strategy
         updates = {
             "spec": {
                 "memoryStrategies": [
@@ -156,10 +159,12 @@ class TestMemory:
         """Test modifying an existing strategy's description."""
         (ref, cr) = simple_memory
 
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
         cr = k8s.get_resource(ref)
         memory_id = cr["status"]["id"]
 
-        # Modify the semantic strategy's description, keep the summary strategy
+        # Modify the semantic strategy's description
         updates = {
             "spec": {
                 "memoryStrategies": [
@@ -167,12 +172,6 @@ class TestMemory:
                         "semanticMemoryStrategy": {
                             "name": "ack_test_semantic",
                             "description": "Updated semantic strategy description",
-                        },
-                    },
-                    {
-                        "summaryMemoryStrategy": {
-                            "name": "ack_test_summary",
-                            "description": "ACK e2e test summary strategy",
                         },
                     },
                 ],
@@ -195,17 +194,43 @@ class TestMemory:
         """Test removing a strategy from the memory."""
         (ref, cr) = simple_memory
 
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
         cr = k8s.get_resource(ref)
         memory_id = cr["status"]["id"]
 
-        # Remove the summary strategy by only including the semantic one
+        # First add a second strategy
         updates = {
             "spec": {
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
                             "name": "ack_test_semantic",
-                            "description": "Updated semantic strategy description",
+                            "description": "ACK e2e test semantic strategy",
+                        },
+                    },
+                    {
+                        "summaryMemoryStrategy": {
+                            "name": "ack_test_summary",
+                            "description": "ACK e2e test summary strategy",
+                        },
+                    },
+                ],
+            },
+        }
+        k8s.patch_custom_resource(ref, updates)
+        time.sleep(UPDATE_WAIT_AFTER_SECONDS)
+
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
+        # Now remove the summary strategy by only including the semantic one
+        updates = {
+            "spec": {
+                "memoryStrategies": [
+                    {
+                        "semanticMemoryStrategy": {
+                            "name": "ack_test_semantic",
+                            "description": "ACK e2e test semantic strategy",
                         },
                     },
                 ],
@@ -229,6 +254,8 @@ class TestMemory:
         """Test adding a custom memory strategy with configuration."""
         (ref, cr) = simple_memory
 
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
         cr = k8s.get_resource(ref)
         memory_id = cr["status"]["id"]
 
@@ -239,7 +266,7 @@ class TestMemory:
                     {
                         "semanticMemoryStrategy": {
                             "name": "ack_test_semantic",
-                            "description": "Updated semantic strategy description",
+                            "description": "ACK e2e test semantic strategy",
                         },
                     },
                     {
@@ -250,6 +277,7 @@ class TestMemory:
                                 "semanticOverride": {
                                     "extraction": {
                                         "appendToPrompt": "Extract key facts only.",
+                                        "modelID": "us.amazon.nova-lite-v1:0",
                                     },
                                 },
                             },
@@ -272,21 +300,62 @@ class TestMemory:
         assert custom["type"] == "CUSTOM"
         assert custom["description"] == "ACK e2e test custom strategy"
 
+        # Verify the semantic override extraction configuration was persisted
+        aws_config = custom["configuration"]
+        extraction = aws_config["extraction"]["customExtractionConfiguration"]
+        semantic_override = extraction["semanticExtractionOverride"]
+        assert semantic_override["appendToPrompt"] == "Extract key facts only."
+        assert semantic_override["modelId"] == "us.amazon.nova-lite-v1:0"
+
     def test_update_modify_custom_strategy(self, simple_memory, bedrockagentcorecontrol_client):
         """Test modifying the configuration of a custom strategy."""
         (ref, cr) = simple_memory
 
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
         cr = k8s.get_resource(ref)
         memory_id = cr["status"]["id"]
 
-        # Update the custom strategy's description and configuration
+        # First add the custom strategy
         updates = {
             "spec": {
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
                             "name": "ack_test_semantic",
-                            "description": "Updated semantic strategy description",
+                            "description": "ACK e2e test semantic strategy",
+                        },
+                    },
+                    {
+                        "customMemoryStrategy": {
+                            "name": "ack_test_custom",
+                            "description": "ACK e2e test custom strategy",
+                            "configuration": {
+                                "semanticOverride": {
+                                    "extraction": {
+                                        "appendToPrompt": "Extract key facts only.",
+                                        "modelID": "us.amazon.nova-lite-v1:0",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+        }
+        k8s.patch_custom_resource(ref, updates)
+        time.sleep(UPDATE_WAIT_AFTER_SECONDS)
+
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
+        # Now modify the custom strategy's description and add consolidation
+        updates = {
+            "spec": {
+                "memoryStrategies": [
+                    {
+                        "semanticMemoryStrategy": {
+                            "name": "ack_test_semantic",
+                            "description": "ACK e2e test semantic strategy",
                         },
                     },
                     {
@@ -297,9 +366,11 @@ class TestMemory:
                                 "semanticOverride": {
                                     "extraction": {
                                         "appendToPrompt": "Extract all relevant information.",
+                                        "modelID": "us.amazon.nova-lite-v1:0",
                                     },
                                     "consolidation": {
                                         "appendToPrompt": "Consolidate into concise summaries.",
+                                        "modelID": "us.amazon.nova-lite-v1:0",
                                     },
                                 },
                             },
@@ -325,6 +396,8 @@ class TestMemory:
         """Test adding a self-managed custom strategy with invocation configuration."""
         (ref, cr) = simple_memory
 
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
         cr = k8s.get_resource(ref)
         memory_id = cr["status"]["id"]
 
@@ -332,14 +405,14 @@ class TestMemory:
         topic_arn = resources.MemorySNSTopic.arn
         bucket_name = resources.MemoryS3Bucket.name
 
-        # Replace the current strategies with semantic + self-managed custom
+        # Add a self-managed custom strategy
         updates = {
             "spec": {
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
                             "name": "ack_test_semantic",
-                            "description": "Updated custom strategy description",
+                            "description": "ACK e2e test semantic strategy",
                         },
                     },
                     {
@@ -357,6 +430,16 @@ class TestMemory:
                                         {
                                             "messageBasedTrigger": {
                                                 "messageCount": 5,
+                                            },
+                                        },
+                                        {
+                                            "tokenBasedTrigger": {
+                                                "tokenCount": 3000,
+                                            },
+                                        },
+                                        {
+                                            "timeBasedTrigger": {
+                                                "idleSessionTimeout": 60,
                                             },
                                         },
                                     ],
@@ -387,12 +470,19 @@ class TestMemory:
         assert aws_config["invocationConfiguration"]["topicArn"] == topic_arn
         assert aws_config["invocationConfiguration"]["payloadDeliveryBucketName"] == bucket_name
         triggers = aws_config["triggerConditions"]
-        assert len(triggers) == 1
-        assert triggers[0]["messageBasedTrigger"]["messageCount"] == 5
+        assert len(triggers) == 3
+        msg_trigger = next(t for t in triggers if "messageBasedTrigger" in t)
+        assert msg_trigger["messageBasedTrigger"]["messageCount"] == 5
+        token_trigger = next(t for t in triggers if "tokenBasedTrigger" in t)
+        assert token_trigger["tokenBasedTrigger"]["tokenCount"] == 3000
+        time_trigger = next(t for t in triggers if "timeBasedTrigger" in t)
+        assert time_trigger["timeBasedTrigger"]["idleSessionTimeout"] == 60
 
     def test_update_modify_self_managed_custom_strategy(self, simple_memory, bedrockagentcorecontrol_client):
         """Test modifying self-managed custom strategy configuration."""
         (ref, cr) = simple_memory
+
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
 
         cr = k8s.get_resource(ref)
         memory_id = cr["status"]["id"]
@@ -401,14 +491,64 @@ class TestMemory:
         topic_arn = resources.MemorySNSTopic.arn
         bucket_name = resources.MemoryS3Bucket.name
 
-        # Update the self-managed strategy: change context window and add a time-based trigger
+        # First add the self-managed custom strategy
         updates = {
             "spec": {
                 "memoryStrategies": [
                     {
                         "semanticMemoryStrategy": {
                             "name": "ack_test_semantic",
-                            "description": "Updated custom strategy description",
+                            "description": "ACK e2e test semantic strategy",
+                        },
+                    },
+                    {
+                        "customMemoryStrategy": {
+                            "name": "ack_test_self_managed",
+                            "description": "ACK e2e test self-managed custom strategy",
+                            "configuration": {
+                                "selfManagedConfiguration": {
+                                    "historicalContextWindowSize": 10,
+                                    "invocationConfiguration": {
+                                        "topicARN": topic_arn,
+                                        "payloadDeliveryBucketName": bucket_name,
+                                    },
+                                    "triggerConditions": [
+                                        {
+                                            "messageBasedTrigger": {
+                                                "messageCount": 5,
+                                            },
+                                        },
+                                        {
+                                            "tokenBasedTrigger": {
+                                                "tokenCount": 3000,
+                                            },
+                                        },
+                                        {
+                                            "timeBasedTrigger": {
+                                                "idleSessionTimeout": 60,
+                                            },
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+        }
+        k8s.patch_custom_resource(ref, updates)
+        time.sleep(UPDATE_WAIT_AFTER_SECONDS)
+
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
+        # Now modify: change context window and add a time-based trigger
+        updates = {
+            "spec": {
+                "memoryStrategies": [
+                    {
+                        "semanticMemoryStrategy": {
+                            "name": "ack_test_semantic",
+                            "description": "ACK e2e test semantic strategy",
                         },
                     },
                     {
@@ -426,6 +566,11 @@ class TestMemory:
                                         {
                                             "messageBasedTrigger": {
                                                 "messageCount": 10,
+                                            },
+                                        },
+                                        {
+                                            "tokenBasedTrigger": {
+                                                "tokenCount": 6000,
                                             },
                                         },
                                         {
@@ -460,12 +605,11 @@ class TestMemory:
         assert aws_config["invocationConfiguration"]["topicArn"] == topic_arn
         assert aws_config["invocationConfiguration"]["payloadDeliveryBucketName"] == bucket_name
         triggers = aws_config["triggerConditions"]
-        assert len(triggers) == 2
-        trigger_types = {list(t.keys())[0] for t in triggers}
-        assert "messageBasedTrigger" in trigger_types
-        assert "timeBasedTrigger" in trigger_types
+        assert len(triggers) == 3
         msg_trigger = next(t for t in triggers if "messageBasedTrigger" in t)
         assert msg_trigger["messageBasedTrigger"]["messageCount"] == 10
+        token_trigger = next(t for t in triggers if "tokenBasedTrigger" in t)
+        assert token_trigger["tokenBasedTrigger"]["tokenCount"] == 6000
         time_trigger = next(t for t in triggers if "timeBasedTrigger" in t)
         assert time_trigger["timeBasedTrigger"]["idleSessionTimeout"] == 300
 
@@ -478,19 +622,45 @@ class TestMemory:
         sm_config = self_managed["customMemoryStrategy"]["configuration"]["selfManagedConfiguration"]
         assert sm_config["historicalContextWindowSize"] == 20
         assert sm_config["invocationConfiguration"]["topicARN"] == topic_arn
-        assert len(sm_config["triggerConditions"]) == 2
+        assert len(sm_config["triggerConditions"]) == 3
 
     def test_update_combined_add_modify_delete(self, simple_memory, bedrockagentcorecontrol_client):
         """Test adding, modifying, and deleting strategies in a single update."""
         (ref, cr) = simple_memory
 
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
         cr = k8s.get_resource(ref)
         memory_id = cr["status"]["id"]
 
-        # In one update:
-        # - Delete "ack_test_self_managed" (omit it)
+        # First add a summary strategy so we have something to delete
+        updates = {
+            "spec": {
+                "memoryStrategies": [
+                    {
+                        "semanticMemoryStrategy": {
+                            "name": "ack_test_semantic",
+                            "description": "ACK e2e test semantic strategy",
+                        },
+                    },
+                    {
+                        "summaryMemoryStrategy": {
+                            "name": "ack_test_summary",
+                            "description": "ACK e2e test summary strategy",
+                        },
+                    },
+                ],
+            },
+        }
+        k8s.patch_custom_resource(ref, updates)
+        time.sleep(UPDATE_WAIT_AFTER_SECONDS)
+
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
+        # Now in one update:
+        # - Delete "ack_test_summary" (omit it)
         # - Modify "ack_test_semantic" (change description)
-        # - Add "ack_test_episodic" (new strategy)
+        # - Add "ack_test_user_pref" (new strategy)
         updates = {
             "spec": {
                 "memoryStrategies": [
@@ -501,9 +671,9 @@ class TestMemory:
                         },
                     },
                     {
-                        "episodicMemoryStrategy": {
-                            "name": "ack_test_episodic",
-                            "description": "ACK e2e test episodic strategy",
+                        "userPreferenceMemoryStrategy": {
+                            "name": "ack_test_user_pref",
+                            "description": "ACK e2e test user preference strategy",
                         },
                     },
                 ],
@@ -522,22 +692,24 @@ class TestMemory:
         strategy_names = {s["name"] for s in strategies}
 
         # Added
-        assert "ack_test_episodic" in strategy_names
+        assert "ack_test_user_pref" in strategy_names
         # Modified (still present)
         assert "ack_test_semantic" in strategy_names
         # Deleted
-        assert "ack_test_self_managed" not in strategy_names
+        assert "ack_test_summary" not in strategy_names
 
         # Verify the modification applied
         semantic = next(s for s in strategies if s["name"] == "ack_test_semantic")
         assert semantic["description"] == "Combined update semantic description"
 
         # Verify the new strategy has correct type
-        episodic = next(s for s in strategies if s["name"] == "ack_test_episodic")
-        assert episodic["type"] == "EPISODIC"
+        user_pref = next(s for s in strategies if s["name"] == "ack_test_user_pref")
+        assert user_pref["type"] == "USER_PREFERENCE"
 
     def test_update_tags(self, simple_memory, bedrockagentcorecontrol_client):
         (ref, cr) = simple_memory
+
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
 
         cr = k8s.get_resource(ref)
         memory_arn = cr["status"]["ackResourceMetadata"]["arn"]

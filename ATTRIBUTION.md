@@ -24,6 +24,7 @@ License version 2.0, we include the full text of the package's License below.
 * `github.com/aws-controllers-k8s/iam-controller`
 * `github.com/aws-controllers-k8s/kms-controller`
 * `github.com/aws-controllers-k8s/runtime`
+* `github.com/aws-controllers-k8s/sns-controller`
 * `github.com/aws/aws-sdk-go`
 * `github.com/aws/aws-sdk-go-v2`
 * `github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol`
