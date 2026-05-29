@@ -168,6 +168,13 @@ func newResourceDelta(
 			delta.Add("Spec.EnvironmentVariables", a.ko.Spec.EnvironmentVariables, b.ko.Spec.EnvironmentVariables)
 		}
 	}
+	if len(a.ko.Spec.FilesystemConfigurations) != len(b.ko.Spec.FilesystemConfigurations) {
+		delta.Add("Spec.FilesystemConfigurations", a.ko.Spec.FilesystemConfigurations, b.ko.Spec.FilesystemConfigurations)
+	} else if len(a.ko.Spec.FilesystemConfigurations) > 0 {
+		if !equality.Semantic.Equalities.DeepEqual(a.ko.Spec.FilesystemConfigurations, b.ko.Spec.FilesystemConfigurations) {
+			delta.Add("Spec.FilesystemConfigurations", a.ko.Spec.FilesystemConfigurations, b.ko.Spec.FilesystemConfigurations)
+		}
+	}
 	if ackcompare.HasNilDifference(a.ko.Spec.LifecycleConfiguration, b.ko.Spec.LifecycleConfiguration) {
 		delta.Add("Spec.LifecycleConfiguration", a.ko.Spec.LifecycleConfiguration, b.ko.Spec.LifecycleConfiguration)
 	} else if a.ko.Spec.LifecycleConfiguration != nil && b.ko.Spec.LifecycleConfiguration != nil {

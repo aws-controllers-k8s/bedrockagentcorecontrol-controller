@@ -161,6 +161,25 @@ spec:
                 description: Environment variables to set in the AgentCore Runtime
                   environment.
                 type: object
+              filesystemConfigurations:
+                description: |-
+                  The filesystem configurations to mount into the AgentCore Runtime. Use filesystem
+                  configurations to provide persistent storage to your AgentCore Runtime sessions.
+                items:
+                  description: Configuration for a filesystem that can be mounted
+                    into the AgentCore Runtime.
+                  properties:
+                    sessionStorage:
+                      description: |-
+                        Configuration for a session storage filesystem mounted into the AgentCore
+                        Runtime. Session storage provides persistent storage that is preserved across
+                        AgentCore Runtime session invocations.
+                      properties:
+                        mountPath:
+                          type: string
+                      type: object
+                  type: object
+                type: array
               lifecycleConfiguration:
                 description: The life cycle configuration for the AgentCore Runtime.
                 properties:

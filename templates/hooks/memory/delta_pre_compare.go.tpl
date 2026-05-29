@@ -1,0 +1,1 @@
+	compareMemoryStrategies(delta, a, b)

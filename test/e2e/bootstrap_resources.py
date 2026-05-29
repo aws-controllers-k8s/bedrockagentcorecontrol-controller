@@ -21,12 +21,18 @@ from e2e import bootstrap_directory
 from acktest.bootstrapping.iam import Role
 from acktest.bootstrapping.cognito_identity import UserPool
 from acktest.bootstrapping.function import Function
+from acktest.bootstrapping.sns import Topic
+from acktest.bootstrapping.s3 import Bucket
 
 @dataclass
 class BootstrapResources(Resources):
+    AgentRuntimeRole: Role = None
     GatewayRole: Role = None
     GatewayUserPool: UserPool = None
     GatewayTargetLambda: Function = None
+    MemoryRole: Role = None
+    MemorySNSTopic: Topic = None
+    MemoryS3Bucket: Bucket = None
 
 _bootstrap_resources = None
 

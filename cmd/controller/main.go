@@ -28,6 +28,7 @@ import (
 	acktypes "github.com/aws-controllers-k8s/runtime/pkg/types"
 	ackrtutil "github.com/aws-controllers-k8s/runtime/pkg/util"
 	ackrtwebhook "github.com/aws-controllers-k8s/runtime/pkg/webhook"
+	snsapitypes "github.com/aws-controllers-k8s/sns-controller/apis/v1alpha1"
 	flag "github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -47,6 +48,7 @@ import (
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/api_key_credential_provider"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway_target"
+	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/memory"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/workload_identity"
 
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/version"
@@ -67,6 +69,7 @@ func init() {
 	_ = apigatewayapitypes.AddToScheme(scheme)
 	_ = iamapitypes.AddToScheme(scheme)
 	_ = kmsapitypes.AddToScheme(scheme)
+	_ = snsapitypes.AddToScheme(scheme)
 }
 
 func main() {

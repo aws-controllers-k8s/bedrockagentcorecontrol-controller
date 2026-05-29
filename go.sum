@@ -4,10 +4,12 @@ github.com/aws-controllers-k8s/apigateway-controller v1.4.3 h1:sJJuDHS6e4m/Icbmm
 github.com/aws-controllers-k8s/apigateway-controller v1.4.3/go.mod h1:Utd1mh5T7qbktiLLc7JEFHfKSvYeBNVBYgdHWYb98V4=
 github.com/aws-controllers-k8s/iam-controller v1.6.2 h1:kDiG6CIx07IPn4BBI8k3JRvip/pQ8loXU51Ptans31g=
 github.com/aws-controllers-k8s/iam-controller v1.6.2/go.mod h1:4YdmWzfmXrlquVpnv48z+dADaDOh35IevLbLCSAngeQ=
-github.com/aws-controllers-k8s/kms-controller v1.2.2 h1:1xB+0Qkwl6fxeJyhorm6Ffrva8ToS7rm7Gx2eDxmbVo=
-github.com/aws-controllers-k8s/kms-controller v1.2.2/go.mod h1:YZIR9KwX+g3gsJE1jbRjVQ+evqCaNb4nFSs85hprYb8=
+github.com/aws-controllers-k8s/kms-controller v1.2.3 h1:OIY0e8veZP/xloDVpk4i9M5Q5JvrsqZjoS/8O6CBblo=
+github.com/aws-controllers-k8s/kms-controller v1.2.3/go.mod h1:YZIR9KwX+g3gsJE1jbRjVQ+evqCaNb4nFSs85hprYb8=
 github.com/aws-controllers-k8s/runtime v0.59.1 h1:7UDKl9/dif8oNjxx/5Z5ciUfuyn86MS4BvoG9LqF6h4=
 github.com/aws-controllers-k8s/runtime v0.59.1/go.mod h1:ljWD1IdtVx/qC7C4lVobF4vLNhno/xX5A78BOke1Ksk=
+github.com/aws-controllers-k8s/sns-controller v1.4.4 h1:lQKuWGKxX50eZuSyOPQ80SFcyF+scNgr4Du925/lbjA=
+github.com/aws-controllers-k8s/sns-controller v1.4.4/go.mod h1:CtBCW5Ue6iI7yogegXz1dRoDVUQQB0rF4cdmcPOSkC4=
 github.com/aws/aws-sdk-go v1.55.0 h1:hVALKPjXz33kP1R9nTyJpUK7qF59dO2mleQxUW9mCVE=
 github.com/aws/aws-sdk-go v1.55.0/go.mod h1:eRwEWoyTWFMVYVQzKMNHWP5/RV4xIUGMQfXQHfHkpNU=
 github.com/aws/aws-sdk-go-v2 v1.41.5 h1:dj5kopbwUsVUVFgO4Fi5BIT3t4WyqIDjGKCangnV/yY=

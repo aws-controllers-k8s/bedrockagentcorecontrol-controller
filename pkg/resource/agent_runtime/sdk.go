@@ -241,58 +241,79 @@ func (rm *resourceManager) sdkFind(
 	} else {
 		ko.Spec.EnvironmentVariables = nil
 	}
+	if resp.FilesystemConfigurations != nil {
+		f10 := []*svcapitypes.FilesystemConfiguration{}
+		for _, f10iter := range resp.FilesystemConfigurations {
+			f10elem := &svcapitypes.FilesystemConfiguration{}
+			switch f10iter.(type) {
+			case *svcsdktypes.FilesystemConfigurationMemberSessionStorage:
+				f10elemf0 := f10iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
+				if f10elemf0 != nil {
+					f10elemf0f0 := &svcapitypes.SessionStorageConfiguration{}
+					if f10elemf0.Value.MountPath != nil {
+						f10elemf0f0.MountPath = f10elemf0.Value.MountPath
+					}
+					f10elem.SessionStorage = f10elemf0f0
+				}
+			}
+			f10 = append(f10, f10elem)
+		}
+		ko.Spec.FilesystemConfigurations = f10
+	} else {
+		ko.Spec.FilesystemConfigurations = nil
+	}
 	if resp.LifecycleConfiguration != nil {
-		f11 := &svcapitypes.LifecycleConfiguration{}
+		f12 := &svcapitypes.LifecycleConfiguration{}
 		if resp.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil {
 			idleRuntimeSessionTimeoutCopy := int64(*resp.LifecycleConfiguration.IdleRuntimeSessionTimeout)
-			f11.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
+			f12.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
 		}
 		if resp.LifecycleConfiguration.MaxLifetime != nil {
 			maxLifetimeCopy := int64(*resp.LifecycleConfiguration.MaxLifetime)
-			f11.MaxLifetime = &maxLifetimeCopy
+			f12.MaxLifetime = &maxLifetimeCopy
 		}
-		ko.Spec.LifecycleConfiguration = f11
+		ko.Spec.LifecycleConfiguration = f12
 	} else {
 		ko.Spec.LifecycleConfiguration = nil
 	}
 	if resp.NetworkConfiguration != nil {
-		f12 := &svcapitypes.NetworkConfiguration{}
+		f14 := &svcapitypes.NetworkConfiguration{}
 		if resp.NetworkConfiguration.NetworkMode != "" {
-			f12.NetworkMode = aws.String(string(resp.NetworkConfiguration.NetworkMode))
+			f14.NetworkMode = aws.String(string(resp.NetworkConfiguration.NetworkMode))
 		}
 		if resp.NetworkConfiguration.NetworkModeConfig != nil {
-			f12f1 := &svcapitypes.VPCConfig{}
+			f14f1 := &svcapitypes.VPCConfig{}
 			if resp.NetworkConfiguration.NetworkModeConfig.SecurityGroups != nil {
-				f12f1.SecurityGroups = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
+				f14f1.SecurityGroups = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
 			}
 			if resp.NetworkConfiguration.NetworkModeConfig.Subnets != nil {
-				f12f1.Subnets = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.Subnets)
+				f14f1.Subnets = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.Subnets)
 			}
-			f12.NetworkModeConfig = f12f1
+			f14.NetworkModeConfig = f14f1
 		}
-		ko.Spec.NetworkConfiguration = f12
+		ko.Spec.NetworkConfiguration = f14
 	} else {
 		ko.Spec.NetworkConfiguration = nil
 	}
 	if resp.ProtocolConfiguration != nil {
-		f13 := &svcapitypes.ProtocolConfiguration{}
+		f15 := &svcapitypes.ProtocolConfiguration{}
 		if resp.ProtocolConfiguration.ServerProtocol != "" {
-			f13.ServerProtocol = aws.String(string(resp.ProtocolConfiguration.ServerProtocol))
+			f15.ServerProtocol = aws.String(string(resp.ProtocolConfiguration.ServerProtocol))
 		}
-		ko.Spec.ProtocolConfiguration = f13
+		ko.Spec.ProtocolConfiguration = f15
 	} else {
 		ko.Spec.ProtocolConfiguration = nil
 	}
 	if resp.RequestHeaderConfiguration != nil {
-		f14 := &svcapitypes.RequestHeaderConfiguration{}
+		f16 := &svcapitypes.RequestHeaderConfiguration{}
 		switch resp.RequestHeaderConfiguration.(type) {
 		case *svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist:
-			f14f0 := resp.RequestHeaderConfiguration.(*svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist)
-			if f14f0 != nil {
-				f14.RequestHeaderAllowlist = aws.StringSlice(f14f0.Value)
+			f16f0 := resp.RequestHeaderConfiguration.(*svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist)
+			if f16f0 != nil {
+				f16.RequestHeaderAllowlist = aws.StringSlice(f16f0.Value)
 			}
 		}
-		ko.Spec.RequestHeaderConfiguration = f14
+		ko.Spec.RequestHeaderConfiguration = f16
 	} else {
 		ko.Spec.RequestHeaderConfiguration = nil
 	}
@@ -307,11 +328,11 @@ func (rm *resourceManager) sdkFind(
 		ko.Status.Status = nil
 	}
 	if resp.WorkloadIdentityDetails != nil {
-		f17 := &svcapitypes.WorkloadIdentityDetails{}
+		f19 := &svcapitypes.WorkloadIdentityDetails{}
 		if resp.WorkloadIdentityDetails.WorkloadIdentityArn != nil {
-			f17.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
+			f19.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
 		}
-		ko.Status.WorkloadIdentityDetails = f17
+		ko.Status.WorkloadIdentityDetails = f19
 	} else {
 		ko.Status.WorkloadIdentityDetails = nil
 	}
@@ -567,15 +588,37 @@ func (rm *resourceManager) newCreateRequestPayload(
 	if r.ko.Spec.EnvironmentVariables != nil {
 		res.EnvironmentVariables = aws.ToStringMap(r.ko.Spec.EnvironmentVariables)
 	}
+	if r.ko.Spec.FilesystemConfigurations != nil {
+		f5 := []svcsdktypes.FilesystemConfiguration{}
+		for _, f5iter := range r.ko.Spec.FilesystemConfigurations {
+			var f5elem svcsdktypes.FilesystemConfiguration
+			isInterfaceSet := false
+			if f5iter.SessionStorage != nil {
+				if isInterfaceSet {
+					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for SessionStorage"))
+				}
+				f5elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
+				f5elemf0 := &svcsdktypes.SessionStorageConfiguration{}
+				if f5iter.SessionStorage.MountPath != nil {
+					f5elemf0.MountPath = f5iter.SessionStorage.MountPath
+				}
+				f5elemf0Parent.Value = *f5elemf0
+				f5elem = f5elemf0Parent
+				isInterfaceSet = true
+			}
+			f5 = append(f5, f5elem)
+		}
+		res.FilesystemConfigurations = f5
+	}
 	if r.ko.Spec.LifecycleConfiguration != nil {
-		f5 := &svcsdktypes.LifecycleConfiguration{}
+		f6 := &svcsdktypes.LifecycleConfiguration{}
 		if r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil {
 			idleRuntimeSessionTimeoutCopy0 := *r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout
 			if idleRuntimeSessionTimeoutCopy0 > math.MaxInt32 || idleRuntimeSessionTimeoutCopy0 < math.MinInt32 {
 				return nil, fmt.Errorf("error: field idleRuntimeSessionTimeout is of type int32")
 			}
 			idleRuntimeSessionTimeoutCopy := int32(idleRuntimeSessionTimeoutCopy0)
-			f5.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
+			f6.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
 		}
 		if r.ko.Spec.LifecycleConfiguration.MaxLifetime != nil {
 			maxLifetimeCopy0 := *r.ko.Spec.LifecycleConfiguration.MaxLifetime
@@ -583,49 +626,49 @@ func (rm *resourceManager) newCreateRequestPayload(
 				return nil, fmt.Errorf("error: field maxLifetime is of type int32")
 			}
 			maxLifetimeCopy := int32(maxLifetimeCopy0)
-			f5.MaxLifetime = &maxLifetimeCopy
+			f6.MaxLifetime = &maxLifetimeCopy
 		}
-		res.LifecycleConfiguration = f5
+		res.LifecycleConfiguration = f6
 	}
 	if r.ko.Spec.NetworkConfiguration != nil {
-		f6 := &svcsdktypes.NetworkConfiguration{}
+		f7 := &svcsdktypes.NetworkConfiguration{}
 		if r.ko.Spec.NetworkConfiguration.NetworkMode != nil {
-			f6.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
+			f7.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
 		}
 		if r.ko.Spec.NetworkConfiguration.NetworkModeConfig != nil {
-			f6f1 := &svcsdktypes.VpcConfig{}
+			f7f1 := &svcsdktypes.VpcConfig{}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups != nil {
-				f6f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
+				f7f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
 			}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets != nil {
-				f6f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
+				f7f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
 			}
-			f6.NetworkModeConfig = f6f1
+			f7.NetworkModeConfig = f7f1
 		}
-		res.NetworkConfiguration = f6
+		res.NetworkConfiguration = f7
 	}
 	if r.ko.Spec.ProtocolConfiguration != nil {
-		f7 := &svcsdktypes.ProtocolConfiguration{}
+		f8 := &svcsdktypes.ProtocolConfiguration{}
 		if r.ko.Spec.ProtocolConfiguration.ServerProtocol != nil {
-			f7.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
+			f8.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
 		}
-		res.ProtocolConfiguration = f7
+		res.ProtocolConfiguration = f8
 	}
 	if r.ko.Spec.RequestHeaderConfiguration != nil {
-		var f8 svcsdktypes.RequestHeaderConfiguration
+		var f9 svcsdktypes.RequestHeaderConfiguration
 		isInterfaceSet := false
 		if r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for RequestHeaderAllowlist"))
 			}
-			f8f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
-			f8f0 := []string{}
-			f8f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
-			f8f0Parent.Value = f8f0
-			f8 = f8f0Parent
+			f9f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
+			f9f0 := []string{}
+			f9f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
+			f9f0Parent.Value = f9f0
+			f9 = f9f0Parent
 			isInterfaceSet = true
 		}
-		res.RequestHeaderConfiguration = f8
+		res.RequestHeaderConfiguration = f9
 	}
 	if r.ko.Spec.RoleARN != nil {
 		res.RoleArn = r.ko.Spec.RoleARN
@@ -872,15 +915,37 @@ func (rm *resourceManager) newUpdateRequestPayload(
 	if r.ko.Spec.EnvironmentVariables != nil {
 		res.EnvironmentVariables = aws.ToStringMap(r.ko.Spec.EnvironmentVariables)
 	}
+	if r.ko.Spec.FilesystemConfigurations != nil {
+		f6 := []svcsdktypes.FilesystemConfiguration{}
+		for _, f6iter := range r.ko.Spec.FilesystemConfigurations {
+			var f6elem svcsdktypes.FilesystemConfiguration
+			isInterfaceSet := false
+			if f6iter.SessionStorage != nil {
+				if isInterfaceSet {
+					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for SessionStorage"))
+				}
+				f6elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
+				f6elemf0 := &svcsdktypes.SessionStorageConfiguration{}
+				if f6iter.SessionStorage.MountPath != nil {
+					f6elemf0.MountPath = f6iter.SessionStorage.MountPath
+				}
+				f6elemf0Parent.Value = *f6elemf0
+				f6elem = f6elemf0Parent
+				isInterfaceSet = true
+			}
+			f6 = append(f6, f6elem)
+		}
+		res.FilesystemConfigurations = f6
+	}
 	if r.ko.Spec.LifecycleConfiguration != nil {
-		f6 := &svcsdktypes.LifecycleConfiguration{}
+		f7 := &svcsdktypes.LifecycleConfiguration{}
 		if r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil {
 			idleRuntimeSessionTimeoutCopy0 := *r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout
 			if idleRuntimeSessionTimeoutCopy0 > math.MaxInt32 || idleRuntimeSessionTimeoutCopy0 < math.MinInt32 {
 				return nil, fmt.Errorf("error: field idleRuntimeSessionTimeout is of type int32")
 			}
 			idleRuntimeSessionTimeoutCopy := int32(idleRuntimeSessionTimeoutCopy0)
-			f6.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
+			f7.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
 		}
 		if r.ko.Spec.LifecycleConfiguration.MaxLifetime != nil {
 			maxLifetimeCopy0 := *r.ko.Spec.LifecycleConfiguration.MaxLifetime
@@ -888,49 +953,49 @@ func (rm *resourceManager) newUpdateRequestPayload(
 				return nil, fmt.Errorf("error: field maxLifetime is of type int32")
 			}
 			maxLifetimeCopy := int32(maxLifetimeCopy0)
-			f6.MaxLifetime = &maxLifetimeCopy
+			f7.MaxLifetime = &maxLifetimeCopy
 		}
-		res.LifecycleConfiguration = f6
+		res.LifecycleConfiguration = f7
 	}
 	if r.ko.Spec.NetworkConfiguration != nil {
-		f7 := &svcsdktypes.NetworkConfiguration{}
+		f9 := &svcsdktypes.NetworkConfiguration{}
 		if r.ko.Spec.NetworkConfiguration.NetworkMode != nil {
-			f7.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
+			f9.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
 		}
 		if r.ko.Spec.NetworkConfiguration.NetworkModeConfig != nil {
-			f7f1 := &svcsdktypes.VpcConfig{}
+			f9f1 := &svcsdktypes.VpcConfig{}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups != nil {
-				f7f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
+				f9f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
 			}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets != nil {
-				f7f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
+				f9f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
 			}
-			f7.NetworkModeConfig = f7f1
+			f9.NetworkModeConfig = f9f1
 		}
-		res.NetworkConfiguration = f7
+		res.NetworkConfiguration = f9
 	}
 	if r.ko.Spec.ProtocolConfiguration != nil {
-		f8 := &svcsdktypes.ProtocolConfiguration{}
+		f10 := &svcsdktypes.ProtocolConfiguration{}
 		if r.ko.Spec.ProtocolConfiguration.ServerProtocol != nil {
-			f8.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
+			f10.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
 		}
-		res.ProtocolConfiguration = f8
+		res.ProtocolConfiguration = f10
 	}
 	if r.ko.Spec.RequestHeaderConfiguration != nil {
-		var f9 svcsdktypes.RequestHeaderConfiguration
+		var f11 svcsdktypes.RequestHeaderConfiguration
 		isInterfaceSet := false
 		if r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for RequestHeaderAllowlist"))
 			}
-			f9f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
-			f9f0 := []string{}
-			f9f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
-			f9f0Parent.Value = f9f0
-			f9 = f9f0Parent
+			f11f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
+			f11f0 := []string{}
+			f11f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
+			f11f0Parent.Value = f11f0
+			f11 = f11f0Parent
 			isInterfaceSet = true
 		}
-		res.RequestHeaderConfiguration = f9
+		res.RequestHeaderConfiguration = f11
 	}
 	if r.ko.Spec.RoleARN != nil {
 		res.RoleArn = r.ko.Spec.RoleARN
