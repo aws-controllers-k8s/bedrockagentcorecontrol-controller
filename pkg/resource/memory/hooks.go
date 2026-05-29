@@ -15,8 +15,6 @@ import (
 	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol/types"
 )
 
-var syncTags = tags.SyncTags
-
 func (rm *resourceManager) getTags(
 	ctx context.Context,
 	resourceARN string,
@@ -43,7 +41,7 @@ func (rm *resourceManager) syncTags(
 	resourceARN := string(*latest.ko.Status.ACKResourceMetadata.ARN)
 	desiredTags := aws.ToStringMap(desired.ko.Spec.Tags)
 	existingTags := aws.ToStringMap(latest.ko.Spec.Tags)
-	return syncTags(
+	return tags.SyncTags(
 		ctx, rm.sdkapi, rm.metrics,
 		resourceARN, desiredTags, existingTags,
 	)
@@ -799,16 +797,6 @@ func buildModifyStrategyInput(
 	}
 
 	return mod
-}
-
-func ptrStringEqual(a, b *string) bool {
-	if a == nil && b == nil {
-		return true
-	}
-	if a == nil || b == nil {
-		return false
-	}
-	return *a == *b
 }
 
 func buildModifyStrategyConfiguration(
