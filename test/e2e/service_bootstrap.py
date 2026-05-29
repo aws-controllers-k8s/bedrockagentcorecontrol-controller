@@ -34,6 +34,15 @@ def service_bootstrap() -> Resources:
     lambda_code_uri = f"{account_id}.dkr.ecr.{aws_region}.amazonaws.com/ack-e2e-testing-bedrockagentcorecontrol-controller:v1"
     
     resources = BootstrapResources(
+        AgentRuntimeRole=Role(
+            name_prefix="ack-bedrock-agentruntime",
+            principal_service="bedrock-agentcore.amazonaws.com",
+            description="IAM role for ACK Bedrock AgentRuntime e2e tests",
+            managed_policies=[
+                "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
+                "arn:aws:iam::aws:policy/BedrockAgentCoreFullAccess",
+            ],
+        ),
         GatewayRole=Role(
             name_prefix="ack-bedrock-gateway",
             principal_service="bedrock-agentcore.amazonaws.com",
