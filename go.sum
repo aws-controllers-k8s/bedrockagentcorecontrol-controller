@@ -2,12 +2,16 @@ github.com/Masterminds/semver/v3 v3.4.0 h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1
 github.com/Masterminds/semver/v3 v3.4.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/aws-controllers-k8s/apigateway-controller v1.4.3 h1:sJJuDHS6e4m/IcbmmZbV/ui8fo2ta4y58j264aQT6YE=
 github.com/aws-controllers-k8s/apigateway-controller v1.4.3/go.mod h1:Utd1mh5T7qbktiLLc7JEFHfKSvYeBNVBYgdHWYb98V4=
+github.com/aws-controllers-k8s/ec2-controller v1.2.15 h1:Cij1ho3w0NxCJZOLG3ggUp8DnP/fvj43f0DSIRnySpM=
+github.com/aws-controllers-k8s/ec2-controller v1.2.15/go.mod h1:G27V4zTX8qoNQBm5TlEn1IxJSzB8XdFEYJiXPVgjcvE=
 github.com/aws-controllers-k8s/iam-controller v1.6.2 h1:kDiG6CIx07IPn4BBI8k3JRvip/pQ8loXU51Ptans31g=
 github.com/aws-controllers-k8s/iam-controller v1.6.2/go.mod h1:4YdmWzfmXrlquVpnv48z+dADaDOh35IevLbLCSAngeQ=
 github.com/aws-controllers-k8s/kms-controller v1.2.3 h1:OIY0e8veZP/xloDVpk4i9M5Q5JvrsqZjoS/8O6CBblo=
 github.com/aws-controllers-k8s/kms-controller v1.2.3/go.mod h1:YZIR9KwX+g3gsJE1jbRjVQ+evqCaNb4nFSs85hprYb8=
 github.com/aws-controllers-k8s/runtime v0.59.1 h1:7UDKl9/dif8oNjxx/5Z5ciUfuyn86MS4BvoG9LqF6h4=
 github.com/aws-controllers-k8s/runtime v0.59.1/go.mod h1:ljWD1IdtVx/qC7C4lVobF4vLNhno/xX5A78BOke1Ksk=
+github.com/aws-controllers-k8s/secretsmanager-controller v1.3.0 h1:pfn/1iJKISjBQjC73scBcAPXN6KzUM2aDgj8vPeA0rk=
+github.com/aws-controllers-k8s/secretsmanager-controller v1.3.0/go.mod h1:FFzsOKs/q9uk6kAsFOPlSUV+7nHTYGCfcGEip+ITPiI=
 github.com/aws-controllers-k8s/sns-controller v1.4.4 h1:lQKuWGKxX50eZuSyOPQ80SFcyF+scNgr4Du925/lbjA=
 github.com/aws-controllers-k8s/sns-controller v1.4.4/go.mod h1:CtBCW5Ue6iI7yogegXz1dRoDVUQQB0rF4cdmcPOSkC4=
 github.com/aws/aws-sdk-go v1.55.0 h1:hVALKPjXz33kP1R9nTyJpUK7qF59dO2mleQxUW9mCVE=

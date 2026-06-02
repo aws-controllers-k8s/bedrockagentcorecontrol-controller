@@ -112,15 +112,15 @@ const (
 	CodeInterpreterNetworkMode_VPC     CodeInterpreterNetworkMode = "VPC"
 )
 
-type CodeInterpreterStatus string
+type CodeInterpreterStatus_SDK string
 
 const (
-	CodeInterpreterStatus_CREATE_FAILED CodeInterpreterStatus = "CREATE_FAILED"
-	CodeInterpreterStatus_CREATING      CodeInterpreterStatus = "CREATING"
-	CodeInterpreterStatus_DELETED       CodeInterpreterStatus = "DELETED"
-	CodeInterpreterStatus_DELETE_FAILED CodeInterpreterStatus = "DELETE_FAILED"
-	CodeInterpreterStatus_DELETING      CodeInterpreterStatus = "DELETING"
-	CodeInterpreterStatus_READY         CodeInterpreterStatus = "READY"
+	CodeInterpreterStatus_SDK_CREATE_FAILED CodeInterpreterStatus_SDK = "CREATE_FAILED"
+	CodeInterpreterStatus_SDK_CREATING      CodeInterpreterStatus_SDK = "CREATING"
+	CodeInterpreterStatus_SDK_DELETED       CodeInterpreterStatus_SDK = "DELETED"
+	CodeInterpreterStatus_SDK_DELETE_FAILED CodeInterpreterStatus_SDK = "DELETE_FAILED"
+	CodeInterpreterStatus_SDK_DELETING      CodeInterpreterStatus_SDK = "DELETING"
+	CodeInterpreterStatus_SDK_READY         CodeInterpreterStatus_SDK = "READY"
 )
 
 type ContentLevel string

@@ -1,0 +1,10 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: CodeInterpreter
+metadata:
+  name: $CODE_INTERPRETER_NAME
+  namespace: default
+spec:
+  name: $CODE_INTERPRETER_SPEC_NAME
+  networkConfiguration:
+    networkMode: "PUBLIC"
+  description: "ACK e2e test code interpreter"
