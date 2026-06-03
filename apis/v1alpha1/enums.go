@@ -85,15 +85,15 @@ const (
 	BrowserProfileStatus_SAVING   BrowserProfileStatus = "SAVING"
 )
 
-type BrowserStatus string
+type BrowserStatus_SDK string
 
 const (
-	BrowserStatus_CREATE_FAILED BrowserStatus = "CREATE_FAILED"
-	BrowserStatus_CREATING      BrowserStatus = "CREATING"
-	BrowserStatus_DELETED       BrowserStatus = "DELETED"
-	BrowserStatus_DELETE_FAILED BrowserStatus = "DELETE_FAILED"
-	BrowserStatus_DELETING      BrowserStatus = "DELETING"
-	BrowserStatus_READY         BrowserStatus = "READY"
+	BrowserStatus_SDK_CREATE_FAILED BrowserStatus_SDK = "CREATE_FAILED"
+	BrowserStatus_SDK_CREATING      BrowserStatus_SDK = "CREATING"
+	BrowserStatus_SDK_DELETED       BrowserStatus_SDK = "DELETED"
+	BrowserStatus_SDK_DELETE_FAILED BrowserStatus_SDK = "DELETE_FAILED"
+	BrowserStatus_SDK_DELETING      BrowserStatus_SDK = "DELETING"
+	BrowserStatus_SDK_READY         BrowserStatus_SDK = "READY"
 )
 
 type ClaimMatchOperatorType string

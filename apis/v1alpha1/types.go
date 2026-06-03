@@ -138,9 +138,17 @@ type AuthorizingClaimMatchValueType struct {
 	ClaimMatchValue *ClaimMatchValueType `json:"claimMatchValue,omitempty"`
 }
 
+// Browser enterprise policy configuration.
+type BrowserEnterprisePolicy struct {
+	// The location of a resource.
+	Location *ResourceLocation `json:"location,omitempty"`
+	Type     *string           `json:"type_,omitempty"`
+}
+
 // The network configuration for a browser. This structure defines how the browser
 // connects to the network.
 type BrowserNetworkConfiguration struct {
+	NetworkMode *string `json:"networkMode,omitempty"`
 	// VpcConfig for the Agent.
 	VPCConfig *VPCConfig `json:"vpcConfig,omitempty"`
 }
@@ -148,10 +156,11 @@ type BrowserNetworkConfiguration struct {
 // Contains summary information about a browser profile. A browser profile stores
 // persistent browser data that can be reused across browser sessions.
 type BrowserProfileSummary struct {
-	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
-	Description   *string      `json:"description,omitempty"`
-	LastSavedAt   *metav1.Time `json:"lastSavedAt,omitempty"`
-	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	CreatedAt          *metav1.Time `json:"createdAt,omitempty"`
+	Description        *string      `json:"description,omitempty"`
+	LastSavedAt        *metav1.Time `json:"lastSavedAt,omitempty"`
+	LastSavedBrowserID *string      `json:"lastSavedBrowserID,omitempty"`
+	LastUpdatedAt      *metav1.Time `json:"lastUpdatedAt,omitempty"`
 }
 
 // Configuration for enabling browser signing capabilities that allow agents
@@ -169,10 +178,13 @@ type BrowserSigningConfigOutput struct {
 // Contains summary information about a browser. A browser enables Amazon Bedrock
 // AgentCore Agent to interact with web content.
 type BrowserSummary struct {
+	BrowserARN    *string      `json:"browserARN,omitempty"`
+	BrowserID     *string      `json:"browserID,omitempty"`
 	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
 	Description   *string      `json:"description,omitempty"`
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
 	Name          *string      `json:"name,omitempty"`
+	Status        *string      `json:"status,omitempty"`
 }
 
 // The definition of a categorical rating scale option that provides a named
