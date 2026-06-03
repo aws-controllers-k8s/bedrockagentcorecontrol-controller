@@ -72,7 +72,7 @@ class TestCodeInterpreter:
         assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
 
         cr = k8s.get_resource(ref)
-        ci_id = cr["status"]["codeInterpreterID"]
+        ci_id = cr["status"]["id"]
         assert ci_id is not None
         assert cr["status"]["ackResourceMetadata"]["arn"] is not None
         assert cr["status"]["status"] == "READY"

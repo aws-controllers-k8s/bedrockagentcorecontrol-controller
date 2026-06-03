@@ -125,9 +125,9 @@ func (rm *resourceManager) sdkFind(
 		ko.Status.ACKResourceMetadata.ARN = &arn
 	}
 	if resp.CodeInterpreterId != nil {
-		ko.Status.CodeInterpreterID = resp.CodeInterpreterId
+		ko.Status.ID = resp.CodeInterpreterId
 	} else {
-		ko.Status.CodeInterpreterID = nil
+		ko.Status.ID = nil
 	}
 	if resp.CreatedAt != nil {
 		ko.Status.CreatedAt = &metav1.Time{*resp.CreatedAt}
@@ -200,7 +200,7 @@ func (rm *resourceManager) sdkFind(
 func (rm *resourceManager) requiredFieldsMissingFromReadOneInput(
 	r *resource,
 ) bool {
-	return r.ko.Status.CodeInterpreterID == nil
+	return r.ko.Status.ID == nil
 
 }
 
@@ -211,8 +211,8 @@ func (rm *resourceManager) newDescribeRequestPayload(
 ) (*svcsdk.GetCodeInterpreterInput, error) {
 	res := &svcsdk.GetCodeInterpreterInput{}
 
-	if r.ko.Status.CodeInterpreterID != nil {
-		res.CodeInterpreterId = r.ko.Status.CodeInterpreterID
+	if r.ko.Status.ID != nil {
+		res.CodeInterpreterId = r.ko.Status.ID
 	}
 
 	return res, nil
@@ -254,9 +254,9 @@ func (rm *resourceManager) sdkCreate(
 		ko.Status.ACKResourceMetadata.ARN = &arn
 	}
 	if resp.CodeInterpreterId != nil {
-		ko.Status.CodeInterpreterID = resp.CodeInterpreterId
+		ko.Status.ID = resp.CodeInterpreterId
 	} else {
-		ko.Status.CodeInterpreterID = nil
+		ko.Status.ID = nil
 	}
 	if resp.CreatedAt != nil {
 		ko.Status.CreatedAt = &metav1.Time{*resp.CreatedAt}
@@ -389,8 +389,8 @@ func (rm *resourceManager) newDeleteRequestPayload(
 ) (*svcsdk.DeleteCodeInterpreterInput, error) {
 	res := &svcsdk.DeleteCodeInterpreterInput{}
 
-	if r.ko.Status.CodeInterpreterID != nil {
-		res.CodeInterpreterId = r.ko.Status.CodeInterpreterID
+	if r.ko.Status.ID != nil {
+		res.CodeInterpreterId = r.ko.Status.ID
 	}
 
 	return res, nil
@@ -507,8 +507,7 @@ func (rm *resourceManager) terminalAWSError(err error) bool {
 		return false
 	}
 	switch terminalErr.ErrorCode() {
-	case "ValidationException",
-		"ConflictException":
+	case "ValidationException":
 		return true
 	default:
 		return false

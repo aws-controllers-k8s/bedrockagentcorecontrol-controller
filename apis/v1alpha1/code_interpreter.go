@@ -66,17 +66,17 @@ type CodeInterpreterStatus struct {
 	// resource
 	// +kubebuilder:validation:Optional
 	Conditions []*ackv1alpha1.Condition `json:"conditions"`
-	// The unique identifier of the created code interpreter.
-	//
-	// Regex Pattern: `^(aws\.codeinterpreter\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$`
-	// +kubebuilder:validation:Optional
-	CodeInterpreterID *string `json:"codeInterpreterID,omitempty"`
 	// The timestamp when the code interpreter was created.
 	// +kubebuilder:validation:Optional
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
 	// The reason for failure if the code interpreter is in a failed state.
 	// +kubebuilder:validation:Optional
 	FailureReason *string `json:"failureReason,omitempty"`
+	// The unique identifier of the created code interpreter.
+	//
+	// Regex Pattern: `^(aws\.codeinterpreter\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$`
+	// +kubebuilder:validation:Optional
+	ID *string `json:"id,omitempty"`
 	// The timestamp when the code interpreter was last updated.
 	// +kubebuilder:validation:Optional
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`

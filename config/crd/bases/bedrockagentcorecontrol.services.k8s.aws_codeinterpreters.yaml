@@ -227,12 +227,6 @@ spec:
                 - ownerAccountID
                 - region
                 type: object
-              codeInterpreterID:
-                description: |-
-                  The unique identifier of the created code interpreter.
-
-                  Regex Pattern: `^(aws\.codeinterpreter\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$`
-                type: string
               conditions:
                 description: |-
                   All CRs managed by ACK have a common `Status.Conditions` member that
@@ -275,6 +269,12 @@ spec:
               failureReason:
                 description: The reason for failure if the code interpreter is in
                   a failed state.
+                type: string
+              id:
+                description: |-
+                  The unique identifier of the created code interpreter.
+
+                  Regex Pattern: `^(aws\.codeinterpreter\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$`
                 type: string
               lastUpdatedAt:
                 description: The timestamp when the code interpreter was last updated.

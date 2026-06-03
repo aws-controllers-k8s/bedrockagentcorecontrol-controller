@@ -273,8 +273,19 @@ resources:
     ignore_idempotency_token: true
     update_operation:
       custom_method_name: customUpdate
+    renames:
+      operations:
+        GetCodeInterpreter:
+          input_fields:
+            CodeInterpreterId: ID
+        DeleteCodeInterpreter:
+          input_fields:
+            CodeInterpreterId: ID
+        CreateCodeInterpreter:
+          output_fields:
+            CodeInterpreterId: ID
     fields:
-      CodeInterpreterId:
+      ID:
         is_primary_key: true
       Name:
         is_immutable: true
@@ -334,7 +345,6 @@ resources:
           code: ResourceNotFoundException
       terminal_codes:
         - ValidationException
-        - ConflictException
     hooks:
       sdk_read_one_post_set_output:
         template_path: hooks/code_interpreter/sdk_read_one_post_set_output.go.tpl

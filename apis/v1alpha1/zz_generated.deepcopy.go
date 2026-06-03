@@ -1362,17 +1362,17 @@ func (in *CodeInterpreterStatus) DeepCopyInto(out *CodeInterpreterStatus) {
 			}
 		}
 	}
-	if in.CodeInterpreterID != nil {
-		in, out := &in.CodeInterpreterID, &out.CodeInterpreterID
-		*out = new(string)
-		**out = **in
-	}
 	if in.CreatedAt != nil {
 		in, out := &in.CreatedAt, &out.CreatedAt
 		*out = (*in).DeepCopy()
 	}
 	if in.FailureReason != nil {
 		in, out := &in.FailureReason, &out.FailureReason
+		*out = new(string)
+		**out = **in
+	}
+	if in.ID != nil {
+		in, out := &in.ID, &out.ID
 		*out = new(string)
 		**out = **in
 	}
