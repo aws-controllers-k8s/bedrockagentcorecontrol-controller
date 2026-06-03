@@ -153,6 +153,7 @@ reconcile:
     - APIKeyCredentialProvider
     - AgentRuntime
     - AgentRuntimeEndpoint
+    - CodeInterpreter
     - Gateway
     - GatewayTarget
     - Memory

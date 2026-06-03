@@ -5,7 +5,7 @@ ignore:
     # - ApiKeyCredentialProvider
     - Browser
     - BrowserProfile
-    - CodeInterpreter
+    # - CodeInterpreter
     - Evaluator
     # Gateway
     # - GatewayTarget
@@ -48,6 +48,17 @@ operations:
 
 resources:
   AgentRuntime:
+    fields:
+      NetworkConfiguration.NetworkModeConfig.SecurityGroups:
+        references:
+          resource: SecurityGroup
+          service_name: ec2
+          path: Status.ID
+      NetworkConfiguration.NetworkModeConfig.Subnets:
+        references:
+          resource: Subnet
+          service_name: ec2
+          path: Status.SubnetID
     exceptions:
       terminal_codes:
         - ValidationException
@@ -257,6 +268,86 @@ resources:
         template_path: hooks/api_key_credential_provider/sdk_read_one_post_set_output.go.tpl
       sdk_update_pre_build_request:
         template_path: hooks/api_key_credential_provider/sdk_update_pre_build_request.go.tpl
+
+  CodeInterpreter:
+    ignore_idempotency_token: true
+    update_operation:
+      custom_method_name: customUpdate
+    renames:
+      operations:
+        GetCodeInterpreter:
+          input_fields:
+            CodeInterpreterId: ID
+        DeleteCodeInterpreter:
+          input_fields:
+            CodeInterpreterId: ID
+        CreateCodeInterpreter:
+          output_fields:
+            CodeInterpreterId: ID
+    fields:
+      ID:
+        is_primary_key: true
+      Name:
+        is_immutable: true
+      NetworkConfiguration:
+        is_immutable: true
+      Certificates:
+        is_immutable: true
+      Description:
+        is_immutable: true
+      ExecutionRoleArn:
+        is_immutable: true
+        references:
+          resource: Role
+          service_name: iam
+          path: Status.ACKResourceMetadata.ARN
+      NetworkConfiguration.VpcConfig.SecurityGroups:
+        references:
+          resource: SecurityGroup
+          service_name: ec2
+          path: Status.ID
+      NetworkConfiguration.VpcConfig.Subnets:
+        references:
+          resource: Subnet
+          service_name: ec2
+          path: Status.SubnetID
+      Certificates.Location.SecretsManager.SecretARN:
+        references:
+          resource: Secret
+          service_name: secretsmanager
+          path: Status.ACKResourceMetadata.ARN
+      FailureReason:
+        is_read_only: true
+        from:
+          operation: GetCodeInterpreter
+          path: FailureReason
+      LastUpdatedAt:
+        is_read_only: true
+        from:
+          operation: GetCodeInterpreter
+          path: LastUpdatedAt
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - CREATE_FAILED
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - CREATE_FAILED
+            - DELETE_FAILED
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
+    hooks:
+      sdk_read_one_post_set_output:
+        template_path: hooks/code_interpreter/sdk_read_one_post_set_output.go.tpl
 
   GatewayTarget:
     ignore_idempotency_token: true

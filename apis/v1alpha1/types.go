@@ -172,6 +172,7 @@ type BrowserSummary struct {
 	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
 	Description   *string      `json:"description,omitempty"`
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	Name          *string      `json:"name,omitempty"`
 }
 
 // The definition of a categorical rating scale option that provides a named
@@ -179,6 +180,18 @@ type BrowserSummary struct {
 type CategoricalScaleDefinition struct {
 	Definition *string `json:"definition,omitempty"`
 	Label      *string `json:"label,omitempty"`
+}
+
+// A certificate to install in the browser or code interpreter.
+type Certificate struct {
+	// The location from which to retrieve a certificate.
+	Location *CertificateLocation `json:"location,omitempty"`
+}
+
+// The location from which to retrieve a certificate.
+type CertificateLocation struct {
+	// The Amazon Web Services Secrets Manager location configuration.
+	SecretsManager *SecretsManagerLocation `json:"secretsManager,omitempty"`
 }
 
 // The value or values to match for.
@@ -217,6 +230,7 @@ type CodeConfiguration struct {
 // The network configuration for a code interpreter. This structure defines
 // how the code interpreter connects to the network.
 type CodeInterpreterNetworkConfiguration struct {
+	NetworkMode *string `json:"networkMode,omitempty"`
 	// VpcConfig for the Agent.
 	VPCConfig *VPCConfig `json:"vpcConfig,omitempty"`
 }
@@ -224,9 +238,13 @@ type CodeInterpreterNetworkConfiguration struct {
 // Contains summary information about a code interpreter. A code interpreter
 // enables Amazon Bedrock AgentCore Agent to execute code.
 type CodeInterpreterSummary struct {
-	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
-	Description   *string      `json:"description,omitempty"`
-	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	CodeInterpreterARN *string      `json:"codeInterpreterARN,omitempty"`
+	CodeInterpreterID  *string      `json:"codeInterpreterID,omitempty"`
+	CreatedAt          *metav1.Time `json:"createdAt,omitempty"`
+	Description        *string      `json:"description,omitempty"`
+	LastUpdatedAt      *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	Name               *string      `json:"name,omitempty"`
+	Status             *string      `json:"status,omitempty"`
 }
 
 // Representation of a container configuration.
@@ -879,6 +897,13 @@ type Secret struct {
 	SecretARN *string `json:"secretARN,omitempty"`
 }
 
+// The Amazon Web Services Secrets Manager location configuration.
+type SecretsManagerLocation struct {
+	SecretARN *string `json:"secretARN,omitempty"`
+	// Reference field for SecretARN
+	SecretRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"secretRef,omitempty"`
+}
+
 // A configuration for a self-managed memory strategy.
 type SelfManagedConfiguration struct {
 	HistoricalContextWindowSize *int64 `json:"historicalContextWindowSize,omitempty"`
@@ -1101,8 +1126,12 @@ type UserPreferenceOverrideExtractionConfigurationInput struct {
 
 // VpcConfig for the Agent.
 type VPCConfig struct {
-	SecurityGroups []*string `json:"securityGroups,omitempty"`
-	Subnets        []*string `json:"subnets,omitempty"`
+	// Reference field for SecurityGroups
+	SecurityGroupRefs []*ackv1alpha1.AWSResourceReferenceWrapper `json:"securityGroupRefs,omitempty"`
+	SecurityGroups    []*string                                  `json:"securityGroups,omitempty"`
+	// Reference field for Subnets
+	SubnetRefs []*ackv1alpha1.AWSResourceReferenceWrapper `json:"subnetRefs,omitempty"`
+	Subnets    []*string                                  `json:"subnets,omitempty"`
 }
 
 // Stores information about a field passed inside a request that resulted in

@@ -19,6 +19,7 @@ rules:
   - apikeycredentialproviders
   - agentruntimes
   - agentruntimeendpoints
+  - codeinterpreters
   - gateways
   - gatewaytargets
   - memories

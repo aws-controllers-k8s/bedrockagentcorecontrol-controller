@@ -83,6 +83,7 @@ rules:
   - agentruntimeendpoints
   - agentruntimes
   - apikeycredentialproviders
+  - codeinterpreters
   - gateways
   - gatewaytargets
   - memories
@@ -101,6 +102,7 @@ rules:
   - agentruntimeendpoints/status
   - agentruntimes/status
   - apikeycredentialproviders/status
+  - codeinterpreters/status
   - gateways/status
   - gatewaytargets/status
   - memories/status
@@ -109,6 +111,16 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - ec2.services.k8s.aws
+  resources:
+  - securitygroups
+  - securitygroups/status
+  - subnets
+  - subnets/status
+  verbs:
+  - get
+  - list
 - apiGroups:
   - iam.services.k8s.aws
   resources:
@@ -122,6 +134,14 @@ rules:
   resources:
   - keys
   - keys/status
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - secretsmanager.services.k8s.aws
+  resources:
+  - secrets
+  - secrets/status
   verbs:
   - get
   - list
