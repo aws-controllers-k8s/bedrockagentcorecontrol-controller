@@ -77,17 +77,17 @@ type BrowserStatus struct {
 	// resource
 	// +kubebuilder:validation:Optional
 	Conditions []*ackv1alpha1.Condition `json:"conditions"`
-	// The unique identifier of the created browser.
-	//
-	// Regex Pattern: `^(aws\.browser\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$`
-	// +kubebuilder:validation:Optional
-	BrowserID *string `json:"browserID,omitempty"`
 	// The timestamp when the browser was created.
 	// +kubebuilder:validation:Optional
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
 	// The reason for failure if the browser is in a failed state.
 	// +kubebuilder:validation:Optional
 	FailureReason *string `json:"failureReason,omitempty"`
+	// The unique identifier of the created browser.
+	//
+	// Regex Pattern: `^(aws\.browser\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$`
+	// +kubebuilder:validation:Optional
+	ID *string `json:"id,omitempty"`
 	// The timestamp when the browser was last updated.
 	// +kubebuilder:validation:Optional
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`

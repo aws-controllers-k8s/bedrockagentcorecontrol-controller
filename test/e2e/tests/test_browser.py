@@ -73,7 +73,7 @@ class TestBrowser:
         assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=20)
 
         cr = k8s.get_resource(ref)
-        browser_id = cr["status"]["browserID"]
+        browser_id = cr["status"]["id"]
         assert browser_id is not None
 
         # Verify the browser exists in AWS

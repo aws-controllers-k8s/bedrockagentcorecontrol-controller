@@ -16,15 +16,12 @@ package browser
 import (
 	"context"
 
+	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/tags"
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	ackrtlog "github.com/aws-controllers-k8s/runtime/pkg/runtime/log"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	svcsdk "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol"
-
-	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/tags"
 )
-
-var syncTags = tags.SyncTags
 
 // customUpdate handles updates to the Browser resource. Since the Browser API
 // has no native Update operation, only tag changes are supported.
@@ -81,7 +78,7 @@ func (rm *resourceManager) syncTags(
 	desiredTags := aws.ToStringMap(desired.ko.Spec.Tags)
 	existingTags := aws.ToStringMap(latest.ko.Spec.Tags)
 
-	return syncTags(
+	return tags.SyncTags(
 		ctx,
 		rm.sdkapi,
 		rm.metrics,

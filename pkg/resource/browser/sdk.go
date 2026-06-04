@@ -100,9 +100,9 @@ func (rm *resourceManager) sdkFind(
 		ko.Status.ACKResourceMetadata.ARN = &arn
 	}
 	if resp.BrowserId != nil {
-		ko.Status.BrowserID = resp.BrowserId
+		ko.Status.ID = resp.BrowserId
 	} else {
-		ko.Status.BrowserID = nil
+		ko.Status.ID = nil
 	}
 	if resp.BrowserSigning != nil {
 		f2 := &svcapitypes.BrowserSigningConfigInput{}
@@ -261,7 +261,7 @@ func (rm *resourceManager) sdkFind(
 func (rm *resourceManager) requiredFieldsMissingFromReadOneInput(
 	r *resource,
 ) bool {
-	return r.ko.Status.BrowserID == nil
+	return r.ko.Status.ID == nil
 
 }
 
@@ -272,8 +272,8 @@ func (rm *resourceManager) newDescribeRequestPayload(
 ) (*svcsdk.GetBrowserInput, error) {
 	res := &svcsdk.GetBrowserInput{}
 
-	if r.ko.Status.BrowserID != nil {
-		res.BrowserId = r.ko.Status.BrowserID
+	if r.ko.Status.ID != nil {
+		res.BrowserId = r.ko.Status.ID
 	}
 
 	return res, nil
@@ -315,9 +315,9 @@ func (rm *resourceManager) sdkCreate(
 		ko.Status.ACKResourceMetadata.ARN = &arn
 	}
 	if resp.BrowserId != nil {
-		ko.Status.BrowserID = resp.BrowserId
+		ko.Status.ID = resp.BrowserId
 	} else {
-		ko.Status.BrowserID = nil
+		ko.Status.ID = nil
 	}
 	if resp.CreatedAt != nil {
 		ko.Status.CreatedAt = &metav1.Time{*resp.CreatedAt}
@@ -512,8 +512,8 @@ func (rm *resourceManager) newDeleteRequestPayload(
 ) (*svcsdk.DeleteBrowserInput, error) {
 	res := &svcsdk.DeleteBrowserInput{}
 
-	if r.ko.Status.BrowserID != nil {
-		res.BrowserId = r.ko.Status.BrowserID
+	if r.ko.Status.ID != nil {
+		res.BrowserId = r.ko.Status.ID
 	}
 
 	return res, nil
@@ -630,8 +630,7 @@ func (rm *resourceManager) terminalAWSError(err error) bool {
 		return false
 	}
 	switch terminalErr.ErrorCode() {
-	case "ValidationException",
-		"ConflictException":
+	case "ValidationException":
 		return true
 	default:
 		return false

@@ -23,16 +23,27 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	ec2apitypes "github.com/aws-controllers-k8s/ec2-controller/apis/v1alpha1"
 	iamapitypes "github.com/aws-controllers-k8s/iam-controller/apis/v1alpha1"
 	ackv1alpha1 "github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
 	ackerr "github.com/aws-controllers-k8s/runtime/pkg/errors"
 	acktypes "github.com/aws-controllers-k8s/runtime/pkg/types"
+	secretsmanagerapitypes "github.com/aws-controllers-k8s/secretsmanager-controller/apis/v1alpha1"
 
 	svcapitypes "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/apis/v1alpha1"
 )
 
+// +kubebuilder:rbac:groups=secretsmanager.services.k8s.aws,resources=secrets,verbs=get;list
+// +kubebuilder:rbac:groups=secretsmanager.services.k8s.aws,resources=secrets/status,verbs=get;list
+
 // +kubebuilder:rbac:groups=iam.services.k8s.aws,resources=roles,verbs=get;list
 // +kubebuilder:rbac:groups=iam.services.k8s.aws,resources=roles/status,verbs=get;list
+
+// +kubebuilder:rbac:groups=ec2.services.k8s.aws,resources=securitygroups,verbs=get;list
+// +kubebuilder:rbac:groups=ec2.services.k8s.aws,resources=securitygroups/status,verbs=get;list
+
+// +kubebuilder:rbac:groups=ec2.services.k8s.aws,resources=subnets,verbs=get;list
+// +kubebuilder:rbac:groups=ec2.services.k8s.aws,resources=subnets/status,verbs=get;list
 
 // ClearResolvedReferences removes any reference values that were made
 // concrete in the spec. It returns a copy of the input AWSResource which
@@ -41,8 +52,34 @@ import (
 func (rm *resourceManager) ClearResolvedReferences(res acktypes.AWSResource) acktypes.AWSResource {
 	ko := rm.concreteResource(res).ko.DeepCopy()
 
+	for f0idx, f0iter := range ko.Spec.Certificates {
+		if f0iter.Location != nil {
+			if f0iter.Location.SecretsManager != nil {
+				if f0iter.Location.SecretsManager.SecretRef != nil {
+					ko.Spec.Certificates[f0idx].Location.SecretsManager.SecretARN = nil
+				}
+			}
+		}
+	}
+
 	if ko.Spec.ExecutionRoleRef != nil {
 		ko.Spec.ExecutionRoleARN = nil
+	}
+
+	if ko.Spec.NetworkConfiguration != nil {
+		if ko.Spec.NetworkConfiguration.VPCConfig != nil {
+			if len(ko.Spec.NetworkConfiguration.VPCConfig.SecurityGroupRefs) > 0 {
+				ko.Spec.NetworkConfiguration.VPCConfig.SecurityGroups = nil
+			}
+		}
+	}
+
+	if ko.Spec.NetworkConfiguration != nil {
+		if ko.Spec.NetworkConfiguration.VPCConfig != nil {
+			if len(ko.Spec.NetworkConfiguration.VPCConfig.SubnetRefs) > 0 {
+				ko.Spec.NetworkConfiguration.VPCConfig.Subnets = nil
+			}
+		}
 	}
 
 	return &resource{ko}
@@ -64,7 +101,25 @@ func (rm *resourceManager) ResolveReferences(
 
 	resourceHasReferences := false
 	err := validateReferenceFields(ko)
+	if fieldHasReferences, err := rm.resolveReferenceForCertificates_Location_SecretsManager_SecretARN(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
 	if fieldHasReferences, err := rm.resolveReferenceForExecutionRoleARN(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
+	if fieldHasReferences, err := rm.resolveReferenceForNetworkConfiguration_VPCConfig_SecurityGroups(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
+	if fieldHasReferences, err := rm.resolveReferenceForNetworkConfiguration_VPCConfig_Subnets(ctx, apiReader, ko); err != nil {
 		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
 	} else {
 		resourceHasReferences = resourceHasReferences || fieldHasReferences
@@ -77,8 +132,123 @@ func (rm *resourceManager) ResolveReferences(
 // identifier field.
 func validateReferenceFields(ko *svcapitypes.Browser) error {
 
+	for _, f0iter := range ko.Spec.Certificates {
+		if f0iter.Location != nil {
+			if f0iter.Location.SecretsManager != nil {
+				if f0iter.Location.SecretsManager.SecretRef != nil && f0iter.Location.SecretsManager.SecretARN != nil {
+					return ackerr.ResourceReferenceAndIDNotSupportedFor("Certificates.Location.SecretsManager.SecretARN", "Certificates.Location.SecretsManager.SecretRef")
+				}
+			}
+		}
+	}
+
 	if ko.Spec.ExecutionRoleRef != nil && ko.Spec.ExecutionRoleARN != nil {
 		return ackerr.ResourceReferenceAndIDNotSupportedFor("ExecutionRoleARN", "ExecutionRoleRef")
+	}
+
+	if ko.Spec.NetworkConfiguration != nil {
+		if ko.Spec.NetworkConfiguration.VPCConfig != nil {
+			if len(ko.Spec.NetworkConfiguration.VPCConfig.SecurityGroupRefs) > 0 && len(ko.Spec.NetworkConfiguration.VPCConfig.SecurityGroups) > 0 {
+				return ackerr.ResourceReferenceAndIDNotSupportedFor("NetworkConfiguration.VPCConfig.SecurityGroups", "NetworkConfiguration.VPCConfig.SecurityGroupRefs")
+			}
+		}
+	}
+
+	if ko.Spec.NetworkConfiguration != nil {
+		if ko.Spec.NetworkConfiguration.VPCConfig != nil {
+			if len(ko.Spec.NetworkConfiguration.VPCConfig.SubnetRefs) > 0 && len(ko.Spec.NetworkConfiguration.VPCConfig.Subnets) > 0 {
+				return ackerr.ResourceReferenceAndIDNotSupportedFor("NetworkConfiguration.VPCConfig.Subnets", "NetworkConfiguration.VPCConfig.SubnetRefs")
+			}
+		}
+	}
+	return nil
+}
+
+// resolveReferenceForCertificates_Location_SecretsManager_SecretARN reads the resource referenced
+// from Certificates.Location.SecretsManager.SecretRef field and sets the Certificates.Location.SecretsManager.SecretARN
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForCertificates_Location_SecretsManager_SecretARN(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.Browser,
+) (hasReferences bool, err error) {
+	for f0idx, f0iter := range ko.Spec.Certificates {
+		if f0iter.Location != nil {
+			if f0iter.Location.SecretsManager != nil {
+				if f0iter.Location.SecretsManager.SecretRef != nil && f0iter.Location.SecretsManager.SecretRef.From != nil {
+					hasReferences = true
+					arr := f0iter.Location.SecretsManager.SecretRef.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Certificates.Location.SecretsManager.SecretRef")
+					}
+					namespace := ko.ObjectMeta.GetNamespace()
+					if arr.Namespace != nil && *arr.Namespace != "" {
+						namespace = *arr.Namespace
+					}
+					obj := &secretsmanagerapitypes.Secret{}
+					if err := getReferencedResourceState_Secret(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					ko.Spec.Certificates[f0idx].Location.SecretsManager.SecretARN = (*string)(obj.Status.ACKResourceMetadata.ARN)
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_Secret looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_Secret(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *secretsmanagerapitypes.Secret,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"Secret",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"Secret",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"Secret",
+			namespace, name)
+	}
+	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"Secret",
+			namespace, name,
+			"Status.ACKResourceMetadata.ARN")
 	}
 	return nil
 }
@@ -162,6 +332,190 @@ func getReferencedResourceState_Role(
 			"Role",
 			namespace, name,
 			"Status.ACKResourceMetadata.ARN")
+	}
+	return nil
+}
+
+// resolveReferenceForNetworkConfiguration_VPCConfig_SecurityGroups reads the resource referenced
+// from NetworkConfiguration.VPCConfig.SecurityGroupRefs field and sets the NetworkConfiguration.VPCConfig.SecurityGroups
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForNetworkConfiguration_VPCConfig_SecurityGroups(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.Browser,
+) (hasReferences bool, err error) {
+	if ko.Spec.NetworkConfiguration != nil {
+		if ko.Spec.NetworkConfiguration.VPCConfig != nil {
+			for _, f0iter := range ko.Spec.NetworkConfiguration.VPCConfig.SecurityGroupRefs {
+				if f0iter != nil && f0iter.From != nil {
+					hasReferences = true
+					arr := f0iter.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: NetworkConfiguration.VPCConfig.SecurityGroupRefs")
+					}
+					namespace := ko.ObjectMeta.GetNamespace()
+					if arr.Namespace != nil && *arr.Namespace != "" {
+						namespace = *arr.Namespace
+					}
+					obj := &ec2apitypes.SecurityGroup{}
+					if err := getReferencedResourceState_SecurityGroup(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					if ko.Spec.NetworkConfiguration.VPCConfig.SecurityGroups == nil {
+						ko.Spec.NetworkConfiguration.VPCConfig.SecurityGroups = make([]*string, 0, 1)
+					}
+					ko.Spec.NetworkConfiguration.VPCConfig.SecurityGroups = append(ko.Spec.NetworkConfiguration.VPCConfig.SecurityGroups, (*string)(obj.Status.ID))
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_SecurityGroup looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_SecurityGroup(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *ec2apitypes.SecurityGroup,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"SecurityGroup",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"SecurityGroup",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"SecurityGroup",
+			namespace, name)
+	}
+	if obj.Status.ID == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"SecurityGroup",
+			namespace, name,
+			"Status.ID")
+	}
+	return nil
+}
+
+// resolveReferenceForNetworkConfiguration_VPCConfig_Subnets reads the resource referenced
+// from NetworkConfiguration.VPCConfig.SubnetRefs field and sets the NetworkConfiguration.VPCConfig.Subnets
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForNetworkConfiguration_VPCConfig_Subnets(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.Browser,
+) (hasReferences bool, err error) {
+	if ko.Spec.NetworkConfiguration != nil {
+		if ko.Spec.NetworkConfiguration.VPCConfig != nil {
+			for _, f0iter := range ko.Spec.NetworkConfiguration.VPCConfig.SubnetRefs {
+				if f0iter != nil && f0iter.From != nil {
+					hasReferences = true
+					arr := f0iter.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: NetworkConfiguration.VPCConfig.SubnetRefs")
+					}
+					namespace := ko.ObjectMeta.GetNamespace()
+					if arr.Namespace != nil && *arr.Namespace != "" {
+						namespace = *arr.Namespace
+					}
+					obj := &ec2apitypes.Subnet{}
+					if err := getReferencedResourceState_Subnet(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					if ko.Spec.NetworkConfiguration.VPCConfig.Subnets == nil {
+						ko.Spec.NetworkConfiguration.VPCConfig.Subnets = make([]*string, 0, 1)
+					}
+					ko.Spec.NetworkConfiguration.VPCConfig.Subnets = append(ko.Spec.NetworkConfiguration.VPCConfig.Subnets, (*string)(obj.Status.SubnetID))
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_Subnet looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_Subnet(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *ec2apitypes.Subnet,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"Subnet",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"Subnet",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"Subnet",
+			namespace, name)
+	}
+	if obj.Status.SubnetID == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"Subnet",
+			namespace, name,
+			"Status.SubnetID")
 	}
 	return nil
 }
