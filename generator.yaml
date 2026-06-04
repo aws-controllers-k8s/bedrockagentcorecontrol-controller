@@ -366,6 +366,8 @@ resources:
         is_immutable: true
       EnterprisePolicies:
         is_immutable: true
+      EnterprisePolicies.Type:
+        go_tag: json:"type,omitempty"
       ExecutionRoleArn:
         is_immutable: true
         references:

@@ -142,7 +142,7 @@ type AuthorizingClaimMatchValueType struct {
 type BrowserEnterprisePolicy struct {
 	// The location of a resource.
 	Location *ResourceLocation `json:"location,omitempty"`
-	Type     *string           `json:"type_,omitempty"`
+	Type     *string           `json:"type,omitempty"`
 }
 
 // The network configuration for a browser. This structure defines how the browser
