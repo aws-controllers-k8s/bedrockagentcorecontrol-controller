@@ -38,12 +38,14 @@ func (rm *resourceManager) customUpdate(
 		exit(err)
 	}()
 
+	updated := desired.DeepCopy()
+	updated.SetStatus(latest)
 	if delta.DifferentAt("Spec.Tags") {
 		if err = rm.syncTags(ctx, desired, latest); err != nil {
 			return nil, err
 		}
 	}
-	return desired, nil
+	return rm.concreteResource(updated), nil
 }
 
 // getTags retrieves the tags for a given resource ARN using the
