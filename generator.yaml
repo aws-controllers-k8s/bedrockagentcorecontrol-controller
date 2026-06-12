@@ -3,7 +3,7 @@ ignore:
     # AgentRuntime
     # AgentRuntimeEndpoint
     # - ApiKeyCredentialProvider
-    - Browser
+    # - Browser
     - BrowserProfile
     # - CodeInterpreter
     - Evaluator
@@ -348,6 +348,99 @@ resources:
     hooks:
       sdk_read_one_post_set_output:
         template_path: hooks/code_interpreter/sdk_read_one_post_set_output.go.tpl
+
+  Browser:
+    ignore_idempotency_token: true
+    renames:
+      operations:
+        GetBrowser:
+          input_fields:
+            BrowserId: ID
+        DeleteBrowser:
+          input_fields:
+            BrowserId: ID
+        CreateBrowser:
+          output_fields:
+            BrowserId: ID
+    fields:
+      ID:
+        is_primary_key: true
+      Name:
+        is_immutable: true
+      NetworkConfiguration:
+        is_immutable: true
+      NetworkConfiguration.VpcConfig.SecurityGroups:
+        references:
+          resource: SecurityGroup
+          service_name: ec2
+          path: Status.ID
+      NetworkConfiguration.VpcConfig.Subnets:
+        references:
+          resource: Subnet
+          service_name: ec2
+          path: Status.SubnetID
+      Certificates.Location.SecretsManager.SecretARN:
+        references:
+          resource: Secret
+          service_name: secretsmanager
+          path: Status.ACKResourceMetadata.ARN
+      BrowserSigning:
+        is_immutable: true
+      Certificates:
+        is_immutable: true
+      Description:
+        is_immutable: true
+      EnterprisePolicies:
+        is_immutable: true
+      EnterprisePolicies.Type:
+        go_tag: json:"type,omitempty"
+      ExecutionRoleArn:
+        is_immutable: true
+        references:
+          resource: Role
+          service_name: iam
+          path: Status.ACKResourceMetadata.ARN
+      Recording:
+        is_immutable: true
+      CreatedAt:
+        is_read_only: true
+        from:
+          operation: GetBrowser
+          path: CreatedAt
+      LastUpdatedAt:
+        is_read_only: true
+        from:
+          operation: GetBrowser
+          path: LastUpdatedAt
+      FailureReason:
+        is_read_only: true
+        from:
+          operation: GetBrowser
+          path: FailureReason
+    update_operation:
+      custom_method_name: customUpdate
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - CREATE_FAILED
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - CREATE_FAILED
+            - DELETE_FAILED
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
+    hooks:
+      sdk_read_one_post_set_output:
+        template_path: hooks/browser/sdk_read_one_post_set_output.go.tpl
 
   GatewayTarget:
     ignore_idempotency_token: true

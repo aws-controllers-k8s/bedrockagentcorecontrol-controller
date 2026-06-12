@@ -83,6 +83,7 @@ rules:
   - agentruntimeendpoints
   - agentruntimes
   - apikeycredentialproviders
+  - browsers
   - codeinterpreters
   - gateways
   - gatewaytargets
@@ -102,6 +103,7 @@ rules:
   - agentruntimeendpoints/status
   - agentruntimes/status
   - apikeycredentialproviders/status
+  - browsers/status
   - codeinterpreters/status
   - gateways/status
   - gatewaytargets/status

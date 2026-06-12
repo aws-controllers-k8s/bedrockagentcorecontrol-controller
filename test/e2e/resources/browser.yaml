@@ -1,0 +1,11 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: Browser
+metadata:
+  name: $BROWSER_NAME
+  namespace: default
+spec:
+  name: $BROWSER_NAME
+  description: "ACK e2e test browser"
+  networkConfiguration:
+    networkMode: PUBLIC
+  executionRoleARN: $ROLE_ARN

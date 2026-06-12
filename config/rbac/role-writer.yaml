@@ -12,6 +12,7 @@ rules:
   - apikeycredentialproviders
   - agentruntimes
   - agentruntimeendpoints
+  - browsers
   - codeinterpreters
   - gateways
   - gatewaytargets
@@ -31,6 +32,7 @@ rules:
   - apikeycredentialproviders
   - agentruntimes
   - agentruntimeendpoints
+  - browsers
   - codeinterpreters
   - gateways
   - gatewaytargets
