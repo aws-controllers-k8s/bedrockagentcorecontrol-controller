@@ -4,7 +4,7 @@ ignore:
     # AgentRuntimeEndpoint
     # - ApiKeyCredentialProvider
     # - Browser
-    - BrowserProfile
+    # - BrowserProfile
     # - CodeInterpreter
     - Evaluator
     # Gateway
@@ -441,6 +441,75 @@ resources:
     hooks:
       sdk_read_one_post_set_output:
         template_path: hooks/browser/sdk_read_one_post_set_output.go.tpl
+
+  BrowserProfile:
+    ignore_idempotency_token: true
+    update_operation:
+      custom_method_name: customUpdate
+    renames:
+      operations:
+        GetBrowserProfile:
+          input_fields:
+            ProfileId: ID
+        DeleteBrowserProfile:
+          input_fields:
+            ProfileId: ID
+        CreateBrowserProfile:
+          output_fields:
+            ProfileId: ID
+    fields:
+      ID:
+        is_primary_key: true
+      ProfileArn:
+        is_arn: true
+      Name:
+        is_immutable: true
+      Description:
+        is_immutable: true
+      CreatedAt:
+        is_read_only: true
+        from:
+          operation: GetBrowserProfile
+          path: CreatedAt
+      LastUpdatedAt:
+        is_read_only: true
+        from:
+          operation: GetBrowserProfile
+          path: LastUpdatedAt
+      LastSavedAt:
+        is_read_only: true
+        from:
+          operation: GetBrowserProfile
+          path: LastSavedAt
+      LastSavedBrowserId:
+        is_read_only: true
+        from:
+          operation: GetBrowserProfile
+          path: LastSavedBrowserId
+      LastSavedBrowserSessionId:
+        is_read_only: true
+        from:
+          operation: GetBrowserProfile
+          path: LastSavedBrowserSessionId
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
+    hooks:
+      sdk_read_one_post_set_output:
+        template_path: hooks/browser_profile/sdk_read_one_post_set_output.go.tpl
 
   GatewayTarget:
     ignore_idempotency_token: true
