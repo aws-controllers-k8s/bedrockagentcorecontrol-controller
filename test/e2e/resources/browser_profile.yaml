@@ -1,0 +1,8 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: BrowserProfile
+metadata:
+  name: $BROWSER_PROFILE_K8S_NAME
+  namespace: default
+spec:
+  name: $BROWSER_PROFILE_NAME
+  description: "ACK e2e test browser profile"
