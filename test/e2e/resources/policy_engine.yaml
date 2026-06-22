@@ -1,0 +1,8 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: PolicyEngine
+metadata:
+  name: $POLICY_ENGINE_NAME
+  namespace: default
+spec:
+  name: $POLICY_ENGINE_SPEC_NAME
+  description: "ACK e2e test policy engine"
