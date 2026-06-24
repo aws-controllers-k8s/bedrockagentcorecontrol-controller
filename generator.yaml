@@ -12,7 +12,7 @@ ignore:
     # - Memory
     - Oauth2CredentialProvider
     - OnlineEvaluationConfig
-    - Policy
+    # - Policy
     # - PolicyEngine
     # - WorkloadIdentity
 
@@ -177,6 +177,87 @@ resources:
         template_path: hooks/memory/sdk_update_pre_build_request.go.tpl
       sdk_update_post_build_request:
         template_path: hooks/memory/sdk_update_post_build_request.go.tpl
+
+  Policy:
+    ignore_idempotency_token: true
+    tags:
+      ignore: true
+    renames:
+      operations:
+        CreatePolicy:
+          output_fields:
+            PolicyId: ID
+        GetPolicy:
+          input_fields:
+            PolicyId: ID
+        UpdatePolicy:
+          input_fields:
+            PolicyId: ID
+        DeletePolicy:
+          input_fields:
+            PolicyId: ID
+    fields:
+      ID:
+        is_primary_key: true
+      Name:
+        is_immutable: true
+      PolicyEngineID:
+        is_immutable: true
+        references:
+          resource: PolicyEngine
+          path: Status.ID
+      Description:
+        set:
+          - method: Update
+            ignore: "to"
+      ValidationMode:
+        compare:
+          is_ignored: true
+      CreatedAt:
+        is_read_only: true
+        from:
+          operation: GetPolicy
+          path: CreatedAt
+      UpdatedAt:
+        is_read_only: true
+        from:
+          operation: GetPolicy
+          path: UpdatedAt
+      StatusReasons:
+        is_read_only: true
+        from:
+          operation: GetPolicy
+          path: StatusReasons
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+            - CREATE_FAILED
+            - UPDATE_FAILED
+            - DELETE_FAILED
+    updateable:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+            - CREATE_FAILED
+            - UPDATE_FAILED
+            - DELETE_FAILED
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
+    hooks:
+      sdk_update_post_build_request:
+        template_path: hooks/policy/sdk_update_post_build_request.go.tpl
 
   PolicyEngine:
     ignore_idempotency_token: true
