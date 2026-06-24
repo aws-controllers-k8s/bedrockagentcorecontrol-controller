@@ -6,6 +6,7 @@ resources:
   - bases/bedrockagentcorecontrol.services.k8s.aws_agentruntimes.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_agentruntimeendpoints.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_browsers.yaml
+  - bases/bedrockagentcorecontrol.services.k8s.aws_browserprofiles.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_codeinterpreters.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_gateways.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_gatewaytargets.yaml

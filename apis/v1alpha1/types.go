@@ -156,11 +156,17 @@ type BrowserNetworkConfiguration struct {
 // Contains summary information about a browser profile. A browser profile stores
 // persistent browser data that can be reused across browser sessions.
 type BrowserProfileSummary struct {
-	CreatedAt          *metav1.Time `json:"createdAt,omitempty"`
-	Description        *string      `json:"description,omitempty"`
-	LastSavedAt        *metav1.Time `json:"lastSavedAt,omitempty"`
-	LastSavedBrowserID *string      `json:"lastSavedBrowserID,omitempty"`
-	LastUpdatedAt      *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	CreatedAt                 *metav1.Time `json:"createdAt,omitempty"`
+	Description               *string      `json:"description,omitempty"`
+	LastSavedAt               *metav1.Time `json:"lastSavedAt,omitempty"`
+	LastSavedBrowserID        *string      `json:"lastSavedBrowserID,omitempty"`
+	LastSavedBrowserSessionID *string      `json:"lastSavedBrowserSessionID,omitempty"`
+	LastUpdatedAt             *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	Name                      *string      `json:"name,omitempty"`
+	ProfileARN                *string      `json:"profileARN,omitempty"`
+	ProfileID                 *string      `json:"profileID,omitempty"`
+	// The status of a browser profile.
+	Status *string `json:"status,omitempty"`
 }
 
 // Configuration for enabling browser signing capabilities that allow agents

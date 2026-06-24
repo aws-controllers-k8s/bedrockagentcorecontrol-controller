@@ -76,13 +76,13 @@ const (
 	BrowserNetworkMode_VPC    BrowserNetworkMode = "VPC"
 )
 
-type BrowserProfileStatus string
+type BrowserProfileStatus_SDK string
 
 const (
-	BrowserProfileStatus_DELETED  BrowserProfileStatus = "DELETED"
-	BrowserProfileStatus_DELETING BrowserProfileStatus = "DELETING"
-	BrowserProfileStatus_READY    BrowserProfileStatus = "READY"
-	BrowserProfileStatus_SAVING   BrowserProfileStatus = "SAVING"
+	BrowserProfileStatus_SDK_DELETED  BrowserProfileStatus_SDK = "DELETED"
+	BrowserProfileStatus_SDK_DELETING BrowserProfileStatus_SDK = "DELETING"
+	BrowserProfileStatus_SDK_READY    BrowserProfileStatus_SDK = "READY"
+	BrowserProfileStatus_SDK_SAVING   BrowserProfileStatus_SDK = "SAVING"
 )
 
 type BrowserStatus_SDK string

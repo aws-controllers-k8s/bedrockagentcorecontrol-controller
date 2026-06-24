@@ -27,6 +27,7 @@ import (
 	kmsapitypes "github.com/aws-controllers-k8s/kms-controller/apis/v1alpha1"
 	ackv1alpha1 "github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
 	ackerr "github.com/aws-controllers-k8s/runtime/pkg/errors"
+	ackrt "github.com/aws-controllers-k8s/runtime/pkg/runtime"
 	acktypes "github.com/aws-controllers-k8s/runtime/pkg/types"
 	snsapitypes "github.com/aws-controllers-k8s/sns-controller/apis/v1alpha1"
 
@@ -154,9 +155,17 @@ func (rm *resourceManager) resolveReferenceForEncryptionKeyARN(
 		if arr.Name == nil || *arr.Name == "" {
 			return hasReferences, fmt.Errorf("provided resource reference is nil or empty: EncryptionKeyRef")
 		}
-		namespace := ko.ObjectMeta.GetNamespace()
-		if arr.Namespace != nil && *arr.Namespace != "" {
-			namespace = *arr.Namespace
+		namespace, err := ackrt.ResolveCrossNamespaceReference(
+			ctx,
+			rm.cfg.EnableCrossNamespace,
+			&ko.Status.Conditions,
+			ackrt.CrossNamespaceRefKindResource,
+			ko.ObjectMeta.GetNamespace(),
+			arr.Namespace,
+			*arr.Name,
+		)
+		if err != nil {
+			return hasReferences, err
 		}
 		obj := &kmsapitypes.Key{}
 		if err := getReferencedResourceState_Key(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
@@ -237,9 +246,17 @@ func (rm *resourceManager) resolveReferenceForMemoryExecutionRoleARN(
 		if arr.Name == nil || *arr.Name == "" {
 			return hasReferences, fmt.Errorf("provided resource reference is nil or empty: MemoryExecutionRoleRef")
 		}
-		namespace := ko.ObjectMeta.GetNamespace()
-		if arr.Namespace != nil && *arr.Namespace != "" {
-			namespace = *arr.Namespace
+		namespace, err := ackrt.ResolveCrossNamespaceReference(
+			ctx,
+			rm.cfg.EnableCrossNamespace,
+			&ko.Status.Conditions,
+			ackrt.CrossNamespaceRefKindResource,
+			ko.ObjectMeta.GetNamespace(),
+			arr.Namespace,
+			*arr.Name,
+		)
+		if err != nil {
+			return hasReferences, err
 		}
 		obj := &iamapitypes.Role{}
 		if err := getReferencedResourceState_Role(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
@@ -325,9 +342,17 @@ func (rm *resourceManager) resolveReferenceForMemoryStrategies_CustomMemoryStrat
 							if arr.Name == nil || *arr.Name == "" {
 								return hasReferences, fmt.Errorf("provided resource reference is nil or empty: MemoryStrategies.CustomMemoryStrategy.Configuration.SelfManagedConfiguration.InvocationConfiguration.TopicRef")
 							}
-							namespace := ko.ObjectMeta.GetNamespace()
-							if arr.Namespace != nil && *arr.Namespace != "" {
-								namespace = *arr.Namespace
+							namespace, err := ackrt.ResolveCrossNamespaceReference(
+								ctx,
+								rm.cfg.EnableCrossNamespace,
+								&ko.Status.Conditions,
+								ackrt.CrossNamespaceRefKindResource,
+								ko.ObjectMeta.GetNamespace(),
+								arr.Namespace,
+								*arr.Name,
+							)
+							if err != nil {
+								return hasReferences, err
 							}
 							obj := &snsapitypes.Topic{}
 							if err := getReferencedResourceState_Topic(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
