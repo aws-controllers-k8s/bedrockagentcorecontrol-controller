@@ -816,12 +816,6 @@ type PolicyDefinition struct {
 	// analyzable, and high-performance policy evaluation for controlling agent
 	// behavior and access decisions.
 	Cedar *CedarPolicy `json:"cedar,omitempty"`
-	// Represents the information identifying a generated policy asset from the
-	// AI-powered policy generation process within the AgentCore Policy system.
-	// Each asset contains a Cedar policy statement generated from natural language
-	// input, along with associated metadata and analysis findings to help users
-	// evaluate and select the most appropriate policy option.
-	PolicyGeneration *PolicyGenerationDetails `json:"policyGeneration,omitempty"`
 }
 
 // Represents a policy engine resource within the AgentCore Policy system. Policy

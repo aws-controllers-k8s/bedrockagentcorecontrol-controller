@@ -26,6 +26,7 @@ ignore:
     - CreateAgentRuntimeInput.ClientToken
     - CreateAgentRuntimeEndpointInput.ClientToken
     - CreateGatewayInput.ClientToken
+    - CreatePolicyInput.Definition.PolicyGeneration
     - UpdateMemoryInput.MemoryStrategies
     # Redundant fields in Status.Strategies — already present in Spec.MemoryStrategies
     # via the sdk_read_one_post_set_output hook. Only keep status-only fields

@@ -109,18 +109,6 @@ func (rm *resourceManager) sdkFind(
 				}
 				f1.Cedar = f1f0f0
 			}
-		case *svcsdktypes.PolicyDefinitionMemberPolicyGeneration:
-			f1f1 := resp.Definition.(*svcsdktypes.PolicyDefinitionMemberPolicyGeneration)
-			if f1f1 != nil {
-				f1f1f1 := &svcapitypes.PolicyGenerationDetails{}
-				if f1f1.Value.PolicyGenerationAssetId != nil {
-					f1f1f1.PolicyGenerationAssetID = f1f1.Value.PolicyGenerationAssetId
-				}
-				if f1f1.Value.PolicyGenerationId != nil {
-					f1f1f1.PolicyGenerationID = f1f1.Value.PolicyGenerationId
-				}
-				f1.PolicyGeneration = f1f1f1
-			}
 		}
 		ko.Spec.Definition = f1
 	} else {
@@ -245,18 +233,6 @@ func (rm *resourceManager) sdkCreate(
 				}
 				f1.Cedar = f1f0f0
 			}
-		case *svcsdktypes.PolicyDefinitionMemberPolicyGeneration:
-			f1f1 := resp.Definition.(*svcsdktypes.PolicyDefinitionMemberPolicyGeneration)
-			if f1f1 != nil {
-				f1f1f1 := &svcapitypes.PolicyGenerationDetails{}
-				if f1f1.Value.PolicyGenerationAssetId != nil {
-					f1f1f1.PolicyGenerationAssetID = f1f1.Value.PolicyGenerationAssetId
-				}
-				if f1f1.Value.PolicyGenerationId != nil {
-					f1f1f1.PolicyGenerationID = f1f1.Value.PolicyGenerationId
-				}
-				f1.PolicyGeneration = f1f1f1
-			}
 		}
 		ko.Spec.Definition = f1
 	} else {
@@ -331,22 +307,6 @@ func (rm *resourceManager) newCreateRequestPayload(
 			}
 			f1f0Parent.Value = *f1f0
 			f1 = f1f0Parent
-			isInterfaceSet = true
-		}
-		if r.ko.Spec.Definition.PolicyGeneration != nil {
-			if isInterfaceSet {
-				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for PolicyGeneration"))
-			}
-			f1f1Parent := &svcsdktypes.PolicyDefinitionMemberPolicyGeneration{}
-			f1f1 := &svcsdktypes.PolicyGenerationDetails{}
-			if r.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID != nil {
-				f1f1.PolicyGenerationAssetId = r.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID
-			}
-			if r.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID != nil {
-				f1f1.PolicyGenerationId = r.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID
-			}
-			f1f1Parent.Value = *f1f1
-			f1 = f1f1Parent
 			isInterfaceSet = true
 		}
 		res.Definition = f1
@@ -426,18 +386,6 @@ func (rm *resourceManager) sdkUpdate(
 				}
 				f1.Cedar = f1f0f0
 			}
-		case *svcsdktypes.PolicyDefinitionMemberPolicyGeneration:
-			f1f1 := resp.Definition.(*svcsdktypes.PolicyDefinitionMemberPolicyGeneration)
-			if f1f1 != nil {
-				f1f1f1 := &svcapitypes.PolicyGenerationDetails{}
-				if f1f1.Value.PolicyGenerationAssetId != nil {
-					f1f1f1.PolicyGenerationAssetID = f1f1.Value.PolicyGenerationAssetId
-				}
-				if f1f1.Value.PolicyGenerationId != nil {
-					f1f1f1.PolicyGenerationID = f1f1.Value.PolicyGenerationId
-				}
-				f1.PolicyGeneration = f1f1f1
-			}
 		}
 		ko.Spec.Definition = f1
 	} else {
@@ -513,22 +461,6 @@ func (rm *resourceManager) newUpdateRequestPayload(
 			}
 			f0f0Parent.Value = *f0f0
 			f0 = f0f0Parent
-			isInterfaceSet = true
-		}
-		if r.ko.Spec.Definition.PolicyGeneration != nil {
-			if isInterfaceSet {
-				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for PolicyGeneration"))
-			}
-			f0f1Parent := &svcsdktypes.PolicyDefinitionMemberPolicyGeneration{}
-			f0f1 := &svcsdktypes.PolicyGenerationDetails{}
-			if r.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID != nil {
-				f0f1.PolicyGenerationAssetId = r.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID
-			}
-			if r.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID != nil {
-				f0f1.PolicyGenerationId = r.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID
-			}
-			f0f1Parent.Value = *f0f1
-			f0 = f0f1Parent
 			isInterfaceSet = true
 		}
 		res.Definition = f0

@@ -56,24 +56,6 @@ func newResourceDelta(
 				}
 			}
 		}
-		if ackcompare.HasNilDifference(a.ko.Spec.Definition.PolicyGeneration, b.ko.Spec.Definition.PolicyGeneration) {
-			delta.Add("Spec.Definition.PolicyGeneration", a.ko.Spec.Definition.PolicyGeneration, b.ko.Spec.Definition.PolicyGeneration)
-		} else if a.ko.Spec.Definition.PolicyGeneration != nil && b.ko.Spec.Definition.PolicyGeneration != nil {
-			if ackcompare.HasNilDifference(a.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID, b.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID) {
-				delta.Add("Spec.Definition.PolicyGeneration.PolicyGenerationAssetID", a.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID, b.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID)
-			} else if a.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID != nil && b.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID != nil {
-				if *a.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID != *b.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID {
-					delta.Add("Spec.Definition.PolicyGeneration.PolicyGenerationAssetID", a.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID, b.ko.Spec.Definition.PolicyGeneration.PolicyGenerationAssetID)
-				}
-			}
-			if ackcompare.HasNilDifference(a.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID, b.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID) {
-				delta.Add("Spec.Definition.PolicyGeneration.PolicyGenerationID", a.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID, b.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID)
-			} else if a.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID != nil && b.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID != nil {
-				if *a.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID != *b.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID {
-					delta.Add("Spec.Definition.PolicyGeneration.PolicyGenerationID", a.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID, b.ko.Spec.Definition.PolicyGeneration.PolicyGenerationID)
-				}
-			}
-		}
 	}
 	if ackcompare.HasNilDifference(a.ko.Spec.Description, b.ko.Spec.Description) {
 		delta.Add("Spec.Description", a.ko.Spec.Description, b.ko.Spec.Description)
