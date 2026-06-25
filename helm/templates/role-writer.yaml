@@ -20,6 +20,7 @@ rules:
   - agentruntimes
   - agentruntimeendpoints
   - browsers
+  - browserprofiles
   - codeinterpreters
   - gateways
   - gatewaytargets
@@ -42,6 +43,7 @@ rules:
   - agentruntimes
   - agentruntimeendpoints
   - browsers
+  - browserprofiles
   - codeinterpreters
   - gateways
   - gatewaytargets

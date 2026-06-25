@@ -4,7 +4,7 @@
 
 image:
   repository: public.ecr.aws/aws-controllers-k8s/bedrockagentcorecontrol-controller
-  tag: 1.8.0
+  tag: 1.9.1
   pullPolicy: IfNotPresent
   pullSecrets: []
 
@@ -154,6 +154,7 @@ reconcile:
     - AgentRuntime
     - AgentRuntimeEndpoint
     - Browser
+    - BrowserProfile
     - CodeInterpreter
     - Gateway
     - GatewayTarget

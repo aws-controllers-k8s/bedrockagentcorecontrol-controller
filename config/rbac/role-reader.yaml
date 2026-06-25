@@ -13,6 +13,7 @@ rules:
   - agentruntimes
   - agentruntimeendpoints
   - browsers
+  - browserprofiles
   - codeinterpreters
   - gateways
   - gatewaytargets
