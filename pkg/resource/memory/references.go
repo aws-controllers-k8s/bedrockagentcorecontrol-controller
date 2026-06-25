@@ -24,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	iamapitypes "github.com/aws-controllers-k8s/iam-controller/apis/v1alpha1"
+	kinesisapitypes "github.com/aws-controllers-k8s/kinesis-controller/apis/v1alpha1"
 	kmsapitypes "github.com/aws-controllers-k8s/kms-controller/apis/v1alpha1"
 	ackv1alpha1 "github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
 	ackerr "github.com/aws-controllers-k8s/runtime/pkg/errors"
@@ -42,6 +43,9 @@ import (
 
 // +kubebuilder:rbac:groups=sns.services.k8s.aws,resources=topics,verbs=get;list
 // +kubebuilder:rbac:groups=sns.services.k8s.aws,resources=topics/status,verbs=get;list
+
+// +kubebuilder:rbac:groups=kinesis.services.k8s.aws,resources=streams,verbs=get;list
+// +kubebuilder:rbac:groups=kinesis.services.k8s.aws,resources=streams/status,verbs=get;list
 
 // ClearResolvedReferences removes any reference values that were made
 // concrete in the spec. It returns a copy of the input AWSResource which
@@ -67,6 +71,16 @@ func (rm *resourceManager) ClearResolvedReferences(res acktypes.AWSResource) ack
 							ko.Spec.MemoryStrategies[f0idx].CustomMemoryStrategy.Configuration.SelfManagedConfiguration.InvocationConfiguration.TopicARN = nil
 						}
 					}
+				}
+			}
+		}
+	}
+
+	if ko.Spec.StreamDeliveryResources != nil {
+		for f0idx, f0iter := range ko.Spec.StreamDeliveryResources.Resources {
+			if f0iter.Kinesis != nil {
+				if f0iter.Kinesis.DataStreamRef != nil {
+					ko.Spec.StreamDeliveryResources.Resources[f0idx].Kinesis.DataStreamARN = nil
 				}
 			}
 		}
@@ -109,6 +123,12 @@ func (rm *resourceManager) ResolveReferences(
 		resourceHasReferences = resourceHasReferences || fieldHasReferences
 	}
 
+	if fieldHasReferences, err := rm.resolveReferenceForStreamDeliveryResources_Resources_Kinesis_DataStreamARN(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
 	return &resource{ko}, resourceHasReferences, err
 }
 
@@ -133,6 +153,16 @@ func validateReferenceFields(ko *svcapitypes.Memory) error {
 							return ackerr.ResourceReferenceAndIDNotSupportedFor("MemoryStrategies.CustomMemoryStrategy.Configuration.SelfManagedConfiguration.InvocationConfiguration.TopicARN", "MemoryStrategies.CustomMemoryStrategy.Configuration.SelfManagedConfiguration.InvocationConfiguration.TopicRef")
 						}
 					}
+				}
+			}
+		}
+	}
+
+	if ko.Spec.StreamDeliveryResources != nil {
+		for _, f0iter := range ko.Spec.StreamDeliveryResources.Resources {
+			if f0iter.Kinesis != nil {
+				if f0iter.Kinesis.DataStreamRef != nil && f0iter.Kinesis.DataStreamARN != nil {
+					return ackerr.ResourceReferenceAndIDNotSupportedFor("StreamDeliveryResources.Resources.Kinesis.DataStreamARN", "StreamDeliveryResources.Resources.Kinesis.DataStreamRef")
 				}
 			}
 		}
@@ -417,6 +447,103 @@ func getReferencedResourceState_Topic(
 	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
 		return ackerr.ResourceReferenceMissingTargetFieldFor(
 			"Topic",
+			namespace, name,
+			"Status.ACKResourceMetadata.ARN")
+	}
+	return nil
+}
+
+// resolveReferenceForStreamDeliveryResources_Resources_Kinesis_DataStreamARN reads the resource referenced
+// from StreamDeliveryResources.Resources.Kinesis.DataStreamRef field and sets the StreamDeliveryResources.Resources.Kinesis.DataStreamARN
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForStreamDeliveryResources_Resources_Kinesis_DataStreamARN(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.Memory,
+) (hasReferences bool, err error) {
+	if ko.Spec.StreamDeliveryResources != nil {
+		for f0idx, f0iter := range ko.Spec.StreamDeliveryResources.Resources {
+			if f0iter.Kinesis != nil {
+				if f0iter.Kinesis.DataStreamRef != nil && f0iter.Kinesis.DataStreamRef.From != nil {
+					hasReferences = true
+					arr := f0iter.Kinesis.DataStreamRef.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: StreamDeliveryResources.Resources.Kinesis.DataStreamRef")
+					}
+					namespace, err := ackrt.ResolveCrossNamespaceReference(
+						ctx,
+						rm.cfg.EnableCrossNamespace,
+						&ko.Status.Conditions,
+						ackrt.CrossNamespaceRefKindResource,
+						ko.ObjectMeta.GetNamespace(),
+						arr.Namespace,
+						*arr.Name,
+					)
+					if err != nil {
+						return hasReferences, err
+					}
+					obj := &kinesisapitypes.Stream{}
+					if err := getReferencedResourceState_Stream(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					ko.Spec.StreamDeliveryResources.Resources[f0idx].Kinesis.DataStreamARN = (*string)(obj.Status.ACKResourceMetadata.ARN)
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_Stream looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_Stream(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *kinesisapitypes.Stream,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"Stream",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"Stream",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"Stream",
+			namespace, name)
+	}
+	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"Stream",
 			namespace, name,
 			"Status.ACKResourceMetadata.ARN")
 	}

@@ -29,8 +29,8 @@ type AgentRuntimeEndpointSpec struct {
 	// The unique identifier of the AgentCore Runtime to create an endpoint for.
 	//
 	// Regex Pattern: `^[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$`
-	// +kubebuilder:validation:Required
-	AgentRuntimeID *string `json:"agentRuntimeID"`
+	AgentRuntimeID  *string                                  `json:"agentRuntimeID,omitempty"`
+	AgentRuntimeRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"agentRuntimeRef,omitempty"`
 	// The version of the AgentCore Runtime to use for the endpoint.
 	//
 	// Regex Pattern: `^([1-9][0-9]{0,4})$`

@@ -509,6 +509,8 @@ type GatewayAPIKeyCredentialProvider struct {
 	CredentialParameterName *string `json:"credentialParameterName,omitempty"`
 	CredentialPrefix        *string `json:"credentialPrefix,omitempty"`
 	ProviderARN             *string `json:"providerARN,omitempty"`
+	// Reference field for ProviderARN
+	ProviderRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"providerRef,omitempty"`
 }
 
 // The configuration for an interceptor on a gateway. This structure defines
@@ -612,6 +614,8 @@ type KMSConfiguration struct {
 type KinesisResource struct {
 	ContentConfigurations []*ContentConfiguration `json:"contentConfigurations,omitempty"`
 	DataStreamARN         *string                 `json:"dataStreamARN,omitempty"`
+	// Reference field for DataStreamARN
+	DataStreamRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"dataStreamRef,omitempty"`
 }
 
 // The lambda configuration for the interceptor
@@ -640,6 +644,8 @@ type MCPGatewayConfiguration struct {
 // defines how the gateway uses a Lambda function to communicate with the target.
 type McpLambdaTargetConfiguration struct {
 	LambdaARN *string `json:"lambdaARN,omitempty"`
+	// Reference field for LambdaARN
+	LambdaRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"lambdaRef,omitempty"`
 	// A tool schema for a gateway target. This structure defines the schema for
 	// a tool that the target exposes through the Model Context Protocol.
 	ToolSchema *ToolSchema `json:"toolSchema,omitempty"`

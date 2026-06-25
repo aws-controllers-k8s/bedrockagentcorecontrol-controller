@@ -87,10 +87,26 @@ rules:
   - get
   - list
 - apiGroups:
+  - kinesis.services.k8s.aws
+  resources:
+  - streams
+  - streams/status
+  verbs:
+  - get
+  - list
+- apiGroups:
   - kms.services.k8s.aws
   resources:
   - keys
   - keys/status
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - lambda.services.k8s.aws
+  resources:
+  - functions
+  - functions/status
   verbs:
   - get
   - list

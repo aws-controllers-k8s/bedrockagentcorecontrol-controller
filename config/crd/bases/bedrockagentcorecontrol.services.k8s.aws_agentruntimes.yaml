@@ -272,6 +272,23 @@ spec:
 
                   Regex Pattern: `^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$`
                 type: string
+              roleRef:
+                description: "AWSResourceReferenceWrapper provides a wrapper around
+                  *AWSResourceReference\ntype to provide more user friendly syntax
+                  for references using 'from' field\nEx:\nAPIIDRef:\n\n\tfrom:\n\t
+                  \ name: my-api"
+                properties:
+                  from:
+                    description: |-
+                      AWSResourceReference provides all the values necessary to reference another
+                      k8s resource for finding the identifier(Id/ARN/Name)
+                    properties:
+                      name:
+                        type: string
+                      namespace:
+                        type: string
+                    type: object
+                type: object
               tags:
                 additionalProperties:
                   type: string
@@ -284,7 +301,6 @@ spec:
             - agentRuntimeArtifact
             - agentRuntimeName
             - networkConfiguration
-            - roleARN
             type: object
           status:
             description: AgentRuntimeStatus defines the observed state of AgentRuntime
