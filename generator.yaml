@@ -49,6 +49,11 @@ operations:
 resources:
   AgentRuntime:
     fields:
+      RoleARN:
+        references:
+          resource: Role
+          service_name: iam
+          path: Status.ACKResourceMetadata.ARN
       NetworkConfiguration.NetworkModeConfig.SecurityGroups:
         references:
           resource: SecurityGroup
@@ -83,6 +88,10 @@ resources:
     fields:
       Name:
         is_primary_key: true
+      AgentRuntimeID:
+        references:
+          resource: AgentRuntime
+          path: Status.AgentRuntimeID
     hooks:
       sdk_read_one_post_set_output:
         template_path: hooks/agentruntimeendpoint/sdk_read_one_post_set_output.go.tpl
@@ -117,6 +126,11 @@ resources:
         references:
           resource: Role
           service_name: iam
+          path: Status.ACKResourceMetadata.ARN
+      StreamDeliveryResources.Resources.Kinesis.DataStreamARN:
+        references:
+          resource: Stream
+          service_name: kinesis
           path: Status.ACKResourceMetadata.ARN
       MemoryStrategies:
         set:
@@ -539,6 +553,15 @@ resources:
           resource: RestAPI
           service_name: apigateway
           path: Status.ID
+      TargetConfiguration.Mcp.Lambda.LambdaARN:
+        references:
+          resource: Function
+          service_name: lambda
+          path: Status.ACKResourceMetadata.ARN
+      CredentialProviderConfigurations.CredentialProvider.APIKeyCredentialProvider.ProviderARN:
+        references:
+          resource: APIKeyCredentialProvider
+          path: Status.ACKResourceMetadata.ARN
       
       TargetConfiguration.Mcp.Lambda.ToolSchema.InlinePayload:
         # explictly don't update this value from API response to avoid

@@ -24,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	apigatewayapitypes "github.com/aws-controllers-k8s/apigateway-controller/apis/v1alpha1"
+	lambdaapitypes "github.com/aws-controllers-k8s/lambda-controller/apis/v1alpha1"
 	ackv1alpha1 "github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
 	ackerr "github.com/aws-controllers-k8s/runtime/pkg/errors"
 	ackrt "github.com/aws-controllers-k8s/runtime/pkg/runtime"
@@ -35,12 +36,25 @@ import (
 // +kubebuilder:rbac:groups=apigateway.services.k8s.aws,resources=restapis,verbs=get;list
 // +kubebuilder:rbac:groups=apigateway.services.k8s.aws,resources=restapis/status,verbs=get;list
 
+// +kubebuilder:rbac:groups=lambda.services.k8s.aws,resources=functions,verbs=get;list
+// +kubebuilder:rbac:groups=lambda.services.k8s.aws,resources=functions/status,verbs=get;list
+
 // ClearResolvedReferences removes any reference values that were made
 // concrete in the spec. It returns a copy of the input AWSResource which
 // contains the original *Ref values, but none of their respective concrete
 // values.
 func (rm *resourceManager) ClearResolvedReferences(res acktypes.AWSResource) acktypes.AWSResource {
 	ko := rm.concreteResource(res).ko.DeepCopy()
+
+	for f0idx, f0iter := range ko.Spec.CredentialProviderConfigurations {
+		if f0iter.CredentialProvider != nil {
+			if f0iter.CredentialProvider.APIKeyCredentialProvider != nil {
+				if f0iter.CredentialProvider.APIKeyCredentialProvider.ProviderRef != nil {
+					ko.Spec.CredentialProviderConfigurations[f0idx].CredentialProvider.APIKeyCredentialProvider.ProviderARN = nil
+				}
+			}
+		}
+	}
 
 	if ko.Spec.GatewayIdentifierRef != nil {
 		ko.Spec.GatewayIdentifier = nil
@@ -51,6 +65,16 @@ func (rm *resourceManager) ClearResolvedReferences(res acktypes.AWSResource) ack
 			if ko.Spec.TargetConfiguration.Mcp.APIGateway != nil {
 				if ko.Spec.TargetConfiguration.Mcp.APIGateway.RestAPIRef != nil {
 					ko.Spec.TargetConfiguration.Mcp.APIGateway.RestAPIID = nil
+				}
+			}
+		}
+	}
+
+	if ko.Spec.TargetConfiguration != nil {
+		if ko.Spec.TargetConfiguration.Mcp != nil {
+			if ko.Spec.TargetConfiguration.Mcp.Lambda != nil {
+				if ko.Spec.TargetConfiguration.Mcp.Lambda.LambdaRef != nil {
+					ko.Spec.TargetConfiguration.Mcp.Lambda.LambdaARN = nil
 				}
 			}
 		}
@@ -75,6 +99,12 @@ func (rm *resourceManager) ResolveReferences(
 
 	resourceHasReferences := false
 	err := validateReferenceFields(ko)
+	if fieldHasReferences, err := rm.resolveReferenceForCredentialProviderConfigurations_CredentialProvider_APIKeyCredentialProvider_ProviderARN(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
 	if fieldHasReferences, err := rm.resolveReferenceForGatewayIdentifier(ctx, apiReader, ko); err != nil {
 		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
 	} else {
@@ -87,12 +117,28 @@ func (rm *resourceManager) ResolveReferences(
 		resourceHasReferences = resourceHasReferences || fieldHasReferences
 	}
 
+	if fieldHasReferences, err := rm.resolveReferenceForTargetConfiguration_Mcp_Lambda_LambdaARN(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
 	return &resource{ko}, resourceHasReferences, err
 }
 
 // validateReferenceFields validates the reference field and corresponding
 // identifier field.
 func validateReferenceFields(ko *svcapitypes.GatewayTarget) error {
+
+	for _, f0iter := range ko.Spec.CredentialProviderConfigurations {
+		if f0iter.CredentialProvider != nil {
+			if f0iter.CredentialProvider.APIKeyCredentialProvider != nil {
+				if f0iter.CredentialProvider.APIKeyCredentialProvider.ProviderRef != nil && f0iter.CredentialProvider.APIKeyCredentialProvider.ProviderARN != nil {
+					return ackerr.ResourceReferenceAndIDNotSupportedFor("CredentialProviderConfigurations.CredentialProvider.APIKeyCredentialProvider.ProviderARN", "CredentialProviderConfigurations.CredentialProvider.APIKeyCredentialProvider.ProviderRef")
+				}
+			}
+		}
+	}
 
 	if ko.Spec.GatewayIdentifierRef != nil && ko.Spec.GatewayIdentifier != nil {
 		return ackerr.ResourceReferenceAndIDNotSupportedFor("GatewayIdentifier", "GatewayIdentifierRef")
@@ -109,6 +155,113 @@ func validateReferenceFields(ko *svcapitypes.GatewayTarget) error {
 				}
 			}
 		}
+	}
+
+	if ko.Spec.TargetConfiguration != nil {
+		if ko.Spec.TargetConfiguration.Mcp != nil {
+			if ko.Spec.TargetConfiguration.Mcp.Lambda != nil {
+				if ko.Spec.TargetConfiguration.Mcp.Lambda.LambdaRef != nil && ko.Spec.TargetConfiguration.Mcp.Lambda.LambdaARN != nil {
+					return ackerr.ResourceReferenceAndIDNotSupportedFor("TargetConfiguration.Mcp.Lambda.LambdaARN", "TargetConfiguration.Mcp.Lambda.LambdaRef")
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// resolveReferenceForCredentialProviderConfigurations_CredentialProvider_APIKeyCredentialProvider_ProviderARN reads the resource referenced
+// from CredentialProviderConfigurations.CredentialProvider.APIKeyCredentialProvider.ProviderRef field and sets the CredentialProviderConfigurations.CredentialProvider.APIKeyCredentialProvider.ProviderARN
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForCredentialProviderConfigurations_CredentialProvider_APIKeyCredentialProvider_ProviderARN(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.GatewayTarget,
+) (hasReferences bool, err error) {
+	for f0idx, f0iter := range ko.Spec.CredentialProviderConfigurations {
+		if f0iter.CredentialProvider != nil {
+			if f0iter.CredentialProvider.APIKeyCredentialProvider != nil {
+				if f0iter.CredentialProvider.APIKeyCredentialProvider.ProviderRef != nil && f0iter.CredentialProvider.APIKeyCredentialProvider.ProviderRef.From != nil {
+					hasReferences = true
+					arr := f0iter.CredentialProvider.APIKeyCredentialProvider.ProviderRef.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: CredentialProviderConfigurations.CredentialProvider.APIKeyCredentialProvider.ProviderRef")
+					}
+					namespace, err := ackrt.ResolveCrossNamespaceReference(
+						ctx,
+						rm.cfg.EnableCrossNamespace,
+						&ko.Status.Conditions,
+						ackrt.CrossNamespaceRefKindResource,
+						ko.ObjectMeta.GetNamespace(),
+						arr.Namespace,
+						*arr.Name,
+					)
+					if err != nil {
+						return hasReferences, err
+					}
+					obj := &svcapitypes.APIKeyCredentialProvider{}
+					if err := getReferencedResourceState_APIKeyCredentialProvider(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					ko.Spec.CredentialProviderConfigurations[f0idx].CredentialProvider.APIKeyCredentialProvider.ProviderARN = (*string)(obj.Status.ACKResourceMetadata.ARN)
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_APIKeyCredentialProvider looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_APIKeyCredentialProvider(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *svcapitypes.APIKeyCredentialProvider,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"APIKeyCredentialProvider",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"APIKeyCredentialProvider",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"APIKeyCredentialProvider",
+			namespace, name)
+	}
+	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"APIKeyCredentialProvider",
+			namespace, name,
+			"Status.ACKResourceMetadata.ARN")
 	}
 	return nil
 }
@@ -297,6 +450,103 @@ func getReferencedResourceState_RestAPI(
 			"RestAPI",
 			namespace, name,
 			"Status.ID")
+	}
+	return nil
+}
+
+// resolveReferenceForTargetConfiguration_Mcp_Lambda_LambdaARN reads the resource referenced
+// from TargetConfiguration.Mcp.Lambda.LambdaRef field and sets the TargetConfiguration.Mcp.Lambda.LambdaARN
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForTargetConfiguration_Mcp_Lambda_LambdaARN(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.GatewayTarget,
+) (hasReferences bool, err error) {
+	if ko.Spec.TargetConfiguration != nil {
+		if ko.Spec.TargetConfiguration.Mcp != nil {
+			if ko.Spec.TargetConfiguration.Mcp.Lambda != nil {
+				if ko.Spec.TargetConfiguration.Mcp.Lambda.LambdaRef != nil && ko.Spec.TargetConfiguration.Mcp.Lambda.LambdaRef.From != nil {
+					hasReferences = true
+					arr := ko.Spec.TargetConfiguration.Mcp.Lambda.LambdaRef.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: TargetConfiguration.Mcp.Lambda.LambdaRef")
+					}
+					namespace, err := ackrt.ResolveCrossNamespaceReference(
+						ctx,
+						rm.cfg.EnableCrossNamespace,
+						&ko.Status.Conditions,
+						ackrt.CrossNamespaceRefKindResource,
+						ko.ObjectMeta.GetNamespace(),
+						arr.Namespace,
+						*arr.Name,
+					)
+					if err != nil {
+						return hasReferences, err
+					}
+					obj := &lambdaapitypes.Function{}
+					if err := getReferencedResourceState_Function(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					ko.Spec.TargetConfiguration.Mcp.Lambda.LambdaARN = (*string)(obj.Status.ACKResourceMetadata.ARN)
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_Function looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_Function(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *lambdaapitypes.Function,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"Function",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"Function",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"Function",
+			namespace, name)
+	}
+	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"Function",
+			namespace, name,
+			"Status.ACKResourceMetadata.ARN")
 	}
 	return nil
 }

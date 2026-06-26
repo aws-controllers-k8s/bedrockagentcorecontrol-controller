@@ -70,6 +70,20 @@ spec:
                               type: string
                             providerARN:
                               type: string
+                            providerRef:
+                              description: Reference field for ProviderARN
+                              properties:
+                                from:
+                                  description: |-
+                                    AWSResourceReference provides all the values necessary to reference another
+                                    k8s resource for finding the identifier(Id/ARN/Name)
+                                  properties:
+                                    name:
+                                      type: string
+                                    namespace:
+                                      type: string
+                                  type: object
+                              type: object
                           type: object
                         oauthCredentialProvider:
                           description: |-
@@ -221,6 +235,20 @@ spec:
                         properties:
                           lambdaARN:
                             type: string
+                          lambdaRef:
+                            description: Reference field for LambdaARN
+                            properties:
+                              from:
+                                description: |-
+                                  AWSResourceReference provides all the values necessary to reference another
+                                  k8s resource for finding the identifier(Id/ARN/Name)
+                                properties:
+                                  name:
+                                    type: string
+                                  namespace:
+                                    type: string
+                                type: object
+                            type: object
                           toolSchema:
                             description: |-
                               A tool schema for a gateway target. This structure defines the schema for
