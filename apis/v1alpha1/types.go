@@ -817,9 +817,12 @@ type OnlineEvaluationConfigSummary struct {
 // with Cedar's forbid-wins semantics ensuring that security restrictions are
 // never accidentally overridden.
 type Policy struct {
-	CreatedAt   *metav1.Time `json:"createdAt,omitempty"`
-	Description *string      `json:"description,omitempty"`
-	UpdatedAt   *metav1.Time `json:"updatedAt,omitempty"`
+	CreatedAt      *metav1.Time `json:"createdAt,omitempty"`
+	Description    *string      `json:"description,omitempty"`
+	PolicyEngineID *string      `json:"policyEngineID,omitempty"`
+	PolicyID       *string      `json:"policyID,omitempty"`
+	StatusReasons  []*string    `json:"statusReasons,omitempty"`
+	UpdatedAt      *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Represents a policy engine resource within the AgentCore Policy system. Policy
@@ -833,10 +836,15 @@ type Policy struct {
 // modes that can be configured when associating with a Gateway: log-only mode
 // for testing (evaluates decisions without blocking) and enforce mode for production
 // (actively allows or denies based on policy evaluation).
-type PolicyEngine struct {
+type PolicyEngine_SDK struct {
 	CreatedAt        *metav1.Time `json:"createdAt,omitempty"`
 	Description      *string      `json:"description,omitempty"`
 	EncryptionKeyARN *string      `json:"encryptionKeyARN,omitempty"`
+	Name             *string      `json:"name,omitempty"`
+	PolicyEngineARN  *string      `json:"policyEngineARN,omitempty"`
+	PolicyEngineID   *string      `json:"policyEngineID,omitempty"`
+	Status           *string      `json:"status,omitempty"`
+	StatusReasons    []*string    `json:"statusReasons,omitempty"`
 	UpdatedAt        *metav1.Time `json:"updatedAt,omitempty"`
 }
 
@@ -851,9 +859,31 @@ type PolicyEngine struct {
 // assets remain available for one week after successful generation, allowing
 // time to review and create policies from the generated options.
 type PolicyGeneration struct {
-	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
-	Findings  *string      `json:"findings,omitempty"`
-	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+	CreatedAt          *metav1.Time `json:"createdAt,omitempty"`
+	Findings           *string      `json:"findings,omitempty"`
+	PolicyEngineID     *string      `json:"policyEngineID,omitempty"`
+	PolicyGenerationID *string      `json:"policyGenerationID,omitempty"`
+	StatusReasons      []*string    `json:"statusReasons,omitempty"`
+	UpdatedAt          *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Represents a generated policy asset from the AI-powered policy generation
+// process within the AgentCore Policy system. Each asset contains a Cedar policy
+// statement generated from natural language input, along with associated metadata
+// and analysis findings to help users evaluate and select the most appropriate
+// policy option.
+type PolicyGenerationAsset struct {
+	PolicyGenerationAssetID *string `json:"policyGenerationAssetID,omitempty"`
+}
+
+// Represents the information identifying a generated policy asset from the
+// AI-powered policy generation process within the AgentCore Policy system.
+// Each asset contains a Cedar policy statement generated from natural language
+// input, along with associated metadata and analysis findings to help users
+// evaluate and select the most appropriate policy option.
+type PolicyGenerationDetails struct {
+	PolicyGenerationAssetID *string `json:"policyGenerationAssetID,omitempty"`
+	PolicyGenerationID      *string `json:"policyGenerationID,omitempty"`
 }
 
 // The protocol configuration for an agent runtime. This structure defines how

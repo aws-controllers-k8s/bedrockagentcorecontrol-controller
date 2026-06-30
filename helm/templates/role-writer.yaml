@@ -25,6 +25,7 @@ rules:
   - gateways
   - gatewaytargets
   - memories
+  - policyengines
   - workloadidentities
   verbs:
   - create
@@ -46,6 +47,7 @@ rules:
   - gateways
   - gatewaytargets
   - memories
+  - policyengines
   - workloadidentities
   verbs:
   - get

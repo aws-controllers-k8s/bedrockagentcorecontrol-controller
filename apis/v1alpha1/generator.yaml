@@ -13,7 +13,7 @@ ignore:
     - Oauth2CredentialProvider
     - OnlineEvaluationConfig
     - Policy
-    - PolicyEngine
+    # - PolicyEngine
     # - WorkloadIdentity
 
   field_paths:
@@ -177,6 +177,87 @@ resources:
         template_path: hooks/memory/sdk_update_pre_build_request.go.tpl
       sdk_update_post_build_request:
         template_path: hooks/memory/sdk_update_post_build_request.go.tpl
+
+  PolicyEngine:
+    ignore_idempotency_token: true
+    renames:
+      operations:
+        CreatePolicyEngine:
+          output_fields:
+            PolicyEngineId: ID
+        GetPolicyEngine:
+          input_fields:
+            PolicyEngineId: ID
+        UpdatePolicyEngine:
+          input_fields:
+            PolicyEngineId: ID
+        DeletePolicyEngine:
+          input_fields:
+            PolicyEngineId: ID
+    fields:
+      ID:
+        is_primary_key: true
+      Name:
+        is_immutable: true
+      EncryptionKeyArn:
+        is_immutable: true
+        references:
+          resource: Key
+          service_name: kms
+          path: Status.ACKResourceMetadata.ARN
+      Description:
+        set:
+          - method: Update
+            ignore: "to"
+      CreatedAt:
+        is_read_only: true
+        from:
+          operation: GetPolicyEngine
+          path: CreatedAt
+      UpdatedAt:
+        is_read_only: true
+        from:
+          operation: GetPolicyEngine
+          path: UpdatedAt
+      StatusReasons:
+        is_read_only: true
+        from:
+          operation: GetPolicyEngine
+          path: StatusReasons
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+            - CREATE_FAILED
+            - UPDATE_FAILED
+            - DELETE_FAILED
+    updateable:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+            - CREATE_FAILED
+            - UPDATE_FAILED
+            - DELETE_FAILED
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
+    hooks:
+      sdk_read_one_post_set_output:
+        template_path: hooks/policy_engine/sdk_read_one_post_set_output.go.tpl
+      sdk_update_pre_build_request:
+        template_path: hooks/policy_engine/sdk_update_pre_build_request.go.tpl
+      sdk_update_post_build_request:
+        template_path: hooks/policy_engine/sdk_update_post_build_request.go.tpl
 
   WorkloadIdentity:
     fields:

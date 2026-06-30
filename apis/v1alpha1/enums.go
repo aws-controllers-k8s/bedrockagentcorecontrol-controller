@@ -353,16 +353,16 @@ const (
 	OverrideType_USER_PREFERENCE_OVERRIDE OverrideType = "USER_PREFERENCE_OVERRIDE"
 )
 
-type PolicyEngineStatus string
+type PolicyEngineStatus_SDK string
 
 const (
-	PolicyEngineStatus_ACTIVE        PolicyEngineStatus = "ACTIVE"
-	PolicyEngineStatus_CREATE_FAILED PolicyEngineStatus = "CREATE_FAILED"
-	PolicyEngineStatus_CREATING      PolicyEngineStatus = "CREATING"
-	PolicyEngineStatus_DELETE_FAILED PolicyEngineStatus = "DELETE_FAILED"
-	PolicyEngineStatus_DELETING      PolicyEngineStatus = "DELETING"
-	PolicyEngineStatus_UPDATE_FAILED PolicyEngineStatus = "UPDATE_FAILED"
-	PolicyEngineStatus_UPDATING      PolicyEngineStatus = "UPDATING"
+	PolicyEngineStatus_SDK_ACTIVE        PolicyEngineStatus_SDK = "ACTIVE"
+	PolicyEngineStatus_SDK_CREATE_FAILED PolicyEngineStatus_SDK = "CREATE_FAILED"
+	PolicyEngineStatus_SDK_CREATING      PolicyEngineStatus_SDK = "CREATING"
+	PolicyEngineStatus_SDK_DELETE_FAILED PolicyEngineStatus_SDK = "DELETE_FAILED"
+	PolicyEngineStatus_SDK_DELETING      PolicyEngineStatus_SDK = "DELETING"
+	PolicyEngineStatus_SDK_UPDATE_FAILED PolicyEngineStatus_SDK = "UPDATE_FAILED"
+	PolicyEngineStatus_SDK_UPDATING      PolicyEngineStatus_SDK = "UPDATING"
 )
 
 type PolicyGenerationStatus string
