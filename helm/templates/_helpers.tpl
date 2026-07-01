@@ -89,6 +89,7 @@ rules:
   - gateways
   - gatewaytargets
   - memories
+  - policies
   - policyengines
   - workloadidentities
   verbs:
@@ -111,6 +112,7 @@ rules:
   - gateways/status
   - gatewaytargets/status
   - memories/status
+  - policies/status
   - policyengines/status
   - workloadidentities/status
   verbs:

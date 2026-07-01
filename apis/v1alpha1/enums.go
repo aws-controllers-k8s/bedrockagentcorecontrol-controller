@@ -374,16 +374,16 @@ const (
 	PolicyGenerationStatus_GENERATING      PolicyGenerationStatus = "GENERATING"
 )
 
-type PolicyStatus string
+type PolicyStatus_SDK string
 
 const (
-	PolicyStatus_ACTIVE        PolicyStatus = "ACTIVE"
-	PolicyStatus_CREATE_FAILED PolicyStatus = "CREATE_FAILED"
-	PolicyStatus_CREATING      PolicyStatus = "CREATING"
-	PolicyStatus_DELETE_FAILED PolicyStatus = "DELETE_FAILED"
-	PolicyStatus_DELETING      PolicyStatus = "DELETING"
-	PolicyStatus_UPDATE_FAILED PolicyStatus = "UPDATE_FAILED"
-	PolicyStatus_UPDATING      PolicyStatus = "UPDATING"
+	PolicyStatus_SDK_ACTIVE        PolicyStatus_SDK = "ACTIVE"
+	PolicyStatus_SDK_CREATE_FAILED PolicyStatus_SDK = "CREATE_FAILED"
+	PolicyStatus_SDK_CREATING      PolicyStatus_SDK = "CREATING"
+	PolicyStatus_SDK_DELETE_FAILED PolicyStatus_SDK = "DELETE_FAILED"
+	PolicyStatus_SDK_DELETING      PolicyStatus_SDK = "DELETING"
+	PolicyStatus_SDK_UPDATE_FAILED PolicyStatus_SDK = "UPDATE_FAILED"
+	PolicyStatus_SDK_UPDATING      PolicyStatus_SDK = "UPDATING"
 )
 
 type PolicyValidationMode string

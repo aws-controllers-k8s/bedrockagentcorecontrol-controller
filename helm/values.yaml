@@ -159,6 +159,7 @@ reconcile:
     - Gateway
     - GatewayTarget
     - Memory
+    - Policy
     - PolicyEngine
     - WorkloadIdentity
 

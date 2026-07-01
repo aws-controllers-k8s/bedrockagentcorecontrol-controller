@@ -200,6 +200,14 @@ type CategoricalScaleDefinition struct {
 	Label      *string `json:"label,omitempty"`
 }
 
+// Represents a Cedar policy statement within the AgentCore Policy system. Cedar
+// is a policy language designed for authorization that provides human-readable,
+// analyzable, and high-performance policy evaluation for controlling agent
+// behavior and access decisions.
+type CedarPolicy struct {
+	Statement *string `json:"statement,omitempty"`
+}
+
 // A certificate to install in the browser or code interpreter.
 type Certificate struct {
 	// The location from which to retrieve a certificate.
@@ -805,24 +813,15 @@ type OnlineEvaluationConfigSummary struct {
 	UpdatedAt     *metav1.Time `json:"updatedAt,omitempty"`
 }
 
-// Represents a complete policy resource within the AgentCore Policy system.
-// Policies are ARN-able resources that contain Cedar policy statements and
-// associated metadata for controlling agent behavior and access decisions.
-// Each policy belongs to a policy engine and defines fine-grained authorization
-// rules that are evaluated in real-time as agents interact with tools through
-// Gateway. Policies use the Cedar policy language to specify who (principals
-// based on OAuth claims like username, role, or scope) can perform what actions
-// (tool calls) on which resources (Gateways), with optional conditions for
-// attribute-based access control. Multiple policies can apply to a single request,
-// with Cedar's forbid-wins semantics ensuring that security restrictions are
-// never accidentally overridden.
-type Policy struct {
-	CreatedAt      *metav1.Time `json:"createdAt,omitempty"`
-	Description    *string      `json:"description,omitempty"`
-	PolicyEngineID *string      `json:"policyEngineID,omitempty"`
-	PolicyID       *string      `json:"policyID,omitempty"`
-	StatusReasons  []*string    `json:"statusReasons,omitempty"`
-	UpdatedAt      *metav1.Time `json:"updatedAt,omitempty"`
+// Represents the definition structure for policies within the AgentCore Policy
+// system. This structure encapsulates different policy formats and languages
+// that can be used to define access control rules.
+type PolicyDefinition struct {
+	// Represents a Cedar policy statement within the AgentCore Policy system. Cedar
+	// is a policy language designed for authorization that provides human-readable,
+	// analyzable, and high-performance policy evaluation for controlling agent
+	// behavior and access decisions.
+	Cedar *CedarPolicy `json:"cedar,omitempty"`
 }
 
 // Represents a policy engine resource within the AgentCore Policy system. Policy
@@ -873,7 +872,11 @@ type PolicyGeneration struct {
 // and analysis findings to help users evaluate and select the most appropriate
 // policy option.
 type PolicyGenerationAsset struct {
-	PolicyGenerationAssetID *string `json:"policyGenerationAssetID,omitempty"`
+	// Represents the definition structure for policies within the AgentCore Policy
+	// system. This structure encapsulates different policy formats and languages
+	// that can be used to define access control rules.
+	Definition              *PolicyDefinition `json:"definition,omitempty"`
+	PolicyGenerationAssetID *string           `json:"policyGenerationAssetID,omitempty"`
 }
 
 // Represents the information identifying a generated policy asset from the
@@ -884,6 +887,33 @@ type PolicyGenerationAsset struct {
 type PolicyGenerationDetails struct {
 	PolicyGenerationAssetID *string `json:"policyGenerationAssetID,omitempty"`
 	PolicyGenerationID      *string `json:"policyGenerationID,omitempty"`
+}
+
+// Represents a complete policy resource within the AgentCore Policy system.
+// Policies are ARN-able resources that contain Cedar policy statements and
+// associated metadata for controlling agent behavior and access decisions.
+// Each policy belongs to a policy engine and defines fine-grained authorization
+// rules that are evaluated in real-time as agents interact with tools through
+// Gateway. Policies use the Cedar policy language to specify who (principals
+// based on OAuth claims like username, role, or scope) can perform what actions
+// (tool calls) on which resources (Gateways), with optional conditions for
+// attribute-based access control. Multiple policies can apply to a single request,
+// with Cedar's forbid-wins semantics ensuring that security restrictions are
+// never accidentally overridden.
+type Policy_SDK struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	// Represents the definition structure for policies within the AgentCore Policy
+	// system. This structure encapsulates different policy formats and languages
+	// that can be used to define access control rules.
+	Definition     *PolicyDefinition `json:"definition,omitempty"`
+	Description    *string           `json:"description,omitempty"`
+	Name           *string           `json:"name,omitempty"`
+	PolicyARN      *string           `json:"policyARN,omitempty"`
+	PolicyEngineID *string           `json:"policyEngineID,omitempty"`
+	PolicyID       *string           `json:"policyID,omitempty"`
+	Status         *string           `json:"status,omitempty"`
+	StatusReasons  []*string         `json:"statusReasons,omitempty"`
+	UpdatedAt      *metav1.Time      `json:"updatedAt,omitempty"`
 }
 
 // The protocol configuration for an agent runtime. This structure defines how
@@ -905,6 +935,13 @@ type RecordingConfig struct {
 // runtime.
 type RequestHeaderConfiguration struct {
 	RequestHeaderAllowlist []*string `json:"requestHeaderAllowlist,omitempty"`
+}
+
+// Represents a resource within the AgentCore Policy system. Resources are the
+// targets of policy evaluation. Currently, only AgentCore Gateways are supported
+// as resources for policy enforcement.
+type Resource struct {
+	ARN *string `json:"arn,omitempty"`
 }
 
 // The location of a resource.
