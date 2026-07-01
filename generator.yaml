@@ -211,6 +211,10 @@ resources:
         set:
           - method: Update
             ignore: "to"
+      # ValidationMode is a per-operation directive for Create/UpdatePolicy (how the
+      # Cedar analyzer treats findings), not observable state — the API never
+      # returns it. Ignored in the comparison since it isn't converged state; it is
+      # still sent on updates triggered by a real Definition/Description change.
       ValidationMode:
         compare:
           is_ignored: true
