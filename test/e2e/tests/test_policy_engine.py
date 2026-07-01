@@ -16,9 +16,6 @@
 
 import pytest
 import time
-import logging
-
-from botocore.exceptions import ClientError
 
 from acktest.k8s import resource as k8s
 from acktest.resources import random_suffix_name
@@ -65,15 +62,6 @@ def simple_policy_engine():
         assert deleted
     except:
         pass
-
-
-def _tags_supported(client, arn):
-    """Check whether ListTagsForResource is supported for PolicyEngine."""
-    try:
-        client.list_tags_for_resource(resourceArn=arn)
-        return True
-    except ClientError:
-        return False
 
 
 @service_marker
@@ -129,13 +117,6 @@ class TestPolicyEngine:
 
         cr = k8s.get_resource(ref)
         policy_engine_arn = cr["status"]["ackResourceMetadata"]["arn"]
-
-        # Skip tag tests if ListTagsForResource is not supported for PolicyEngine
-        if not _tags_supported(bedrockagentcorecontrol_client, policy_engine_arn):
-            logging.warning(
-                "ListTagsForResource not supported for PolicyEngine; skipping tag test"
-            )
-            pytest.skip("Tags not supported for PolicyEngine resource type")
 
         # Add tags
         updates = {

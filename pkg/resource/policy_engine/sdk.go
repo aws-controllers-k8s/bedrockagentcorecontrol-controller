@@ -143,14 +143,9 @@ func (rm *resourceManager) sdkFind(
 	rm.setStatusDefaults(ko)
 	tags, err := rm.getTags(ctx, string(*ko.Status.ACKResourceMetadata.ARN))
 	if err != nil {
-		// ListTagsForResource may not be supported for PolicyEngine resources.
-		// Log the error but do not fail the read — the resource should still
-		// reconcile even if tag fetching is unavailable.
-		rlog.Info("unable to retrieve tags for resource, skipping", "error", err)
-		err = nil
-	} else {
-		ko.Spec.Tags = tags
+		return nil, err
 	}
+	ko.Spec.Tags = tags
 
 	return &resource{ko}, nil
 }
@@ -298,9 +293,7 @@ func (rm *resourceManager) sdkUpdate(
 	}()
 	if delta.DifferentAt("Spec.Tags") {
 		if err := rm.syncTags(ctx, desired, latest); err != nil {
-			// TagResource/UntagResource may not be supported for PolicyEngine
-			// resources. Log the error but do not fail the update.
-			rlog.Info("unable to sync tags for resource, skipping", "error", err)
+			return nil, err
 		}
 	}
 	if !delta.DifferentExcept("Spec.Tags") {
