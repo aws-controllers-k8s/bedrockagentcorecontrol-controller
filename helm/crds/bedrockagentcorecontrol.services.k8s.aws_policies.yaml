@@ -79,6 +79,12 @@ spec:
                   for maintenance. Clear descriptions are essential for policy governance,
                   auditing, and troubleshooting.
                 type: string
+              enforcementMode:
+                description: |-
+                  The enforcement mode for the policy. Run this policy in LOG_ONLY mode to
+                  collect data on how it affects your application. Once you are satisfied with
+                  the data gathered, switch the policy to ACTIVE. Defaults to ACTIVE.
+                type: string
               name:
                 description: |-
                   The customer-assigned immutable name for the policy. Must be unique within

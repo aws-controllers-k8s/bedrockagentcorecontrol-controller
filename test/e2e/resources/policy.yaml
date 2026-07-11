@@ -8,6 +8,7 @@ spec:
   policyEngineID: $POLICY_ENGINE_ID
   description: "ACK e2e test policy"
   validationMode: IGNORE_ALL_FINDINGS
+  enforcementMode: LOG_ONLY
   definition:
     cedar:
       statement: "permit(principal, action, resource is AgentCore::Gateway);"

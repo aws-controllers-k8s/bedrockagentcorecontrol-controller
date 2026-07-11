@@ -115,6 +115,21 @@ type AgentRuntime_SDK struct {
 	Status              *string      `json:"status,omitempty"`
 }
 
+// Configuration for the registry record approval workflow. Controls whether
+// records added to the registry require explicit approval before becoming active.
+type ApprovalConfiguration struct {
+	AutoApproval *bool `json:"autoApproval,omitempty"`
+}
+
+// Contains the authorization data that is returned when a gateway target is
+// configured with a credential provider with authorization code grant type
+// and requires user federation.
+type AuthorizationData struct {
+	// OAuth2-specific authorization data, including the authorization URL and user
+	// identifier for the authorization session.
+	Oauth2 *OAuth2AuthorizationData `json:"oauth2,omitempty"`
+}
+
 // Represents inbound authorization configuration options used to authenticate
 // incoming requests.
 type AuthorizerConfiguration struct {
@@ -273,6 +288,43 @@ type CodeInterpreterSummary struct {
 	Status             *string      `json:"status,omitempty"`
 }
 
+// Coinbase CDP configuration output with secret ARNs.
+type CoinbaseCdpConfigurationOutput struct {
+	// Contains information about a secret in Amazon Web Services Secrets Manager.
+	APIKeySecretARN *Secret `json:"apiKeySecretARN,omitempty"`
+	// Contains information about a secret in Amazon Web Services Secrets Manager.
+	WalletSecretARN *Secret `json:"walletSecretARN,omitempty"`
+}
+
+// A reference to a specific version of a configuration bundle.
+type ConfigurationBundleReference struct {
+	BundleVersion *string `json:"bundleVersion,omitempty"`
+}
+
+// Summary information about a configuration bundle.
+type ConfigurationBundleSummary struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+}
+
+// Summary information about a configuration bundle version.
+type ConfigurationBundleVersionSummary struct {
+	VersionCreatedAt *metav1.Time `json:"versionCreatedAt,omitempty"`
+}
+
+// Configuration for a single tool within a connector.
+type ConnectorConfiguration struct {
+	Description *string `json:"description,omitempty"`
+	Name        *string `json:"name,omitempty"`
+}
+
+// Specifies a parameter override for a connector tool, allowing you to control
+// parameter visibility and descriptions.
+type ConnectorParameterOverride struct {
+	Description *string `json:"description,omitempty"`
+	Path        *string `json:"path,omitempty"`
+	Visible     *bool   `json:"visible,omitempty"`
+}
+
 // Representation of a container configuration.
 type ContainerConfiguration struct {
 	ContainerURI *string `json:"containerURI,omitempty"`
@@ -380,9 +432,28 @@ type CustomReflectionConfigurationInput struct {
 	EpisodicReflectionOverride *EpisodicOverrideReflectionConfigurationInput `json:"episodicReflectionOverride,omitempty"`
 }
 
+// Summary information about a dataset.
+type DatasetSummary struct {
+	CreatedAt   *metav1.Time `json:"createdAt,omitempty"`
+	Description *string      `json:"description,omitempty"`
+	UpdatedAt   *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Summary information about a published dataset version.
+type DatasetVersionSummary struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+}
+
 // Input for deleting a memory strategy.
 type DeleteMemoryStrategyInput struct {
 	MemoryStrategyID *string `json:"memoryStrategyID,omitempty"`
+}
+
+// Configuration for an Amazon EFS access point filesystem mounted into the
+// AgentCore Runtime. EFS access points provide shared file storage accessible
+// from your AgentCore Runtime sessions.
+type EFSAccessPointConfiguration struct {
+	MountPath *string `json:"mountPath,omitempty"`
 }
 
 // Contains configurations to override the default consolidation step for the
@@ -470,6 +541,7 @@ type EpisodicReflectionOverride struct {
 // status information.
 type EvaluatorSummary struct {
 	CreatedAt             *metav1.Time `json:"createdAt,omitempty"`
+	KMSKeyARN             *string      `json:"kmsKeyARN,omitempty"`
 	LockedForModification *bool        `json:"lockedForModification,omitempty"`
 	UpdatedAt             *metav1.Time `json:"updatedAt,omitempty"`
 }
@@ -548,6 +620,13 @@ type GatewayProtocolConfiguration struct {
 	Mcp *MCPGatewayConfiguration `json:"mcp,omitempty"`
 }
 
+// Detailed information about a gateway rule.
+type GatewayRuleDetail struct {
+	CreatedAt  *metav1.Time `json:"createdAt,omitempty"`
+	GatewayARN *string      `json:"gatewayARN,omitempty"`
+	UpdatedAt  *metav1.Time `json:"updatedAt,omitempty"`
+}
+
 // Contains summary information about a gateway.
 type GatewaySummary struct {
 	AuthorizerType *string      `json:"authorizerType,omitempty"`
@@ -562,6 +641,10 @@ type GatewaySummary struct {
 
 // The gateway target.
 type GatewayTarget_SDK struct {
+	// Contains the authorization data that is returned when a gateway target is
+	// configured with a credential provider with authorization code grant type
+	// and requires user federation.
+	AuthorizationData                *AuthorizationData                 `json:"authorizationData,omitempty"`
 	CreatedAt                        *metav1.Time                       `json:"createdAt,omitempty"`
 	CredentialProviderConfigurations []*CredentialProviderConfiguration `json:"credentialProviderConfigurations,omitempty"`
 	Description                      *string                            `json:"description,omitempty"`
@@ -578,6 +661,151 @@ type GatewayTarget_SDK struct {
 	TargetConfiguration *TargetConfiguration `json:"targetConfiguration,omitempty"`
 	TargetID            *string              `json:"targetID,omitempty"`
 	UpdatedAt           *metav1.Time         `json:"updatedAt,omitempty"`
+}
+
+// The API schema configuration for an HTTP target. This schema defines the
+// API structure that the target exposes.
+type HTTPAPISchemaConfiguration struct {
+	// Configuration for API schema.
+	Source *APISchemaConfiguration `json:"source,omitempty"`
+}
+
+// Representation of a harness.
+type Harness struct {
+	// Represents inbound authorization configuration options used to authenticate
+	// incoming requests.
+	AuthorizerConfiguration *AuthorizerConfiguration `json:"authorizerConfiguration,omitempty"`
+	CreatedAt               *metav1.Time             `json:"createdAt,omitempty"`
+	EnvironmentVariables    map[string]*string       `json:"environmentVariables,omitempty"`
+	ExecutionRoleARN        *string                  `json:"executionRoleARN,omitempty"`
+	FailureReason           *string                  `json:"failureReason,omitempty"`
+	MaxIterations           *int64                   `json:"maxIterations,omitempty"`
+	MaxTokens               *int64                   `json:"maxTokens,omitempty"`
+	TimeoutSeconds          *int64                   `json:"timeoutSeconds,omitempty"`
+	UpdatedAt               *metav1.Time             `json:"updatedAt,omitempty"`
+}
+
+// Configuration for AgentCore Gateway.
+type HarnessAgentCoreGatewayConfig struct {
+	GatewayARN *string `json:"gatewayARN,omitempty"`
+}
+
+// Configuration for AgentCore Memory integration.
+type HarnessAgentCoreMemoryConfiguration struct {
+	ActorID       *string `json:"actorID,omitempty"`
+	ARN           *string `json:"arn,omitempty"`
+	MessagesCount *int64  `json:"messagesCount,omitempty"`
+}
+
+// Configuration for memory retrieval within a namespace.
+type HarnessAgentCoreMemoryRetrievalConfig struct {
+	StrategyID *string `json:"strategyID,omitempty"`
+	TopK       *int64  `json:"topK,omitempty"`
+}
+
+// The AgentCore Runtime environment for a harness.
+type HarnessAgentCoreRuntimeEnvironment struct {
+	AgentRuntimeARN          *string                    `json:"agentRuntimeARN,omitempty"`
+	AgentRuntimeID           *string                    `json:"agentRuntimeID,omitempty"`
+	AgentRuntimeName         *string                    `json:"agentRuntimeName,omitempty"`
+	FilesystemConfigurations []*FilesystemConfiguration `json:"filesystemConfigurations,omitempty"`
+	// LifecycleConfiguration lets you manage the lifecycle of runtime sessions
+	// and resources in AgentCore Runtime. This configuration helps optimize resource
+	// utilization by automatically cleaning up idle sessions and preventing long-running
+	// instances from consuming resources indefinitely.
+	LifecycleConfiguration *LifecycleConfiguration `json:"lifecycleConfiguration,omitempty"`
+	// SecurityConfig for the Agent.
+	NetworkConfiguration *NetworkConfiguration `json:"networkConfiguration,omitempty"`
+}
+
+// The AgentCore Runtime environment request configuration.
+type HarnessAgentCoreRuntimeEnvironmentRequest struct {
+	FilesystemConfigurations []*FilesystemConfiguration `json:"filesystemConfigurations,omitempty"`
+	// LifecycleConfiguration lets you manage the lifecycle of runtime sessions
+	// and resources in AgentCore Runtime. This configuration helps optimize resource
+	// utilization by automatically cleaning up idle sessions and preventing long-running
+	// instances from consuming resources indefinitely.
+	LifecycleConfiguration *LifecycleConfiguration `json:"lifecycleConfiguration,omitempty"`
+	// SecurityConfig for the Agent.
+	NetworkConfiguration *NetworkConfiguration `json:"networkConfiguration,omitempty"`
+}
+
+// Representation of a harness endpoint. An endpoint is a named, stable reference
+// to a specific version of a harness that callers invoke, allowing the underlying
+// version to be updated without changing how the agent is invoked.
+type HarnessEndpoint struct {
+	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
+	FailureReason *string      `json:"failureReason,omitempty"`
+	UpdatedAt     *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// The environment artifact for a harness, such as a container image containing
+// custom dependencies.
+type HarnessEnvironmentArtifact struct {
+	// Representation of a container configuration.
+	ContainerConfiguration *ContainerConfiguration `json:"containerConfiguration,omitempty"`
+}
+
+// Authentication method for calling a Gateway.
+type HarnessGatewayOutboundAuth struct {
+	// An OAuth credential provider for gateway authentication. This structure contains
+	// the configuration for authenticating with the target endpoint using OAuth.
+	Oauth *OAuthCredentialProvider `json:"oauth,omitempty"`
+}
+
+// Configuration for managed memory creation.
+type HarnessManagedMemoryConfiguration struct {
+	ARN                 *string `json:"arn,omitempty"`
+	EncryptionKeyARN    *string `json:"encryptionKeyARN,omitempty"`
+	EventExpiryDuration *int64  `json:"eventExpiryDuration,omitempty"`
+}
+
+// Authentication configuration for accessing a private git repository.
+type HarnessSkillGitAuth struct {
+	Username *string `json:"username,omitempty"`
+}
+
+// A git repository source for a skill.
+type HarnessSkillGitSource struct {
+	Path *string `json:"path,omitempty"`
+}
+
+// Configuration for sliding window truncation strategy.
+type HarnessSlidingWindowConfiguration struct {
+	MessagesCount *int64 `json:"messagesCount,omitempty"`
+}
+
+// Configuration for summarization-based truncation strategy.
+type HarnessSummarizationConfiguration struct {
+	PreserveRecentMessages    *int64  `json:"preserveRecentMessages,omitempty"`
+	SummarizationSystemPrompt *string `json:"summarizationSystemPrompt,omitempty"`
+}
+
+// Summary information about a harness.
+type HarnessSummary struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Summary information about a single version of a harness.
+type HarnessVersionSummary struct {
+	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
+	FailureReason *string      `json:"failureReason,omitempty"`
+	UpdatedAt     *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// A hosting environment whose workloads are allowed to invoke the target. At
+// launch, the only supported hosting environment is AgentCore Gateway.
+type HostingEnvironment struct {
+	ARN *string `json:"arn,omitempty"`
+}
+
+// An IAM credential provider for gateway authentication. This structure contains
+// the configuration for authenticating with the target endpoint using IAM credentials
+// and SigV4 signing.
+type IAMCredentialProvider struct {
+	Region  *string `json:"region,omitempty"`
+	Service *string `json:"service,omitempty"`
 }
 
 // The configuration parameters that control how the foundation model behaves
@@ -622,8 +850,19 @@ type KinesisResource struct {
 	DataStreamARN         *string                 `json:"dataStreamARN,omitempty"`
 }
 
+// Configuration for a Lambda function used as a code-based evaluator.
+type LambdaEvaluatorConfig struct {
+	LambdaTimeoutInSeconds *int64 `json:"lambdaTimeoutInSeconds,omitempty"`
+}
+
 // The lambda configuration for the interceptor
 type LambdaInterceptorConfiguration struct {
+	ARN *string `json:"arn,omitempty"`
+}
+
+// The Lambda configuration for custom transformations. This structure defines
+// the Lambda function that the gateway invokes to transform data.
+type LambdaTransformConfiguration struct {
 	ARN *string `json:"arn,omitempty"`
 }
 
@@ -642,6 +881,13 @@ type MCPGatewayConfiguration struct {
 	Instructions      *string   `json:"instructions,omitempty"`
 	SearchType        *string   `json:"searchType,omitempty"`
 	SupportedVersions []*string `json:"supportedVersions,omitempty"`
+}
+
+// Configuration for a managed VPC Lattice resource. The gateway creates and
+// manages the VPC Lattice resource gateway and resource configuration on your
+// behalf using a service-linked role.
+type ManagedVPCResource struct {
+	Tags map[string]*string `json:"tags,omitempty"`
 }
 
 // The Lambda configuration for a Model Context Protocol target. This structure
@@ -674,6 +920,15 @@ type McpTargetConfiguration struct {
 	SmithyModel *APISchemaConfiguration `json:"smithyModel,omitempty"`
 }
 
+// The MCP tool schema configuration for an MCP server target. The tool schema
+// must be aligned with the MCP specification.
+type McpToolSchemaConfiguration struct {
+	InlinePayload *string `json:"inlinePayload,omitempty"`
+	// The Amazon S3 configuration for a gateway. This structure defines how the
+	// gateway accesses files in Amazon S3.
+	S3 *S3Configuration `json:"s3,omitempty"`
+}
+
 // Contains information about a memory strategy.
 type MemoryStrategy struct {
 	CreatedAt  *metav1.Time `json:"createdAt,omitempty"`
@@ -700,11 +955,12 @@ type MemoryStrategyInput struct {
 
 // Contains summary information about a memory resource.
 type MemorySummary struct {
-	ARN       *string      `json:"arn,omitempty"`
-	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
-	ID        *string      `json:"id,omitempty"`
-	Status    *string      `json:"status,omitempty"`
-	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+	ARN                  *string      `json:"arn,omitempty"`
+	CreatedAt            *metav1.Time `json:"createdAt,omitempty"`
+	ID                   *string      `json:"id,omitempty"`
+	ManagedByResourceARN *string      `json:"managedByResourceARN,omitempty"`
+	Status               *string      `json:"status,omitempty"`
+	UpdatedAt            *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Contains information about a memory resource.
@@ -788,6 +1044,13 @@ type NumericalScaleDefinition struct {
 	Label      *string `json:"label,omitempty"`
 }
 
+// OAuth2-specific authorization data, including the authorization URL and user
+// identifier for the authorization session.
+type OAuth2AuthorizationData struct {
+	AuthorizationURL *string `json:"authorizationURL,omitempty"`
+	UserID           *string `json:"userID,omitempty"`
+}
+
 // An OAuth credential provider for gateway authentication. This structure contains
 // the configuration for authenticating with the target endpoint using OAuth.
 type OAuthCredentialProvider struct {
@@ -813,6 +1076,25 @@ type OnlineEvaluationConfigSummary struct {
 	UpdatedAt     *metav1.Time `json:"updatedAt,omitempty"`
 }
 
+// Contains summary information about a payment connector.
+type PaymentConnectorSummary struct {
+	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+}
+
+// Contains summary information about a payment credential provider.
+type PaymentCredentialProviderItem struct {
+	CreatedTime     *metav1.Time `json:"createdTime,omitempty"`
+	LastUpdatedTime *metav1.Time `json:"lastUpdatedTime,omitempty"`
+	Name            *string      `json:"name,omitempty"`
+}
+
+// Contains summary information about a payment manager.
+type PaymentManagerSummary struct {
+	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
+	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	RoleARN       *string      `json:"roleARN,omitempty"`
+}
+
 // Represents the definition structure for policies within the AgentCore Policy
 // system. This structure encapsulates different policy formats and languages
 // that can be used to define access control rules.
@@ -822,6 +1104,20 @@ type PolicyDefinition struct {
 	// analyzable, and high-performance policy evaluation for controlling agent
 	// behavior and access decisions.
 	Cedar *CedarPolicy `json:"cedar,omitempty"`
+}
+
+// Represents a metadata-only summary of a policy engine resource. This structure
+// contains resource identifiers, status, and timestamps without customer-encrypted
+// fields such as description or status reasons. Policy engine summaries are
+// returned by operations that do not require access to the customer's KMS key.
+type PolicyEngineSummary struct {
+	CreatedAt        *metav1.Time `json:"createdAt,omitempty"`
+	EncryptionKeyARN *string      `json:"encryptionKeyARN,omitempty"`
+	Name             *string      `json:"name,omitempty"`
+	PolicyEngineARN  *string      `json:"policyEngineARN,omitempty"`
+	PolicyEngineID   *string      `json:"policyEngineID,omitempty"`
+	Status           *string      `json:"status,omitempty"`
+	UpdatedAt        *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Represents a policy engine resource within the AgentCore Policy system. Policy
@@ -889,6 +1185,43 @@ type PolicyGenerationDetails struct {
 	PolicyGenerationID      *string `json:"policyGenerationID,omitempty"`
 }
 
+// Represents a metadata-only summary of a policy generation resource. This
+// structure contains resource identifiers, status, timestamps, and findings
+// without customer-encrypted fields such as status reasons. Policy generation
+// summaries are returned by operations that do not require access to the customer's
+// KMS key.
+type PolicyGenerationSummary struct {
+	CreatedAt          *metav1.Time `json:"createdAt,omitempty"`
+	Findings           *string      `json:"findings,omitempty"`
+	PolicyEngineID     *string      `json:"policyEngineID,omitempty"`
+	PolicyGenerationID *string      `json:"policyGenerationID,omitempty"`
+	UpdatedAt          *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// An AgentCore policy statement, which supports plain Cedar policies as well
+// as guardrails definitions.
+type PolicyStatement struct {
+	Statement *string `json:"statement,omitempty"`
+}
+
+// Represents a metadata-only summary of a policy resource. This structure contains
+// resource identifiers, status, and timestamps without customer-encrypted fields
+// such as definition, description, or status reasons. Policy summaries are
+// returned by operations that do not require access to the customer's KMS key.
+type PolicySummary struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	// The enforcement mode for a policy. Run this policy in LOG_ONLY mode to collect
+	// data on how it affects your application. Once you are satisfied with the
+	// data gathered, switch the policy to ACTIVE.
+	EnforcementMode *string      `json:"enforcementMode,omitempty"`
+	Name            *string      `json:"name,omitempty"`
+	PolicyARN       *string      `json:"policyARN,omitempty"`
+	PolicyEngineID  *string      `json:"policyEngineID,omitempty"`
+	PolicyID        *string      `json:"policyID,omitempty"`
+	Status          *string      `json:"status,omitempty"`
+	UpdatedAt       *metav1.Time `json:"updatedAt,omitempty"`
+}
+
 // Represents a complete policy resource within the AgentCore Policy system.
 // Policies are ARN-able resources that contain Cedar policy statements and
 // associated metadata for controlling agent behavior and access decisions.
@@ -905,21 +1238,32 @@ type Policy_SDK struct {
 	// Represents the definition structure for policies within the AgentCore Policy
 	// system. This structure encapsulates different policy formats and languages
 	// that can be used to define access control rules.
-	Definition     *PolicyDefinition `json:"definition,omitempty"`
-	Description    *string           `json:"description,omitempty"`
-	Name           *string           `json:"name,omitempty"`
-	PolicyARN      *string           `json:"policyARN,omitempty"`
-	PolicyEngineID *string           `json:"policyEngineID,omitempty"`
-	PolicyID       *string           `json:"policyID,omitempty"`
-	Status         *string           `json:"status,omitempty"`
-	StatusReasons  []*string         `json:"statusReasons,omitempty"`
-	UpdatedAt      *metav1.Time      `json:"updatedAt,omitempty"`
+	Definition  *PolicyDefinition `json:"definition,omitempty"`
+	Description *string           `json:"description,omitempty"`
+	// The enforcement mode for a policy. Run this policy in LOG_ONLY mode to collect
+	// data on how it affects your application. Once you are satisfied with the
+	// data gathered, switch the policy to ACTIVE.
+	EnforcementMode *string      `json:"enforcementMode,omitempty"`
+	Name            *string      `json:"name,omitempty"`
+	PolicyARN       *string      `json:"policyARN,omitempty"`
+	PolicyEngineID  *string      `json:"policyEngineID,omitempty"`
+	PolicyID        *string      `json:"policyID,omitempty"`
+	Status          *string      `json:"status,omitempty"`
+	StatusReasons   []*string    `json:"statusReasons,omitempty"`
+	UpdatedAt       *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // The protocol configuration for an agent runtime. This structure defines how
 // the agent runtime communicates with clients.
 type ProtocolConfiguration struct {
 	ServerProtocol *string `json:"serverProtocol,omitempty"`
+}
+
+// The configuration that controls how a provider prefix is applied to model
+// IDs during translation.
+type ProviderPrefix struct {
+	Separator *string `json:"separator,omitempty"`
+	Strip     *bool   `json:"strip,omitempty"`
 }
 
 // The recording configuration for a browser. This structure defines how browser
@@ -929,6 +1273,21 @@ type RecordingConfig struct {
 	// The Amazon S3 location for storing data. This structure defines where in
 	// Amazon S3 data is stored.
 	S3Location *S3Location `json:"s3Location,omitempty"`
+}
+
+// Contains summary information about a registry record.
+type RegistryRecordSummary struct {
+	CreatedAt   *metav1.Time `json:"createdAt,omitempty"`
+	Description *string      `json:"description,omitempty"`
+	UpdatedAt   *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Contains summary information about a registry.
+type RegistrySummary struct {
+	CreatedAt    *metav1.Time `json:"createdAt,omitempty"`
+	Description  *string      `json:"description,omitempty"`
+	StatusReason *string      `json:"statusReason,omitempty"`
+	UpdatedAt    *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Configuration for HTTP request headers that will be passed through to the
@@ -963,6 +1322,13 @@ type S3Configuration struct {
 	URI                  *string `json:"uri,omitempty"`
 }
 
+// Configuration for an Amazon S3 Files access point filesystem mounted into
+// the AgentCore Runtime. S3 Files access points provide shared file storage
+// accessible from your AgentCore Runtime sessions.
+type S3FilesAccessPointConfiguration struct {
+	MountPath *string `json:"mountPath,omitempty"`
+}
+
 // The Amazon S3 location for storing data. This structure defines where in
 // Amazon S3 data is stored.
 type S3Location struct {
@@ -977,7 +1343,7 @@ type SchemaDefinition struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// Contains information about a secret in AWS Secrets Manager.
+// Contains information about a secret in Amazon Web Services Secrets Manager.
 type Secret struct {
 	SecretARN *string `json:"secretARN,omitempty"`
 }
@@ -1048,11 +1414,33 @@ type SessionConfig struct {
 	SessionTimeoutMinutes *int64 `json:"sessionTimeoutMinutes,omitempty"`
 }
 
+// The session configuration for an MCP gateway. This structure defines settings
+// that control session behavior.
+type SessionConfiguration struct {
+	SessionTimeoutInSeconds *int64 `json:"sessionTimeoutInSeconds,omitempty"`
+}
+
 // Configuration for a session storage filesystem mounted into the AgentCore
 // Runtime. Session storage provides persistent storage that is preserved across
 // AgentCore Runtime session invocations.
 type SessionStorageConfiguration struct {
 	MountPath *string `json:"mountPath,omitempty"`
+}
+
+// A static configuration bundle override.
+type StaticOverride struct {
+	BundleVersion *string `json:"bundleVersion,omitempty"`
+}
+
+// A static route to a single gateway target.
+type StaticRoute struct {
+	TargetName *string `json:"targetName,omitempty"`
+}
+
+// The configuration for session-sticky routing to a target. Session stickiness
+// routes requests that share a session identifier to the same target.
+type StickinessConfiguration struct {
+	Identifier *string `json:"identifier,omitempty"`
 }
 
 // Supported stream delivery resource types.
@@ -1064,6 +1452,25 @@ type StreamDeliveryResource struct {
 // Configuration for streaming memory record data to external resources.
 type StreamDeliveryResources struct {
 	Resources []*StreamDeliveryResource `json:"resources,omitempty"`
+}
+
+// The streaming configuration for an MCP gateway. This structure defines settings
+// that control response streaming behavior.
+type StreamingConfiguration struct {
+	EnableResponseStreaming *bool `json:"enableResponseStreaming,omitempty"`
+}
+
+// Validation for STRINGLIST fields.
+type StringListValidation struct {
+	MaxItems *int64 `json:"maxItems,omitempty"`
+}
+
+// Stripe Privy configuration output with secret ARNs.
+type StripePrivyConfigurationOutput struct {
+	// Contains information about a secret in Amazon Web Services Secrets Manager.
+	AppSecretARN *Secret `json:"appSecretARN,omitempty"`
+	// Contains information about a secret in Amazon Web Services Secrets Manager.
+	AuthorizationPrivateKeyARN *Secret `json:"authorizationPrivateKeyARN,omitempty"`
 }
 
 // Contains summary consolidation override configuration.
@@ -1092,6 +1499,12 @@ type SummaryOverrideConsolidationConfigurationInput struct {
 	ModelID        *string `json:"modelID,omitempty"`
 }
 
+// System-managed metadata for rules created by automated processes such as
+// A/B tests.
+type SystemManagedBlock struct {
+	ManagedBy *string `json:"managedBy,omitempty"`
+}
+
 // The configuration for a gateway target. This structure defines how the gateway
 // connects to and interacts with the target endpoint.
 type TargetConfiguration struct {
@@ -1103,12 +1516,28 @@ type TargetConfiguration struct {
 // Contains summary information about a gateway target. A target represents
 // an endpoint that the gateway can connect to.
 type TargetSummary struct {
-	CreatedAt   *metav1.Time `json:"createdAt,omitempty"`
-	Description *string      `json:"description,omitempty"`
-	Name        *string      `json:"name,omitempty"`
-	Status      *string      `json:"status,omitempty"`
-	TargetID    *string      `json:"targetID,omitempty"`
-	UpdatedAt   *metav1.Time `json:"updatedAt,omitempty"`
+	// Contains the authorization data that is returned when a gateway target is
+	// configured with a credential provider with authorization code grant type
+	// and requires user federation.
+	AuthorizationData  *AuthorizationData `json:"authorizationData,omitempty"`
+	CreatedAt          *metav1.Time       `json:"createdAt,omitempty"`
+	Description        *string            `json:"description,omitempty"`
+	LastSynchronizedAt *metav1.Time       `json:"lastSynchronizedAt,omitempty"`
+	ListingMode        *string            `json:"listingMode,omitempty"`
+	Name               *string            `json:"name,omitempty"`
+	ResourcePriority   *int64             `json:"resourcePriority,omitempty"`
+	Status             *string            `json:"status,omitempty"`
+	TargetID           *string            `json:"targetID,omitempty"`
+	TargetType         *string            `json:"targetType,omitempty"`
+	UpdatedAt          *metav1.Time       `json:"updatedAt,omitempty"`
+}
+
+// An entry in a target traffic split configuration.
+type TargetTrafficSplitEntry struct {
+	Description *string `json:"description,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	TargetName  *string `json:"targetName,omitempty"`
+	Weight      *int64  `json:"weight,omitempty"`
 }
 
 // Trigger configuration based on time.
@@ -1149,6 +1578,14 @@ type ToolSchema struct {
 	S3 *S3Configuration `json:"s3,omitempty"`
 }
 
+// An entry in a traffic split configuration, defining a named variant with
+// a weight and configuration bundle reference.
+type TrafficSplitEntry struct {
+	Description *string `json:"description,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	Weight      *int64  `json:"weight,omitempty"`
+}
+
 // Condition that triggers memory processing.
 type TriggerConditionInput struct {
 	// The trigger configuration based on a message.
@@ -1159,10 +1596,20 @@ type TriggerConditionInput struct {
 	TokenBasedTrigger *TokenBasedTriggerInput `json:"tokenBasedTrigger,omitempty"`
 }
 
-// Wrapper for updating an optional Description field with PATCH semantics.When
-// present in an update request, the description is replaced with optionalValue.When
-// absent, the description is left unchanged.To unset the description, include
-// the wrapper with optionalValue set to null.
+// Wrapper for updating an optional AuthorizerConfiguration field with PATCH
+// semantics. When present in an update request, the authorizer configuration
+// is replaced with optionalValue. When absent, the authorizer configuration
+// is left unchanged. To unset, include the wrapper with optionalValue not specified.
+type UpdatedAuthorizerConfiguration struct {
+	// Represents inbound authorization configuration options used to authenticate
+	// incoming requests.
+	OptionalValue *AuthorizerConfiguration `json:"optionalValue,omitempty"`
+}
+
+// Wrapper for updating an optional Description field with PATCH semantics.
+// When present in an update request, the description is replaced with optionalValue.
+// When absent, the description is left unchanged. To unset the description,
+// include the wrapper with optionalValue not specified.
 type UpdatedDescription struct {
 	OptionalValue *string `json:"optionalValue,omitempty"`
 }
@@ -1224,6 +1671,24 @@ type VPCConfig struct {
 type ValidationExceptionField struct {
 	Message *string `json:"message,omitempty"`
 	Name    *string `json:"name,omitempty"`
+}
+
+// The source that created a configuration bundle version.
+type VersionCreatedBySource struct {
+	ARN  *string `json:"arn,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
+// A filter for listing configuration bundle versions.
+type VersionFilter struct {
+	CreatedByName   *string `json:"createdByName,omitempty"`
+	LatestPerBranch *bool   `json:"latestPerBranch,omitempty"`
+}
+
+// The version lineage metadata that tracks parent versions and creation source.
+// Supports git-like two-parent merges for branch management.
+type VersionLineageMetadata struct {
+	CommitMessage *string `json:"commitMessage,omitempty"`
 }
 
 // The information about the workload identity.

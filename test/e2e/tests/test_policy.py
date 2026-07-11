@@ -131,6 +131,7 @@ class TestPolicy:
         assert aws_pol["policyId"] == policy_id
         assert aws_pol["name"] == cr["spec"]["name"]
         assert aws_pol["description"] == "ACK e2e test policy"
+        assert aws_pol["enforcementMode"] == "LOG_ONLY"
 
     def test_update_description(self, simple_policy, bedrockagentcorecontrol_client, policy_engine_for_policy):
         (ref, cr) = simple_policy
@@ -158,6 +159,40 @@ class TestPolicy:
             policyId=policy_id,
         )
         assert aws_pol["description"] == "Updated ACK e2e test policy description"
+
+    def test_update_enforcement_mode(self, simple_policy, bedrockagentcorecontrol_client, policy_engine_for_policy):
+        (ref, cr) = simple_policy
+        (_, _, policy_engine_id) = policy_engine_for_policy
+
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=SYNC_WAIT_PERIODS)
+
+        cr = k8s.get_resource(ref)
+        policy_id = cr["status"]["id"]
+
+        # Confirm the policy starts in LOG_ONLY (the value set at creation) in AWS
+        aws_pol = bedrockagentcorecontrol_client.get_policy(
+            policyEngineId=policy_engine_id,
+            policyId=policy_id,
+        )
+        assert aws_pol["enforcementMode"] == "LOG_ONLY"
+
+        # Update enforcement mode from LOG_ONLY to ACTIVE
+        updates = {
+            "spec": {
+                "enforcementMode": "ACTIVE",
+            },
+        }
+        k8s.patch_custom_resource(ref, updates)
+        time.sleep(UPDATE_WAIT_AFTER_SECONDS)
+
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=SYNC_WAIT_PERIODS)
+
+        # Verify in AWS
+        aws_pol = bedrockagentcorecontrol_client.get_policy(
+            policyEngineId=policy_engine_id,
+            policyId=policy_id,
+        )
+        assert aws_pol["enforcementMode"] == "ACTIVE"
 
     def test_update_definition(self, simple_policy, bedrockagentcorecontrol_client, policy_engine_for_policy):
         (ref, cr) = simple_policy

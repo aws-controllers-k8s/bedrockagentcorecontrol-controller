@@ -48,6 +48,10 @@ type PolicySpec struct {
 	// for maintenance. Clear descriptions are essential for policy governance,
 	// auditing, and troubleshooting.
 	Description *string `json:"description,omitempty"`
+	// The enforcement mode for the policy. Run this policy in LOG_ONLY mode to
+	// collect data on how it affects your application. Once you are satisfied with
+	// the data gathered, switch the policy to ACTIVE. Defaults to ACTIVE.
+	EnforcementMode *string `json:"enforcementMode,omitempty"`
 	// The customer-assigned immutable name for the policy. Must be unique within
 	// the account. This name is used for policy identification and cannot be changed
 	// after creation.

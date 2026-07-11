@@ -22,9 +22,18 @@ const (
 	APIKeyCredentialLocation_QUERY_PARAMETER APIKeyCredentialLocation = "QUERY_PARAMETER"
 )
 
+type ActorTokenContentType string
+
+const (
+	ActorTokenContentType_AWS_IAM_ID_TOKEN_JWT ActorTokenContentType = "AWS_IAM_ID_TOKEN_JWT"
+	ActorTokenContentType_M2M                  ActorTokenContentType = "M2M"
+	ActorTokenContentType_NONE                 ActorTokenContentType = "NONE"
+)
+
 type AgentManagedRuntimeType string
 
 const (
+	AgentManagedRuntimeType_NODE_22     AgentManagedRuntimeType = "NODE_22"
 	AgentManagedRuntimeType_PYTHON_3_10 AgentManagedRuntimeType = "PYTHON_3_10"
 	AgentManagedRuntimeType_PYTHON_3_11 AgentManagedRuntimeType = "PYTHON_3_11"
 	AgentManagedRuntimeType_PYTHON_3_12 AgentManagedRuntimeType = "PYTHON_3_12"
@@ -57,9 +66,10 @@ const (
 type AuthorizerType string
 
 const (
-	AuthorizerType_AWS_IAM    AuthorizerType = "AWS_IAM"
-	AuthorizerType_CUSTOM_JWT AuthorizerType = "CUSTOM_JWT"
-	AuthorizerType_NONE       AuthorizerType = "NONE"
+	AuthorizerType_AUTHENTICATE_ONLY AuthorizerType = "AUTHENTICATE_ONLY"
+	AuthorizerType_AWS_IAM           AuthorizerType = "AWS_IAM"
+	AuthorizerType_CUSTOM_JWT        AuthorizerType = "CUSTOM_JWT"
+	AuthorizerType_NONE              AuthorizerType = "NONE"
 )
 
 type BrowserEnterprisePolicyType string
@@ -104,6 +114,22 @@ const (
 	ClaimMatchOperatorType_EQUALS       ClaimMatchOperatorType = "EQUALS"
 )
 
+type ClientAuthenticationMethodType string
+
+const (
+	ClientAuthenticationMethodType_AWS_IAM_ID_TOKEN_JWT ClientAuthenticationMethodType = "AWS_IAM_ID_TOKEN_JWT"
+	ClientAuthenticationMethodType_CLIENT_SECRET_BASIC  ClientAuthenticationMethodType = "CLIENT_SECRET_BASIC"
+	ClientAuthenticationMethodType_CLIENT_SECRET_POST   ClientAuthenticationMethodType = "CLIENT_SECRET_POST"
+)
+
+type ClusteringFrequency string
+
+const (
+	ClusteringFrequency_DAILY   ClusteringFrequency = "DAILY"
+	ClusteringFrequency_MONTHLY ClusteringFrequency = "MONTHLY"
+	ClusteringFrequency_WEEKLY  ClusteringFrequency = "WEEKLY"
+)
+
 type CodeInterpreterNetworkMode string
 
 const (
@@ -123,6 +149,18 @@ const (
 	CodeInterpreterStatus_SDK_READY         CodeInterpreterStatus_SDK = "READY"
 )
 
+type ConfigurationBundleStatus string
+
+const (
+	ConfigurationBundleStatus_ACTIVE        ConfigurationBundleStatus = "ACTIVE"
+	ConfigurationBundleStatus_CREATE_FAILED ConfigurationBundleStatus = "CREATE_FAILED"
+	ConfigurationBundleStatus_CREATING      ConfigurationBundleStatus = "CREATING"
+	ConfigurationBundleStatus_DELETE_FAILED ConfigurationBundleStatus = "DELETE_FAILED"
+	ConfigurationBundleStatus_DELETING      ConfigurationBundleStatus = "DELETING"
+	ConfigurationBundleStatus_UPDATE_FAILED ConfigurationBundleStatus = "UPDATE_FAILED"
+	ConfigurationBundleStatus_UPDATING      ConfigurationBundleStatus = "UPDATING"
+)
+
 type ContentLevel string
 
 const (
@@ -139,9 +177,11 @@ const (
 type CredentialProviderType string
 
 const (
-	CredentialProviderType_API_KEY          CredentialProviderType = "API_KEY"
-	CredentialProviderType_GATEWAY_IAM_ROLE CredentialProviderType = "GATEWAY_IAM_ROLE"
-	CredentialProviderType_OAUTH            CredentialProviderType = "OAUTH"
+	CredentialProviderType_API_KEY                CredentialProviderType = "API_KEY"
+	CredentialProviderType_CALLER_IAM_CREDENTIALS CredentialProviderType = "CALLER_IAM_CREDENTIALS"
+	CredentialProviderType_GATEWAY_IAM_ROLE       CredentialProviderType = "GATEWAY_IAM_ROLE"
+	CredentialProviderType_JWT_PASSTHROUGH        CredentialProviderType = "JWT_PASSTHROUGH"
+	CredentialProviderType_OAUTH                  CredentialProviderType = "OAUTH"
 )
 
 type CredentialProviderVendorType string
@@ -174,6 +214,55 @@ const (
 	CredentialProviderVendorType_ZoomOauth2       CredentialProviderVendorType = "ZoomOauth2"
 )
 
+type DatasetSchemaType string
+
+const (
+	DatasetSchemaType_AGENTCORE_EVALUATION_PREDEFINED_V1 DatasetSchemaType = "AGENTCORE_EVALUATION_PREDEFINED_V1"
+	DatasetSchemaType_AGENTCORE_EVALUATION_SIMULATED_V1  DatasetSchemaType = "AGENTCORE_EVALUATION_SIMULATED_V1"
+)
+
+type DatasetStatus string
+
+const (
+	DatasetStatus_ACTIVE        DatasetStatus = "ACTIVE"
+	DatasetStatus_CREATE_FAILED DatasetStatus = "CREATE_FAILED"
+	DatasetStatus_CREATING      DatasetStatus = "CREATING"
+	DatasetStatus_DELETE_FAILED DatasetStatus = "DELETE_FAILED"
+	DatasetStatus_DELETING      DatasetStatus = "DELETING"
+	DatasetStatus_UPDATE_FAILED DatasetStatus = "UPDATE_FAILED"
+	DatasetStatus_UPDATING      DatasetStatus = "UPDATING"
+)
+
+type DescriptorType string
+
+const (
+	DescriptorType_A2A          DescriptorType = "A2A"
+	DescriptorType_AGENT_SKILLS DescriptorType = "AGENT_SKILLS"
+	DescriptorType_CUSTOM       DescriptorType = "CUSTOM"
+	DescriptorType_MCP          DescriptorType = "MCP"
+)
+
+type DraftStatus string
+
+const (
+	DraftStatus_MODIFIED   DraftStatus = "MODIFIED"
+	DraftStatus_UNMODIFIED DraftStatus = "UNMODIFIED"
+)
+
+type EndpointIPAddressType string
+
+const (
+	EndpointIPAddressType_IPV4 EndpointIPAddressType = "IPV4"
+	EndpointIPAddressType_IPV6 EndpointIPAddressType = "IPV6"
+)
+
+type EnforcementMode string
+
+const (
+	EnforcementMode_ACTIVE   EnforcementMode = "ACTIVE"
+	EnforcementMode_LOG_ONLY EnforcementMode = "LOG_ONLY"
+)
+
 type EvaluatorLevel string
 
 const (
@@ -196,14 +285,22 @@ const (
 type EvaluatorType string
 
 const (
-	EvaluatorType_Builtin EvaluatorType = "Builtin"
-	EvaluatorType_Custom  EvaluatorType = "Custom"
+	EvaluatorType_Builtin    EvaluatorType = "Builtin"
+	EvaluatorType_Custom     EvaluatorType = "Custom"
+	EvaluatorType_CustomCode EvaluatorType = "CustomCode"
 )
 
 type ExceptionLevel string
 
 const (
 	ExceptionLevel_DEBUG ExceptionLevel = "DEBUG"
+)
+
+type ExtractionType string
+
+const (
+	ExtractionType_LLM_INFERRED        ExtractionType = "LLM_INFERRED"
+	ExtractionType_STRICTLY_CONSISTENT ExtractionType = "STRICTLY_CONSISTENT"
 )
 
 type FilterOperator string
@@ -251,6 +348,15 @@ const (
 	GatewayProtocolType_MCP GatewayProtocolType = "MCP"
 )
 
+type GatewayRuleStatus string
+
+const (
+	GatewayRuleStatus_ACTIVE   GatewayRuleStatus = "ACTIVE"
+	GatewayRuleStatus_CREATING GatewayRuleStatus = "CREATING"
+	GatewayRuleStatus_DELETING GatewayRuleStatus = "DELETING"
+	GatewayRuleStatus_UPDATING GatewayRuleStatus = "UPDATING"
+)
+
 type GatewayStatus_SDK string
 
 const (
@@ -262,11 +368,90 @@ const (
 	GatewayStatus_SDK_UPDATING            GatewayStatus_SDK = "UPDATING"
 )
 
+type HarnessBedrockAPIFormat string
+
+const (
+	HarnessBedrockAPIFormat_chat_completions HarnessBedrockAPIFormat = "chat_completions"
+	HarnessBedrockAPIFormat_converse_stream  HarnessBedrockAPIFormat = "converse_stream"
+	HarnessBedrockAPIFormat_responses        HarnessBedrockAPIFormat = "responses"
+)
+
+type HarnessEndpointStatus string
+
+const (
+	HarnessEndpointStatus_CREATE_FAILED HarnessEndpointStatus = "CREATE_FAILED"
+	HarnessEndpointStatus_CREATING      HarnessEndpointStatus = "CREATING"
+	HarnessEndpointStatus_DELETE_FAILED HarnessEndpointStatus = "DELETE_FAILED"
+	HarnessEndpointStatus_DELETING      HarnessEndpointStatus = "DELETING"
+	HarnessEndpointStatus_READY         HarnessEndpointStatus = "READY"
+	HarnessEndpointStatus_UPDATE_FAILED HarnessEndpointStatus = "UPDATE_FAILED"
+	HarnessEndpointStatus_UPDATING      HarnessEndpointStatus = "UPDATING"
+)
+
+type HarnessManagedMemoryStrategyType string
+
+const (
+	HarnessManagedMemoryStrategyType_EPISODIC        HarnessManagedMemoryStrategyType = "EPISODIC"
+	HarnessManagedMemoryStrategyType_SEMANTIC        HarnessManagedMemoryStrategyType = "SEMANTIC"
+	HarnessManagedMemoryStrategyType_SUMMARIZATION   HarnessManagedMemoryStrategyType = "SUMMARIZATION"
+	HarnessManagedMemoryStrategyType_USER_PREFERENCE HarnessManagedMemoryStrategyType = "USER_PREFERENCE"
+)
+
+type HarnessOpenAiAPIFormat string
+
+const (
+	HarnessOpenAiAPIFormat_chat_completions HarnessOpenAiAPIFormat = "chat_completions"
+	HarnessOpenAiAPIFormat_responses        HarnessOpenAiAPIFormat = "responses"
+)
+
+type HarnessStatus string
+
+const (
+	HarnessStatus_CREATE_FAILED HarnessStatus = "CREATE_FAILED"
+	HarnessStatus_CREATING      HarnessStatus = "CREATING"
+	HarnessStatus_DELETE_FAILED HarnessStatus = "DELETE_FAILED"
+	HarnessStatus_DELETING      HarnessStatus = "DELETING"
+	HarnessStatus_READY         HarnessStatus = "READY"
+	HarnessStatus_UPDATE_FAILED HarnessStatus = "UPDATE_FAILED"
+	HarnessStatus_UPDATING      HarnessStatus = "UPDATING"
+)
+
+type HarnessToolType string
+
+const (
+	HarnessToolType_agentcore_browser          HarnessToolType = "agentcore_browser"
+	HarnessToolType_agentcore_code_interpreter HarnessToolType = "agentcore_code_interpreter"
+	HarnessToolType_agentcore_gateway          HarnessToolType = "agentcore_gateway"
+	HarnessToolType_inline_function            HarnessToolType = "inline_function"
+	HarnessToolType_remote_mcp                 HarnessToolType = "remote_mcp"
+)
+
+type HarnessTruncationStrategy string
+
+const (
+	HarnessTruncationStrategy_none           HarnessTruncationStrategy = "none"
+	HarnessTruncationStrategy_sliding_window HarnessTruncationStrategy = "sliding_window"
+	HarnessTruncationStrategy_summarization  HarnessTruncationStrategy = "summarization"
+)
+
 type InboundTokenClaimValueType string
 
 const (
 	InboundTokenClaimValueType_STRING       InboundTokenClaimValueType = "STRING"
 	InboundTokenClaimValueType_STRING_ARRAY InboundTokenClaimValueType = "STRING_ARRAY"
+)
+
+type IncludedData string
+
+const (
+	IncludedData_ALL_DATA      IncludedData = "ALL_DATA"
+	IncludedData_METADATA_ONLY IncludedData = "METADATA_ONLY"
+)
+
+type InterceptorPayloadExclusion string
+
+const (
+	InterceptorPayloadExclusion_RESPONSE_BODY InterceptorPayloadExclusion = "RESPONSE_BODY"
 )
 
 type KeyType string
@@ -276,6 +461,13 @@ const (
 	KeyType_ServiceManagedKey  KeyType = "ServiceManagedKey"
 )
 
+type ListingMode string
+
+const (
+	ListingMode_DEFAULT ListingMode = "DEFAULT"
+	ListingMode_DYNAMIC ListingMode = "DYNAMIC"
+)
+
 type MemoryStatus_SDK string
 
 const (
@@ -283,6 +475,7 @@ const (
 	MemoryStatus_SDK_CREATING MemoryStatus_SDK = "CREATING"
 	MemoryStatus_SDK_DELETING MemoryStatus_SDK = "DELETING"
 	MemoryStatus_SDK_FAILED   MemoryStatus_SDK = "FAILED"
+	MemoryStatus_SDK_UPDATING MemoryStatus_SDK = "UPDATING"
 )
 
 type MemoryStrategyStatus string
@@ -311,6 +504,14 @@ const (
 	MemoryView_without_decryption MemoryView = "without_decryption"
 )
 
+type MetadataValueType string
+
+const (
+	MetadataValueType_NUMBER     MetadataValueType = "NUMBER"
+	MetadataValueType_STRING     MetadataValueType = "STRING"
+	MetadataValueType_STRINGLIST MetadataValueType = "STRINGLIST"
+)
+
 type NetworkMode string
 
 const (
@@ -323,6 +524,14 @@ type OAuthGrantType string
 const (
 	OAuthGrantType_AUTHORIZATION_CODE OAuthGrantType = "AUTHORIZATION_CODE"
 	OAuthGrantType_CLIENT_CREDENTIALS OAuthGrantType = "CLIENT_CREDENTIALS"
+	OAuthGrantType_TOKEN_EXCHANGE     OAuthGrantType = "TOKEN_EXCHANGE"
+)
+
+type OnBehalfOfTokenExchangeGrantTypeType string
+
+const (
+	OnBehalfOfTokenExchangeGrantTypeType_JWT_AUTHORIZATION_GRANT OnBehalfOfTokenExchangeGrantTypeType = "JWT_AUTHORIZATION_GRANT"
+	OnBehalfOfTokenExchangeGrantTypeType_TOKEN_EXCHANGE          OnBehalfOfTokenExchangeGrantTypeType = "TOKEN_EXCHANGE"
 )
 
 type OnlineEvaluationConfigStatus string
@@ -332,6 +541,7 @@ const (
 	OnlineEvaluationConfigStatus_CREATE_FAILED OnlineEvaluationConfigStatus = "CREATE_FAILED"
 	OnlineEvaluationConfigStatus_CREATING      OnlineEvaluationConfigStatus = "CREATING"
 	OnlineEvaluationConfigStatus_DELETING      OnlineEvaluationConfigStatus = "DELETING"
+	OnlineEvaluationConfigStatus_ERROR         OnlineEvaluationConfigStatus = "ERROR"
 	OnlineEvaluationConfigStatus_UPDATE_FAILED OnlineEvaluationConfigStatus = "UPDATE_FAILED"
 	OnlineEvaluationConfigStatus_UPDATING      OnlineEvaluationConfigStatus = "UPDATING"
 )
@@ -351,6 +561,60 @@ const (
 	OverrideType_SEMANTIC_OVERRIDE        OverrideType = "SEMANTIC_OVERRIDE"
 	OverrideType_SUMMARY_OVERRIDE         OverrideType = "SUMMARY_OVERRIDE"
 	OverrideType_USER_PREFERENCE_OVERRIDE OverrideType = "USER_PREFERENCE_OVERRIDE"
+)
+
+type PassthroughProtocolType string
+
+const (
+	PassthroughProtocolType_A2A       PassthroughProtocolType = "A2A"
+	PassthroughProtocolType_CUSTOM    PassthroughProtocolType = "CUSTOM"
+	PassthroughProtocolType_INFERENCE PassthroughProtocolType = "INFERENCE"
+	PassthroughProtocolType_MCP       PassthroughProtocolType = "MCP"
+)
+
+type PaymentConnectorStatus string
+
+const (
+	PaymentConnectorStatus_CREATE_FAILED PaymentConnectorStatus = "CREATE_FAILED"
+	PaymentConnectorStatus_CREATING      PaymentConnectorStatus = "CREATING"
+	PaymentConnectorStatus_DELETE_FAILED PaymentConnectorStatus = "DELETE_FAILED"
+	PaymentConnectorStatus_DELETING      PaymentConnectorStatus = "DELETING"
+	PaymentConnectorStatus_READY         PaymentConnectorStatus = "READY"
+	PaymentConnectorStatus_UPDATE_FAILED PaymentConnectorStatus = "UPDATE_FAILED"
+	PaymentConnectorStatus_UPDATING      PaymentConnectorStatus = "UPDATING"
+)
+
+type PaymentConnectorType string
+
+const (
+	PaymentConnectorType_CoinbaseCDP PaymentConnectorType = "CoinbaseCDP"
+	PaymentConnectorType_StripePrivy PaymentConnectorType = "StripePrivy"
+)
+
+type PaymentCredentialProviderVendorType string
+
+const (
+	PaymentCredentialProviderVendorType_CoinbaseCDP PaymentCredentialProviderVendorType = "CoinbaseCDP"
+	PaymentCredentialProviderVendorType_StripePrivy PaymentCredentialProviderVendorType = "StripePrivy"
+)
+
+type PaymentManagerStatus string
+
+const (
+	PaymentManagerStatus_CREATE_FAILED PaymentManagerStatus = "CREATE_FAILED"
+	PaymentManagerStatus_CREATING      PaymentManagerStatus = "CREATING"
+	PaymentManagerStatus_DELETE_FAILED PaymentManagerStatus = "DELETE_FAILED"
+	PaymentManagerStatus_DELETING      PaymentManagerStatus = "DELETING"
+	PaymentManagerStatus_READY         PaymentManagerStatus = "READY"
+	PaymentManagerStatus_UPDATE_FAILED PaymentManagerStatus = "UPDATE_FAILED"
+	PaymentManagerStatus_UPDATING      PaymentManagerStatus = "UPDATING"
+)
+
+type PaymentsAuthorizerType string
+
+const (
+	PaymentsAuthorizerType_AWS_IAM    PaymentsAuthorizerType = "AWS_IAM"
+	PaymentsAuthorizerType_CUSTOM_JWT PaymentsAuthorizerType = "CUSTOM_JWT"
 )
 
 type PolicyEngineStatus_SDK string
@@ -393,6 +657,59 @@ const (
 	PolicyValidationMode_IGNORE_ALL_FINDINGS  PolicyValidationMode = "IGNORE_ALL_FINDINGS"
 )
 
+type PrincipalMatchOperator string
+
+const (
+	PrincipalMatchOperator_StringEquals PrincipalMatchOperator = "StringEquals"
+	PrincipalMatchOperator_StringLike   PrincipalMatchOperator = "StringLike"
+)
+
+type RegistryAuthorizerType string
+
+const (
+	RegistryAuthorizerType_AWS_IAM    RegistryAuthorizerType = "AWS_IAM"
+	RegistryAuthorizerType_CUSTOM_JWT RegistryAuthorizerType = "CUSTOM_JWT"
+)
+
+type RegistryRecordCredentialProviderType string
+
+const (
+	RegistryRecordCredentialProviderType_IAM   RegistryRecordCredentialProviderType = "IAM"
+	RegistryRecordCredentialProviderType_OAUTH RegistryRecordCredentialProviderType = "OAUTH"
+)
+
+type RegistryRecordOAuthGrantType string
+
+const (
+	RegistryRecordOAuthGrantType_CLIENT_CREDENTIALS RegistryRecordOAuthGrantType = "CLIENT_CREDENTIALS"
+)
+
+type RegistryRecordStatus string
+
+const (
+	RegistryRecordStatus_APPROVED         RegistryRecordStatus = "APPROVED"
+	RegistryRecordStatus_CREATE_FAILED    RegistryRecordStatus = "CREATE_FAILED"
+	RegistryRecordStatus_CREATING         RegistryRecordStatus = "CREATING"
+	RegistryRecordStatus_DEPRECATED       RegistryRecordStatus = "DEPRECATED"
+	RegistryRecordStatus_DRAFT            RegistryRecordStatus = "DRAFT"
+	RegistryRecordStatus_PENDING_APPROVAL RegistryRecordStatus = "PENDING_APPROVAL"
+	RegistryRecordStatus_REJECTED         RegistryRecordStatus = "REJECTED"
+	RegistryRecordStatus_UPDATE_FAILED    RegistryRecordStatus = "UPDATE_FAILED"
+	RegistryRecordStatus_UPDATING         RegistryRecordStatus = "UPDATING"
+)
+
+type RegistryStatus string
+
+const (
+	RegistryStatus_CREATE_FAILED RegistryStatus = "CREATE_FAILED"
+	RegistryStatus_CREATING      RegistryStatus = "CREATING"
+	RegistryStatus_DELETE_FAILED RegistryStatus = "DELETE_FAILED"
+	RegistryStatus_DELETING      RegistryStatus = "DELETING"
+	RegistryStatus_READY         RegistryStatus = "READY"
+	RegistryStatus_UPDATE_FAILED RegistryStatus = "UPDATE_FAILED"
+	RegistryStatus_UPDATING      RegistryStatus = "UPDATING"
+)
+
 type ResourceType string
 
 const (
@@ -429,6 +746,13 @@ const (
 	SearchType_SEMANTIC SearchType = "SEMANTIC"
 )
 
+type SecretSourceType string
+
+const (
+	SecretSourceType_EXTERNAL SecretSourceType = "EXTERNAL"
+	SecretSourceType_MANAGED  SecretSourceType = "MANAGED"
+)
+
 type ServerProtocol string
 
 const (
@@ -438,17 +762,59 @@ const (
 	ServerProtocol_MCP  ServerProtocol = "MCP"
 )
 
+type Status string
+
+const (
+	Status_CREATE_FAILED Status = "CREATE_FAILED"
+	Status_CREATING      Status = "CREATING"
+	Status_DELETE_FAILED Status = "DELETE_FAILED"
+	Status_DELETING      Status = "DELETING"
+	Status_READY         Status = "READY"
+	Status_UPDATE_FAILED Status = "UPDATE_FAILED"
+	Status_UPDATING      Status = "UPDATING"
+)
+
+type SynchronizationType string
+
+const (
+	SynchronizationType_URL SynchronizationType = "URL"
+)
+
+type TargetProtocolType string
+
+const (
+	TargetProtocolType_HTTP TargetProtocolType = "HTTP"
+	TargetProtocolType_MCP  TargetProtocolType = "MCP"
+)
+
 type TargetStatus string
 
 const (
+	TargetStatus_CREATE_PENDING_AUTH      TargetStatus = "CREATE_PENDING_AUTH"
 	TargetStatus_CREATING                 TargetStatus = "CREATING"
 	TargetStatus_DELETING                 TargetStatus = "DELETING"
 	TargetStatus_FAILED                   TargetStatus = "FAILED"
 	TargetStatus_READY                    TargetStatus = "READY"
+	TargetStatus_SYNCHRONIZE_PENDING_AUTH TargetStatus = "SYNCHRONIZE_PENDING_AUTH"
 	TargetStatus_SYNCHRONIZE_UNSUCCESSFUL TargetStatus = "SYNCHRONIZE_UNSUCCESSFUL"
 	TargetStatus_SYNCHRONIZING            TargetStatus = "SYNCHRONIZING"
+	TargetStatus_UPDATE_PENDING_AUTH      TargetStatus = "UPDATE_PENDING_AUTH"
 	TargetStatus_UPDATE_UNSUCCESSFUL      TargetStatus = "UPDATE_UNSUCCESSFUL"
 	TargetStatus_UPDATING                 TargetStatus = "UPDATING"
+)
+
+type TargetType string
+
+const (
+	TargetType_AGENTCORE_RUNTIME TargetType = "AGENTCORE_RUNTIME"
+	TargetType_API_GATEWAY       TargetType = "API_GATEWAY"
+	TargetType_CONNECTOR         TargetType = "CONNECTOR"
+	TargetType_LAMBDA            TargetType = "LAMBDA"
+	TargetType_MCP_SERVER        TargetType = "MCP_SERVER"
+	TargetType_OPEN_API_SCHEMA   TargetType = "OPEN_API_SCHEMA"
+	TargetType_PASSTHROUGH       TargetType = "PASSTHROUGH"
+	TargetType_PROVIDER          TargetType = "PROVIDER"
+	TargetType_SMITHY_MODEL      TargetType = "SMITHY_MODEL"
 )
 
 type ValidationExceptionReason string
@@ -459,4 +825,11 @@ const (
 	ValidationExceptionReason_FieldValidationFailed                ValidationExceptionReason = "FieldValidationFailed"
 	ValidationExceptionReason_IdempotentParameterMismatchException ValidationExceptionReason = "IdempotentParameterMismatchException"
 	ValidationExceptionReason_ResourceConflict                     ValidationExceptionReason = "ResourceConflict"
+)
+
+type WAFFailureMode string
+
+const (
+	WAFFailureMode_FAIL_CLOSE WAFFailureMode = "FAIL_CLOSE"
+	WAFFailureMode_FAIL_OPEN  WAFFailureMode = "FAIL_OPEN"
 )

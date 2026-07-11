@@ -119,6 +119,11 @@ func (rm *resourceManager) sdkFind(
 	} else {
 		ko.Spec.Description = nil
 	}
+	if resp.EnforcementMode != "" {
+		ko.Spec.EnforcementMode = aws.String(string(resp.EnforcementMode))
+	} else {
+		ko.Spec.EnforcementMode = nil
+	}
 	if resp.Name != nil {
 		ko.Spec.Name = resp.Name
 	} else {
@@ -243,6 +248,11 @@ func (rm *resourceManager) sdkCreate(
 	} else {
 		ko.Spec.Description = nil
 	}
+	if resp.EnforcementMode != "" {
+		ko.Spec.EnforcementMode = aws.String(string(resp.EnforcementMode))
+	} else {
+		ko.Spec.EnforcementMode = nil
+	}
 	if resp.Name != nil {
 		ko.Spec.Name = resp.Name
 	} else {
@@ -313,6 +323,9 @@ func (rm *resourceManager) newCreateRequestPayload(
 	}
 	if r.ko.Spec.Description != nil {
 		res.Description = r.ko.Spec.Description
+	}
+	if r.ko.Spec.EnforcementMode != nil {
+		res.EnforcementMode = svcsdktypes.EnforcementMode(*r.ko.Spec.EnforcementMode)
 	}
 	if r.ko.Spec.Name != nil {
 		res.Name = r.ko.Spec.Name
@@ -396,6 +409,11 @@ func (rm *resourceManager) sdkUpdate(
 	} else {
 		ko.Spec.Description = nil
 	}
+	if resp.EnforcementMode != "" {
+		ko.Spec.EnforcementMode = aws.String(string(resp.EnforcementMode))
+	} else {
+		ko.Spec.EnforcementMode = nil
+	}
 	if resp.Name != nil {
 		ko.Spec.Name = resp.Name
 	} else {
@@ -464,6 +482,9 @@ func (rm *resourceManager) newUpdateRequestPayload(
 			isInterfaceSet = true
 		}
 		res.Definition = f0
+	}
+	if r.ko.Spec.EnforcementMode != nil {
+		res.EnforcementMode = svcsdktypes.EnforcementMode(*r.ko.Spec.EnforcementMode)
 	}
 	if r.ko.Spec.PolicyEngineID != nil {
 		res.PolicyEngineId = r.ko.Spec.PolicyEngineID

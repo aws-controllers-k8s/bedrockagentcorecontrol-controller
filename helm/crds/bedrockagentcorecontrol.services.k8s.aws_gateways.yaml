@@ -186,7 +186,7 @@ spec:
                 description: |-
                   The name of the gateway. The name must be unique within your account.
 
-                  Regex Pattern: `^([0-9a-zA-Z][-]?){1,100}$`
+                  Regex Pattern: `^([0-9a-zA-Z][-]?){1,48}$`
                 type: string
               policyEngineConfiguration:
                 description: |-
