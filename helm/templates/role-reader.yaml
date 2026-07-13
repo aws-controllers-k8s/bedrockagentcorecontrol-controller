@@ -25,6 +25,7 @@ rules:
   - gateways
   - gatewaytargets
   - memories
+  - policies
   - policyengines
   - workloadidentities
   verbs:

@@ -67,7 +67,7 @@ type GatewayTargetStatus struct {
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
 	// The Amazon Resource Name (ARN) of the gateway.
 	//
-	// Regex Pattern: `^arn:aws(|-cn|-us-gov):bedrock-agentcore:[a-z0-9-]{1,20}:[0-9]{12}:gateway/[0-9a-zA-Z]{10}$`
+	// Regex Pattern: `^arn:aws(|-cn|-us-gov):bedrock-agentcore:[a-z0-9-]{1,20}:[0-9]{12}:gateway/([0-9a-z][-]?){1,48}-[a-z0-9]{10}$`
 	// +kubebuilder:validation:Optional
 	GatewayARN *string `json:"gatewayARN,omitempty"`
 	// The last synchronization of the target.

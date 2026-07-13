@@ -57,7 +57,7 @@ type GatewaySpec struct {
 	KMSKeyRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"kmsKeyRef,omitempty"`
 	// The name of the gateway. The name must be unique within your account.
 	//
-	// Regex Pattern: `^([0-9a-zA-Z][-]?){1,100}$`
+	// Regex Pattern: `^([0-9a-zA-Z][-]?){1,48}$`
 	// +kubebuilder:validation:Required
 	Name *string `json:"name"`
 	// The policy engine configuration for the gateway. A policy engine is a collection

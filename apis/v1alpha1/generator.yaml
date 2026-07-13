@@ -12,9 +12,22 @@ ignore:
     # - Memory
     - Oauth2CredentialProvider
     - OnlineEvaluationConfig
-    - Policy
+    # - Policy
     # - PolicyEngine
     # - WorkloadIdentity
+    # New resources introduced in aws_service_sdk_version v1.47.0. Ignored for
+    # now — not yet modeled as ACK resources.
+    - ConfigurationBundle
+    - Dataset
+    - DatasetVersion
+    - GatewayRule
+    - Harness
+    - HarnessEndpoint
+    - PaymentConnector
+    - PaymentCredentialProvider
+    - PaymentManager
+    - Registry
+    - RegistryRecord
 
   field_paths:
     # SchemaDefinition shape used by InputSchema/OutputSchema recursively
@@ -26,6 +39,7 @@ ignore:
     - CreateAgentRuntimeInput.ClientToken
     - CreateAgentRuntimeEndpointInput.ClientToken
     - CreateGatewayInput.ClientToken
+    - CreatePolicyInput.Definition.PolicyGeneration
     - UpdateMemoryInput.MemoryStrategies
     # Redundant fields in Status.Strategies — already present in Spec.MemoryStrategies
     # via the sdk_read_one_post_set_output hook. Only keep status-only fields
@@ -34,6 +48,98 @@ ignore:
     - MemoryStrategy.Description
     - MemoryStrategy.Namespaces
     - MemoryStrategy.NamespaceTemplates
+    # New fields introduced in aws_service_sdk_version v1.47.0. Ignored for now so
+    # the model bump doesn't add any fields to the existing CRDs. Top-level fields
+    # are rooted at the operation's (renamed) Input/Output shape. Fields on nested
+    # shapes are rooted at the owning structure shape (not the operation), because
+    # the field path resolver deletes from the named structure's members — a path
+    # that traverses a list/map to a nested member silently no-ops. Rooting at the
+    # owning shape also removes the member from every operation that reuses it.
+    #
+    # Top-level fields on operation input/output shapes:
+    #
+    # ApiKeyCredentialProvider
+    - CreateApiKeyCredentialProviderInput.ApiKeySecretConfig
+    - CreateApiKeyCredentialProviderInput.ApiKeySecretSource
+    - CreateApiKeyCredentialProviderOutput.ApiKeySecretJsonKey
+    - CreateApiKeyCredentialProviderOutput.ApiKeySecretSource
+    - UpdateApiKeyCredentialProviderInput.ApiKeySecretConfig
+    - UpdateApiKeyCredentialProviderInput.ApiKeySecretSource
+    - UpdateApiKeyCredentialProviderOutput.ApiKeySecretJsonKey
+    - UpdateApiKeyCredentialProviderOutput.ApiKeySecretSource
+    - GetApiKeyCredentialProviderOutput.ApiKeySecretJsonKey
+    - GetApiKeyCredentialProviderOutput.ApiKeySecretSource
+    # Gateway
+    - CreateGatewayOutput.CustomTransformConfiguration
+    - CreateGatewayOutput.WafConfiguration
+    - CreateGatewayOutput.WebAclArn
+    - UpdateGatewayInput.CustomTransformConfiguration
+    - UpdateGatewayInput.WafConfiguration
+    - UpdateGatewayOutput.CustomTransformConfiguration
+    - UpdateGatewayOutput.WafConfiguration
+    - UpdateGatewayOutput.WebAclArn
+    - GetGatewayOutput.CustomTransformConfiguration
+    - GetGatewayOutput.WafConfiguration
+    - GetGatewayOutput.WebAclArn
+    # GatewayTarget
+    - CreateGatewayTargetInput.PrivateEndpoint
+    - CreateGatewayTargetOutput.AuthorizationData
+    - CreateGatewayTargetOutput.PrivateEndpoint
+    - CreateGatewayTargetOutput.PrivateEndpointManagedResources
+    - CreateGatewayTargetOutput.ProtocolType
+    - UpdateGatewayTargetInput.PrivateEndpoint
+    - UpdateGatewayTargetOutput.AuthorizationData
+    - UpdateGatewayTargetOutput.PrivateEndpoint
+    - UpdateGatewayTargetOutput.PrivateEndpointManagedResources
+    - UpdateGatewayTargetOutput.ProtocolType
+    - GetGatewayTargetOutput.AuthorizationData
+    - GetGatewayTargetOutput.PrivateEndpoint
+    - GetGatewayTargetOutput.PrivateEndpointManagedResources
+    - GetGatewayTargetOutput.ProtocolType
+    # Memory
+    - CreateMemoryInput.IndexedKeys
+    - UpdateMemoryInput.AddIndexedKeys
+
+    #
+    # Fields on shared / nested shapes (list or map elements, reused structs),
+    # rooted at the owning structure shape:
+    #
+    # AgentRuntime, Browser, CodeInterpreter (VpcConfig / NetworkModeConfig)
+    - VpcConfig.RequireServiceS3Endpoint
+    - FilesystemConfiguration.EfsAccessPoint
+    - FilesystemConfiguration.S3FilesAccessPoint
+    # Gateway / AgentRuntime JWT authorizer + MCP protocol + interceptor
+    - CustomJWTAuthorizerConfiguration.AdvertisedScopeMapping
+    - CustomJWTAuthorizerConfiguration.AllowedWorkloadConfiguration
+    - CustomJWTAuthorizerConfiguration.PrivateEndpoint
+    - CustomJWTAuthorizerConfiguration.PrivateEndpointOverrides
+    - InterceptorInputConfiguration.PayloadFilter
+    - MCPGatewayConfiguration.SessionConfiguration
+    - MCPGatewayConfiguration.StreamingConfiguration
+    # GatewayTarget target/credential configuration
+    - CredentialProvider.IamCredentialProvider
+    - TargetConfiguration.Http
+    - TargetConfiguration.Inference
+    - McpTargetConfiguration.Connector
+    - McpServerTargetConfiguration.ListingMode
+    - McpServerTargetConfiguration.McpToolSchema
+    - McpServerTargetConfiguration.ResourcePriority
+    # Memory (Memory struct + strategy element shapes)
+    - Memory.IndexedKeys
+    - Memory.ManagedByResourceArn
+    - MemoryStrategy.MemoryRecordSchema
+    - CustomMemoryStrategyInput_.MemoryRecordSchema
+    - EpisodicMemoryStrategyInput_.MemoryRecordSchema
+    - EpisodicOverrideReflectionConfigurationInput_.MemoryRecordSchema
+    - EpisodicReflectionConfiguration.MemoryRecordSchema
+    - EpisodicReflectionConfigurationInput_.MemoryRecordSchema
+    - EpisodicReflectionOverride.MemoryRecordSchema
+    - ModifyMemoryStrategyInput_.MemoryRecordSchema
+    - SemanticMemoryStrategyInput_.MemoryRecordSchema
+    - SummaryMemoryStrategyInput_.MemoryRecordSchema
+    - UserPreferenceMemoryStrategyInput_.MemoryRecordSchema
+    # Policy
+    - PolicyDefinition.Policy
 
 sdk_names:
   model_name: bedrock-agentcore-control
@@ -178,6 +284,92 @@ resources:
       sdk_update_post_build_request:
         template_path: hooks/memory/sdk_update_post_build_request.go.tpl
 
+  Policy:
+    ignore_idempotency_token: true
+    tags:
+      ignore: true
+    renames:
+      operations:
+        CreatePolicy:
+          output_fields:
+            PolicyId: ID
+        GetPolicy:
+          input_fields:
+            PolicyId: ID
+        UpdatePolicy:
+          input_fields:
+            PolicyId: ID
+        DeletePolicy:
+          input_fields:
+            PolicyId: ID
+    fields:
+      ID:
+        is_primary_key: true
+      Name:
+        is_immutable: true
+      PolicyEngineID:
+        is_immutable: true
+        references:
+          resource: PolicyEngine
+          path: Status.ID
+      Description:
+        set:
+          - method: Update
+            ignore: "to"
+      # ValidationMode is a per-operation directive for Create/UpdatePolicy (how the
+      # Cedar analyzer treats findings), not observable state — the API never
+      # returns it. Ignored in the comparison since it isn't converged state; it is
+      # still sent on updates triggered by a real Definition/Description change.
+      ValidationMode:
+        compare:
+          is_ignored: true
+      CreatedAt:
+        is_read_only: true
+        from:
+          operation: GetPolicy
+          path: CreatedAt
+      UpdatedAt:
+        is_read_only: true
+        from:
+          operation: GetPolicy
+          path: UpdatedAt
+      StatusReasons:
+        is_read_only: true
+        from:
+          operation: GetPolicy
+          path: StatusReasons
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+            - CREATE_FAILED
+            - UPDATE_FAILED
+            - DELETE_FAILED
+    updateable:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+            - CREATE_FAILED
+            - UPDATE_FAILED
+            - DELETE_FAILED
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
+    hooks:
+      sdk_update_post_build_request:
+        template_path: hooks/policy/sdk_update_post_build_request.go.tpl
+
+
   PolicyEngine:
     ignore_idempotency_token: true
     renames:
@@ -299,6 +491,9 @@ resources:
           input_fields:
             GatewayIdentifier: GatewayId
     fields:
+      # v1.47.0 dropped ProtocolType from the required members; keep it required.
+      ProtocolType:
+        is_required: true
       KmsKeyArn:
         references:
           resource: Key
@@ -336,6 +531,8 @@ resources:
         is_immutable: true
       ApiKey:
         is_secret: true
+        # v1.47.0 dropped ApiKey from the required members; keep it required.
+        is_required: true
       CredentialProviderARN:
         is_arn: true
     exceptions:
@@ -597,6 +794,14 @@ resources:
     fields:
       TargetId:
         is_primary_key: true
+
+      # v1.47.0 dropped Name from the required members because it is now only
+      # conditionally required: runtime targets (TargetConfiguration.Http) can
+      # omit it and the service derives a name. Those target types are currently
+      # ignored, so every target expressible through this CRD is a non-runtime
+      # (MCP) target, for which the API still requires Name. Keep it required.
+      Name:
+        is_required: true
 
       GatewayIdentifier:
         references:

@@ -1,0 +1,14 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: Policy
+metadata:
+  name: $POLICY_NAME
+  namespace: default
+spec:
+  name: $POLICY_SPEC_NAME
+  policyEngineID: $POLICY_ENGINE_ID
+  description: "ACK e2e test policy"
+  validationMode: IGNORE_ALL_FINDINGS
+  enforcementMode: LOG_ONLY
+  definition:
+    cedar:
+      statement: "permit(principal, action, resource is AgentCore::Gateway);"

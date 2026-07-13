@@ -11,5 +11,6 @@ resources:
   - bases/bedrockagentcorecontrol.services.k8s.aws_gateways.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_gatewaytargets.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_memories.yaml
+  - bases/bedrockagentcorecontrol.services.k8s.aws_policies.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_policyengines.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_workloadidentities.yaml

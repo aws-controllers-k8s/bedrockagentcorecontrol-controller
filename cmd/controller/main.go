@@ -54,6 +54,7 @@ import (
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway_target"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/memory"
+	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/policy"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/policy_engine"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/workload_identity"
 
