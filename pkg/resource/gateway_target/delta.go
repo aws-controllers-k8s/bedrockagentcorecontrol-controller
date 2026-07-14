@@ -42,6 +42,7 @@ func newResourceDelta(
 		return delta
 	}
 	compareInlinePayloadToolDefinitions(delta, a, b)
+	compareConnectorParameterValues(delta, a, b)
 
 	if len(a.ko.Spec.CredentialProviderConfigurations) != len(b.ko.Spec.CredentialProviderConfigurations) {
 		delta.Add("Spec.CredentialProviderConfigurations", a.ko.Spec.CredentialProviderConfigurations, b.ko.Spec.CredentialProviderConfigurations)
@@ -138,6 +139,28 @@ func newResourceDelta(
 				} else if a.ko.Spec.TargetConfiguration.Mcp.APIGateway.Stage != nil && b.ko.Spec.TargetConfiguration.Mcp.APIGateway.Stage != nil {
 					if *a.ko.Spec.TargetConfiguration.Mcp.APIGateway.Stage != *b.ko.Spec.TargetConfiguration.Mcp.APIGateway.Stage {
 						delta.Add("Spec.TargetConfiguration.Mcp.APIGateway.Stage", a.ko.Spec.TargetConfiguration.Mcp.APIGateway.Stage, b.ko.Spec.TargetConfiguration.Mcp.APIGateway.Stage)
+					}
+				}
+			}
+			if ackcompare.HasNilDifference(a.ko.Spec.TargetConfiguration.Mcp.Connector, b.ko.Spec.TargetConfiguration.Mcp.Connector) {
+				delta.Add("Spec.TargetConfiguration.Mcp.Connector", a.ko.Spec.TargetConfiguration.Mcp.Connector, b.ko.Spec.TargetConfiguration.Mcp.Connector)
+			} else if a.ko.Spec.TargetConfiguration.Mcp.Connector != nil && b.ko.Spec.TargetConfiguration.Mcp.Connector != nil {
+				if len(a.ko.Spec.TargetConfiguration.Mcp.Connector.Enabled) != len(b.ko.Spec.TargetConfiguration.Mcp.Connector.Enabled) {
+					delta.Add("Spec.TargetConfiguration.Mcp.Connector.Enabled", a.ko.Spec.TargetConfiguration.Mcp.Connector.Enabled, b.ko.Spec.TargetConfiguration.Mcp.Connector.Enabled)
+				} else if len(a.ko.Spec.TargetConfiguration.Mcp.Connector.Enabled) > 0 {
+					if !ackcompare.SliceStringPEqual(a.ko.Spec.TargetConfiguration.Mcp.Connector.Enabled, b.ko.Spec.TargetConfiguration.Mcp.Connector.Enabled) {
+						delta.Add("Spec.TargetConfiguration.Mcp.Connector.Enabled", a.ko.Spec.TargetConfiguration.Mcp.Connector.Enabled, b.ko.Spec.TargetConfiguration.Mcp.Connector.Enabled)
+					}
+				}
+				if ackcompare.HasNilDifference(a.ko.Spec.TargetConfiguration.Mcp.Connector.Source, b.ko.Spec.TargetConfiguration.Mcp.Connector.Source) {
+					delta.Add("Spec.TargetConfiguration.Mcp.Connector.Source", a.ko.Spec.TargetConfiguration.Mcp.Connector.Source, b.ko.Spec.TargetConfiguration.Mcp.Connector.Source)
+				} else if a.ko.Spec.TargetConfiguration.Mcp.Connector.Source != nil && b.ko.Spec.TargetConfiguration.Mcp.Connector.Source != nil {
+					if ackcompare.HasNilDifference(a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID, b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID) {
+						delta.Add("Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID", a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID, b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID)
+					} else if a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID != nil && b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID != nil {
+						if *a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID != *b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID {
+							delta.Add("Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID", a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID, b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID)
+						}
 					}
 				}
 			}

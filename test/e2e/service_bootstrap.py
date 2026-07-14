@@ -47,7 +47,12 @@ def service_bootstrap() -> Resources:
             name_prefix="ack-bedrock-gateway",
             principal_service="bedrock-agentcore.amazonaws.com",
             description="IAM role for ACK Bedrock Gateway e2e tests",
-            managed_policies=["arn:aws:iam::aws:policy/service-role/AWSLambdaRole"],
+            managed_policies=[
+                "arn:aws:iam::aws:policy/service-role/AWSLambdaRole",
+                # Lets the gateway invoke managed connectors (e.g. web search)
+                # for the connector target e2e test.
+                "arn:aws:iam::aws:policy/BedrockAgentCoreFullAccess",
+            ],
         ),
         GatewayUserPool=UserPool(
             name_prefix="ack-bedrock-gateway",
