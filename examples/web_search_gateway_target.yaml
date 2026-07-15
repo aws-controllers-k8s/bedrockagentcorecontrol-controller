@@ -1,0 +1,52 @@
+# Managed web-search connector GatewayTarget.
+#
+# A worked example of the `connector` MCP target type: it exposes AWS's managed
+# web-search tool through an AgentCore Gateway. Adapt the names/ARNs and apply.
+#
+# Prerequisites and caveats learned in practice:
+#
+# 1. Region: the managed web-search connector is us-east-1 only. Both the Gateway
+#    and this GatewayTarget must be created there (for cross-region GitOps, set
+#    the `services.k8s.aws/region: us-east-1` annotation on both).
+#
+# 2. Controller IAM: the Gateway carries a GATEWAY_IAM_ROLE service role, and
+#    creating it makes the controller iam:PassRole that role to
+#    bedrock-agentcore.amazonaws.com. BedrockAgentCoreFullAccess does not grant
+#    PassRole/GetRole — attach config/iam/recommended-inline-policy to the
+#    controller role as well, or CreateGateway fails with AccessDenied.
+#
+# 3. parameterValues is a required document on every connector configuration.
+#    It may be omitted here (it defaults to an empty object "{}"); supply a JSON
+#    string such as '{"domainFilter":{"exclude":["example.com"]}}' to filter.
+#
+# 4. Caller (consumer) IAM: the workload that invokes the gateway needs
+#    bedrock-agentcore:InvokeGateway on the gateway ARN and
+#    bedrock-agentcore:InvokeWebSearch on
+#    arn:aws:bedrock-agentcore:us-east-1:aws:tool/web-search.v1. That tool ARN
+#    has the literal "aws" in the account-id field, which IAM's *managed* policy
+#    validator rejects ("MalformedPolicyDocument: failed legacy parsing"). Grant
+#    it via an INLINE role policy, not a customer-managed Policy.
+---
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: GatewayTarget
+metadata:
+  name: web-search
+  namespace: default
+spec:
+  name: web-search
+  description: "Managed web search connector target"
+  # Reference an existing Gateway (protocolType MCP, authorizerType of your
+  # choice) by id, or use gatewayIdentifierRef.from.name for an ACK reference.
+  gatewayIdentifier: your-gateway-id
+  credentialProviderConfigurations:
+    - credentialProviderType: GATEWAY_IAM_ROLE
+  targetConfiguration:
+    mcp:
+      connector:
+        source:
+          connectorID: web-search
+        configurations:
+          - name: WebSearch
+            # Optional; defaults to "{}". Example denylist:
+            # parameterValues: '{"domainFilter":{"exclude":["example.com"]}}'
+            parameterValues: "{}"
