@@ -286,6 +286,15 @@ func setConnectorParameterValuesOnInput(
 		if err != nil {
 			return err
 		}
+		if doc == nil {
+			// ParameterValues is required on every connector configuration:
+			// CreateGatewayTarget rejects a missing/empty document with
+			// "ValidationException: Connector configurations must not be empty".
+			// An omitted or empty CR value therefore defaults to an empty JSON
+			// object, matching delta_pre_compare, which treats an absent value
+			// and "{}" as equal.
+			doc = svcsdkdocument.NewLazyDocument(map[string]interface{}{})
+		}
 		sdkCfgs[i].ParameterValues = doc
 	}
 	return nil
