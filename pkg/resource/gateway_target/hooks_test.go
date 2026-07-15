@@ -19,6 +19,7 @@ import (
 	svcapitypes "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/apis/v1alpha1"
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol/types"
 )
 
 // makeResource builds a resource with the given ToolDefinitions wired into
@@ -313,6 +314,26 @@ func TestStringToDocument_NilAndEmpty(t *testing.T) {
 func TestStringToDocument_InvalidJSON(t *testing.T) {
 	if _, err := stringToDocument(aws.String("{not json")); err == nil {
 		t.Error("expected error for invalid JSON")
+	}
+}
+
+// An omitted/empty ParameterValues must be sent to the API as "{}", not left
+// nil — CreateGatewayTarget rejects an empty connector configuration.
+func TestSetConnectorParameterValuesOnInput_DefaultsEmptyToObject(t *testing.T) {
+	crCfgs := []*svcapitypes.ConnectorConfiguration{connectorCfg("WebSearch", "")}
+	sdkCfgs := make([]svcsdktypes.ConnectorConfiguration, len(crCfgs))
+	if err := setConnectorParameterValuesOnInput(crCfgs, sdkCfgs); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if sdkCfgs[0].ParameterValues == nil {
+		t.Fatal("expected non-nil ParameterValues document for omitted CR value")
+	}
+	out, err := documentToString(sdkCfgs[0].ParameterValues)
+	if err != nil {
+		t.Fatalf("documentToString error: %v", err)
+	}
+	if !jsonStringsEqual(out, aws.String("{}")) {
+		t.Errorf("expected defaulted document to equal {}, got %q", ptrStringVal(out))
 	}
 }
 
