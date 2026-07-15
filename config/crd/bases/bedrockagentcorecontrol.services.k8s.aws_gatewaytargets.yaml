@@ -214,6 +214,49 @@ spec:
                           stage:
                             type: string
                         type: object
+                      connector:
+                        description: |-
+                          Configuration for a connector integration target. Connectors provide pre-built
+                          integrations with Amazon Web Services services and third-party tools.
+                        properties:
+                          configurations:
+                            items:
+                              description: Configuration for a single tool within
+                                a connector.
+                              properties:
+                                description:
+                                  type: string
+                                name:
+                                  type: string
+                                parameterOverrides:
+                                  items:
+                                    description: |-
+                                      Specifies a parameter override for a connector tool, allowing you to control
+                                      parameter visibility and descriptions.
+                                    properties:
+                                      description:
+                                        type: string
+                                      path:
+                                        type: string
+                                      visible:
+                                        type: boolean
+                                    type: object
+                                  type: array
+                                parameterValues:
+                                  type: string
+                              type: object
+                            type: array
+                          enabled:
+                            items:
+                              type: string
+                            type: array
+                          source:
+                            description: The source identifying the connector integration.
+                            properties:
+                              connectorID:
+                                type: string
+                            type: object
+                        type: object
                       lambda:
                         description: |-
                           The Lambda configuration for a Model Context Protocol target. This structure

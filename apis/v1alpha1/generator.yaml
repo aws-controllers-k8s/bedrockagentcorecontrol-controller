@@ -120,7 +120,11 @@ ignore:
     - CredentialProvider.IamCredentialProvider
     - TargetConfiguration.Http
     - TargetConfiguration.Inference
-    - McpTargetConfiguration.Connector
+    # ConnectorConfiguration.ParameterValues is a smithy document (arbitrary
+    # JSON) with no direct CRD representation; ignore the document-typed field
+    # here and re-add it as a JSON string below (see the GatewayTarget fields),
+    # marshaling/unmarshaling in hooks.
+    - ConnectorConfiguration.ParameterValues
     - McpServerTargetConfiguration.ListingMode
     - McpServerTargetConfiguration.McpToolSchema
     - McpServerTargetConfiguration.ResourcePriority
@@ -855,6 +859,35 @@ resources:
           - method: ReadOne
             ignore: all
       TargetConfiguration.Mcp.Lambda.ToolSchema.InlinePayload.OutputSchema:
+        type: "string"
+        set:
+          - method: Create
+            ignore: all
+          - method: Update
+            ignore: all
+          - method: ReadOne
+            ignore: all
+      TargetConfiguration.Mcp.Connector.Configurations:
+        # Don't overwrite the configurations from the API response: doing so
+        # would strip the user's ParameterValues JSON string from Spec (the
+        # response carries the document form, handled separately in hooks).
+        set:
+          - method: Create
+            ignore: from
+          - method: Update
+            ignore: from
+        # The slice contains a ParameterValues JSON string (see below) whose
+        # document round-trip differs by key ordering/whitespace. Ignore it in
+        # the generated delta and compare semantically in a delta_pre_compare
+        # hook (compareConnectorParameterValues).
+        compare:
+          is_ignored: true
+      # ParameterValues is a smithy document (arbitrary JSON) which can't be
+      # directly represented in a CRD. We accept it as a JSON string and
+      # marshal/unmarshal in hooks. The API requires it on every connector
+      # configuration -- an omitted value is rejected with "Connector
+      # configurations must not be empty" -- so it cannot simply be dropped.
+      TargetConfiguration.Mcp.Connector.Configurations.ParameterValues:
         type: "string"
         set:
           - method: Create
