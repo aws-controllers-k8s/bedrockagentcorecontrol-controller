@@ -155,6 +155,12 @@ operations:
 resources:
   AgentRuntime:
     fields:
+      # Optional field the service defaults server-side when unset. Late-init the
+      # observed value so an unset spec doesn't produce a phantom delta (nil vs
+      # the AWS default) that would otherwise trigger an endless update loop.
+      LifecycleConfiguration:
+        late_initialize:
+          skip_incomplete_check: {}
       NetworkConfiguration.NetworkModeConfig.SecurityGroups:
         references:
           resource: SecurityGroup
