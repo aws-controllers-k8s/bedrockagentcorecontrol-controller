@@ -165,6 +165,11 @@ resources:
           resource: Subnet
           service_name: ec2
           path: Status.SubnetID
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - READY
     exceptions:
       terminal_codes:
         - ValidationException
@@ -189,6 +194,11 @@ resources:
     fields:
       Name:
         is_primary_key: true
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - READY
     hooks:
       sdk_read_one_post_set_output:
         template_path: hooks/agentruntimeendpoint/sdk_read_one_post_set_output.go.tpl

@@ -121,6 +121,10 @@ class TestAgentRuntime:
         agent_runtime_id = cr["status"]["agentRuntimeID"]
         assert agent_runtime_id is not None
 
+        # The synced condition is gated on Status.Status == READY
+        # (generator.yaml synced:when), so once synced the runtime must be READY.
+        assert cr["status"]["status"] == "READY"
+
         aws_runtime = bedrockagentcorecontrol_client.get_agent_runtime(
             agentRuntimeId=agent_runtime_id
         )
@@ -135,6 +139,9 @@ class TestAgentRuntime:
         cr = k8s.get_resource(ref)
         agent_runtime_id = cr["status"]["agentRuntimeID"]
         assert agent_runtime_id is not None
+
+        # synced:when gates ACK.ResourceSynced on Status.Status == READY.
+        assert cr["status"]["status"] == "READY"
 
         # Verify filesystem configuration was applied at creation
         aws_runtime = bedrockagentcorecontrol_client.get_agent_runtime(
@@ -151,6 +158,11 @@ class TestAgentRuntime:
         time.sleep(UPDATE_WAIT_AFTER_SECONDS)
 
         assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
+        # The runtime transitions through UPDATING during an update; the synced
+        # condition must only be reported once it settles back to READY.
+        cr = k8s.get_resource(ref)
+        assert cr["status"]["status"] == "READY"
 
         aws_runtime = bedrockagentcorecontrol_client.get_agent_runtime(
             agentRuntimeId=agent_runtime_id
