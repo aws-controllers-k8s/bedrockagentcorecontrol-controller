@@ -148,8 +148,137 @@ func stripAWSDefaults(desired, latest *svcapitypes.MemoryStrategyInput) *svcapit
 			desired.CustomMemoryStrategy.Namespaces, desired.CustomMemoryStrategy.NamespaceTemplates,
 			&out.CustomMemoryStrategy.Namespaces, &out.CustomMemoryStrategy.NamespaceTemplates,
 		)
+		if out.CustomMemoryStrategy.Configuration != nil {
+			normalizeCustomConfigDefaults(
+				desired.CustomMemoryStrategy.Configuration,
+				out.CustomMemoryStrategy.Configuration,
+			)
+		}
 	}
 	return out
+}
+
+// promptModelEmpty reports whether an override sub-step carrying only the
+// appendToPrompt/modelID pair is an empty server-populated placeholder.
+func promptModelEmpty(appendToPrompt, modelID *string) bool {
+	return appendToPrompt == nil && modelID == nil
+}
+
+// normalizeCustomConfigDefaults strips AWS-populated defaults from a custom
+// strategy's latest configuration based on what the user set in desired,
+// mutating latest in place.
+//
+// The service populates sibling override steps the user did not request. The
+// observed case: when a semantic (or other) override supplies only an
+// extraction step, the service returns an empty consolidation step ({} with
+// nil fields), which otherwise diffs forever against the desired spec that
+// omits it.
+//
+// Stripping is limited to values the user left unset in desired AND that are
+// empty in latest — i.e. the server-populated placeholder. A server value with
+// real content is never removed, so a genuine drift (e.g. the service returns a
+// consolidation the user didn't ask for but with a concrete model) still diffs
+// normally.
+//
+// A nil desired means the user set no custom configuration at all. The empty
+// placeholder shape only arises as a sibling to a step the user did provide, so
+// with no desired config there is nothing to strip: any non-nil latest config
+// is real content that should diff. Return early and leave latest untouched.
+func normalizeCustomConfigDefaults(desired, latest *svcapitypes.CustomConfigurationInput) {
+	if latest == nil || desired == nil {
+		return
+	}
+
+	if latest.EpisodicOverride != nil {
+		lo := latest.EpisodicOverride
+		var do *svcapitypes.EpisodicOverrideConfigurationInput
+		if desired.EpisodicOverride != nil {
+			do = desired.EpisodicOverride
+		}
+		if (do == nil || do.Consolidation == nil) &&
+			lo.Consolidation != nil &&
+			promptModelEmpty(lo.Consolidation.AppendToPrompt, lo.Consolidation.ModelID) {
+			lo.Consolidation = nil
+		}
+		if (do == nil || do.Extraction == nil) &&
+			lo.Extraction != nil &&
+			promptModelEmpty(lo.Extraction.AppendToPrompt, lo.Extraction.ModelID) {
+			lo.Extraction = nil
+		}
+		if do != nil && do.Reflection != nil && lo.Reflection != nil {
+			normalizeNamespacePair(
+				do.Reflection.Namespaces, do.Reflection.NamespaceTemplates,
+				&lo.Reflection.Namespaces, &lo.Reflection.NamespaceTemplates,
+			)
+		} else if (do == nil || do.Reflection == nil) &&
+			lo.Reflection != nil &&
+			promptModelEmpty(lo.Reflection.AppendToPrompt, lo.Reflection.ModelID) &&
+			len(lo.Reflection.Namespaces) == 0 && len(lo.Reflection.NamespaceTemplates) == 0 {
+			lo.Reflection = nil
+		}
+		if lo.Consolidation == nil && lo.Extraction == nil && lo.Reflection == nil &&
+			do == nil {
+			latest.EpisodicOverride = nil
+		}
+	}
+
+	if latest.SemanticOverride != nil {
+		lo := latest.SemanticOverride
+		var do *svcapitypes.SemanticOverrideConfigurationInput
+		if desired.SemanticOverride != nil {
+			do = desired.SemanticOverride
+		}
+		if (do == nil || do.Consolidation == nil) &&
+			lo.Consolidation != nil &&
+			promptModelEmpty(lo.Consolidation.AppendToPrompt, lo.Consolidation.ModelID) {
+			lo.Consolidation = nil
+		}
+		if (do == nil || do.Extraction == nil) &&
+			lo.Extraction != nil &&
+			promptModelEmpty(lo.Extraction.AppendToPrompt, lo.Extraction.ModelID) {
+			lo.Extraction = nil
+		}
+		if lo.Consolidation == nil && lo.Extraction == nil && do == nil {
+			latest.SemanticOverride = nil
+		}
+	}
+
+	if latest.SummaryOverride != nil {
+		lo := latest.SummaryOverride
+		var do *svcapitypes.SummaryOverrideConfigurationInput
+		if desired.SummaryOverride != nil {
+			do = desired.SummaryOverride
+		}
+		if (do == nil || do.Consolidation == nil) &&
+			lo.Consolidation != nil &&
+			promptModelEmpty(lo.Consolidation.AppendToPrompt, lo.Consolidation.ModelID) {
+			lo.Consolidation = nil
+		}
+		if lo.Consolidation == nil && do == nil {
+			latest.SummaryOverride = nil
+		}
+	}
+
+	if latest.UserPreferenceOverride != nil {
+		lo := latest.UserPreferenceOverride
+		var do *svcapitypes.UserPreferenceOverrideConfigurationInput
+		if desired.UserPreferenceOverride != nil {
+			do = desired.UserPreferenceOverride
+		}
+		if (do == nil || do.Consolidation == nil) &&
+			lo.Consolidation != nil &&
+			promptModelEmpty(lo.Consolidation.AppendToPrompt, lo.Consolidation.ModelID) {
+			lo.Consolidation = nil
+		}
+		if (do == nil || do.Extraction == nil) &&
+			lo.Extraction != nil &&
+			promptModelEmpty(lo.Extraction.AppendToPrompt, lo.Extraction.ModelID) {
+			lo.Extraction = nil
+		}
+		if lo.Consolidation == nil && lo.Extraction == nil && do == nil {
+			latest.UserPreferenceOverride = nil
+		}
+	}
 }
 
 // normalizeNamespacePair strips AWS-populated defaults from the latest
