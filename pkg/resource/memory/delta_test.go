@@ -146,7 +146,11 @@ func TestCompareMemoryStrategies_DefaultNamespaces_Custom_NoDelta(t *testing.T) 
 	}
 }
 
-func TestCompareMemoryStrategies_NonDefaultNamespaces_HasDelta(t *testing.T) {
+func TestCompareMemoryStrategies_UnsetNamespaces_ServerPopulated_NoDelta(t *testing.T) {
+	// User leaves namespaces unset; the service populates a value. Whatever the
+	// service assigns to an unset field is a server-side default and must be
+	// adopted without diffing — this holds for the new templated defaults, for
+	// which "custom-ns" here stands in.
 	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
 		{EpisodicMemoryStrategy: &svcapitypes.EpisodicMemoryStrategyInput{
 			Name: aws.String("ep1"),
@@ -159,8 +163,29 @@ func TestCompareMemoryStrategies_NonDefaultNamespaces_HasDelta(t *testing.T) {
 		}},
 	})
 
-	if !hasDelta(a, b) {
-		t.Error("expected a difference for non-default namespaces")
+	if hasDelta(a, b) {
+		t.Error("expected no difference when the service populates an unset namespaces field")
+	}
+}
+
+func TestCompareMemoryStrategies_TemplatedDefault_NoDelta(t *testing.T) {
+	// The concrete regression: user leaves namespaceTemplates unset and the
+	// service returns the current templated default. This must not diff.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name: aws.String("sem1"),
+		}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name:               aws.String("sem1"),
+			Namespaces:         []*string{aws.String("/strategies/{memoryStrategyId}/actors/{actorId}/")},
+			NamespaceTemplates: []*string{aws.String("/strategies/{memoryStrategyId}/actors/{actorId}/")},
+		}},
+	})
+
+	if hasDelta(a, b) {
+		t.Error("expected no difference when the service returns templated defaults for unset fields")
 	}
 }
 
@@ -312,8 +337,11 @@ func TestCompareMemoryStrategies_MirroredNamespaces_NoDelta(t *testing.T) {
 	}
 }
 
-func TestCompareMemoryStrategies_MirroredButDifferentValue_HasDelta(t *testing.T) {
-	// User sets namespaceTemplates=["foo"], AWS returns namespaces=["bar"] — real diff
+func TestCompareMemoryStrategies_SetFieldDiffers_HasDelta(t *testing.T) {
+	// User set namespaceTemplates=["foo"] but the service has ["bar"] for that
+	// same set field — a genuine drift the user cares about. The sibling
+	// namespaces field is unset in desired, so its server value is adopted; the
+	// delta must come solely from the set field disagreeing.
 	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
 		{EpisodicMemoryStrategy: &svcapitypes.EpisodicMemoryStrategyInput{
 			Name:               aws.String("ep1"),
@@ -323,13 +351,75 @@ func TestCompareMemoryStrategies_MirroredButDifferentValue_HasDelta(t *testing.T
 	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
 		{EpisodicMemoryStrategy: &svcapitypes.EpisodicMemoryStrategyInput{
 			Name:               aws.String("ep1"),
-			Namespaces:         []*string{aws.String("bar")},
-			NamespaceTemplates: []*string{aws.String("foo")},
+			Namespaces:         []*string{aws.String("server-assigned")},
+			NamespaceTemplates: []*string{aws.String("bar")},
 		}},
 	})
 
 	if !hasDelta(a, b) {
-		t.Error("expected a difference when mirrored value doesn't match")
+		t.Error("expected a difference when a user-set field drifts")
+	}
+}
+
+func TestCompareMemoryStrategies_SetNamespacesDrifts_HasDelta(t *testing.T) {
+	// The symmetric guarantee to SetFieldDiffers: the user set the plain
+	// namespaces field and the server has a different value for it. Option A
+	// must NOT strip a field the user set, so this legitimate change diffs.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name:       aws.String("sem1"),
+			Namespaces: []*string{aws.String("my-ns")},
+		}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name:       aws.String("sem1"),
+			Namespaces: []*string{aws.String("changed-ns")},
+		}},
+	})
+
+	if !hasDelta(a, b) {
+		t.Error("expected a difference when a user-set namespaces value drifts")
+	}
+}
+
+func TestCompareMemoryStrategies_SetNamespacesDrifts_ServerMirrors_HasDelta(t *testing.T) {
+	// Realistic shape of the drift: the user set only namespaces, and the
+	// service mirrors the current (drifted) value into namespaceTemplates. The
+	// mirrored, unset-in-desired namespaceTemplates is stripped, so the delta
+	// must still surface from the user-set namespaces field disagreeing rather
+	// than being masked by the mirror.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name:       aws.String("sem1"),
+			Namespaces: []*string{aws.String("my-ns")},
+		}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name:               aws.String("sem1"),
+			Namespaces:         []*string{aws.String("changed-ns")},
+			NamespaceTemplates: []*string{aws.String("changed-ns")},
+		}},
+	})
+
+	if !hasDelta(a, b) {
+		t.Error("expected a difference when a user-set namespaces value drifts and the server mirrors it")
+	}
+}
+
+func TestCompareMemoryStrategies_SameLengthStrategySwap_HasDelta(t *testing.T) {
+	// Count is unchanged but a strategy was replaced with a different one.
+	// Element-wise comparison after name-sorting must catch this.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{EpisodicMemoryStrategy: &svcapitypes.EpisodicMemoryStrategyInput{Name: aws.String("ep1")}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{Name: aws.String("sem1")}},
+	})
+
+	if !hasDelta(a, b) {
+		t.Error("expected a difference when a strategy is swapped for a different one")
 	}
 }
 

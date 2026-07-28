@@ -86,18 +86,16 @@ func compareMemoryStrategies(
 	}
 }
 
-func isDefaultNamespaces(ns []*string) bool {
-	return len(ns) == 1 && ns[0] != nil && *ns[0] == "default"
-}
-
 // stripAWSDefaults returns a copy of latest with AWS-populated default
 // values removed, but only when the corresponding field in desired is
 // nil/empty. This preserves the distinction when the user explicitly
 // sets a value.
 //
 // AWS applies two default behaviors:
-// 1. If neither namespaces nor namespaceTemplates is set, both default to ["default"].
-// 2. If only one is set, the other is mirrored to the same value.
+//  1. If neither namespaces nor namespaceTemplates is set, both are defaulted.
+//     The default was historically the literal ["default"] and is now a
+//     templated path such as "/strategies/{memoryStrategyId}/actors/{actorId}/".
+//  2. If only one is set, the other is mirrored to the same value.
 func stripAWSDefaults(desired, latest *svcapitypes.MemoryStrategyInput) *svcapitypes.MemoryStrategyInput {
 	if latest == nil {
 		return nil
@@ -114,12 +112,9 @@ func stripAWSDefaults(desired, latest *svcapitypes.MemoryStrategyInput) *svcapit
 		)
 		if out.EpisodicMemoryStrategy.ReflectionConfiguration != nil {
 			if desired.EpisodicMemoryStrategy.ReflectionConfiguration == nil {
-				// User didn't set reflection config; strip if AWS only populated defaults
-				rc := out.EpisodicMemoryStrategy.ReflectionConfiguration
-				if (len(rc.Namespaces) == 0 || isDefaultNamespaces(rc.Namespaces)) &&
-					(len(rc.NamespaceTemplates) == 0 || isDefaultNamespaces(rc.NamespaceTemplates)) {
-					out.EpisodicMemoryStrategy.ReflectionConfiguration = nil
-				}
+				// User didn't set reflection config, so anything AWS populated
+				// here is a server default; drop it so it doesn't diff.
+				out.EpisodicMemoryStrategy.ReflectionConfiguration = nil
 			} else {
 				normalizeNamespacePair(
 					desired.EpisodicMemoryStrategy.ReflectionConfiguration.Namespaces,
@@ -160,27 +155,25 @@ func stripAWSDefaults(desired, latest *svcapitypes.MemoryStrategyInput) *svcapit
 // normalizeNamespacePair strips AWS-populated defaults from the latest
 // namespaces/namespaceTemplates pair based on what the user set in desired.
 //
-// Rules:
-//   - If desired didn't set a field (nil/empty) and latest has ["default"], strip it.
-//   - If desired didn't set a field but latest mirrors the value from the other
-//     field (because AWS copies one to the other), strip the mirrored value.
+// When the user left a field unset in desired, whatever the service populated
+// in latest is a server-side default and must not produce a delta. Stripping
+// unconditionally on an unset desired field covers every default shape the
+// service may return: the legacy literal ["default"] (still emitted for
+// pre-existing memory instances), the current templated form (e.g.
+// "/strategies/{memoryStrategyId}/actors/{actorId}/"), and values mirrored from
+// the sibling field — and keeps us resilient to future changes in the default.
+//
+// When the user did set a field, latest is left untouched so a genuine drift
+// still diffs normally.
 func normalizeNamespacePair(
 	desiredNS, desiredNST []*string,
 	latestNS, latestNST *[]*string,
 ) {
 	if len(desiredNS) == 0 {
-		if isDefaultNamespaces(*latestNS) {
-			*latestNS = nil
-		} else if len(desiredNST) > 0 && ptrSliceEqual(*latestNS, desiredNST) {
-			*latestNS = nil
-		}
+		*latestNS = nil
 	}
 	if len(desiredNST) == 0 {
-		if isDefaultNamespaces(*latestNST) {
-			*latestNST = nil
-		} else if len(desiredNS) > 0 && ptrSliceEqual(*latestNST, desiredNS) {
-			*latestNST = nil
-		}
+		*latestNST = nil
 	}
 }
 
