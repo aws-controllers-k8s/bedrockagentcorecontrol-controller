@@ -155,10 +155,15 @@ operations:
 resources:
   AgentRuntime:
     fields:
-      # Optional field the service defaults server-side when unset. Late-init the
-      # observed value so an unset spec doesn't produce a phantom delta (nil vs
-      # the AWS default) that would otherwise trigger an endless update loop.
+      # Optional fields the service defaults server-side when unset (e.g. it
+      # populates protocolConfiguration.serverProtocol with HTTP). Late-init the
+      # observed values so an unset spec doesn't produce a phantom delta (nil vs
+      # the AWS default) that would otherwise trigger an endless update loop and
+      # keep the resource from ever reporting synced.
       LifecycleConfiguration:
+        late_initialize:
+          skip_incomplete_check: {}
+      ProtocolConfiguration:
         late_initialize:
           skip_incomplete_check: {}
       NetworkConfiguration.NetworkModeConfig.SecurityGroups:
@@ -180,8 +185,6 @@ resources:
       terminal_codes:
         - ValidationException
     hooks:
-      sdk_read_one_post_set_output:
-        template_path: hooks/agentruntime/sdk_read_one_post_set_output.go.tpl
       sdk_update_pre_build_request:
         template_path: hooks/agentruntime/sdk_update_pre_build_request.go.tpl
 
@@ -206,8 +209,6 @@ resources:
           in:
             - READY
     hooks:
-      sdk_read_one_post_set_output:
-        template_path: hooks/agentruntimeendpoint/sdk_read_one_post_set_output.go.tpl
       sdk_update_pre_build_request:
         template_path: hooks/agentruntimeendpoint/sdk_update_pre_build_request.go.tpl
 

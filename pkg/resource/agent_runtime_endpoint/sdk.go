@@ -128,9 +128,6 @@ func (rm *resourceManager) sdkFind(
 	}
 
 	rm.setStatusDefaults(ko)
-	if !agentRuntimeEndpointReady(&resource{ko}) {
-		return nil, requeueNotReady
-	}
 	return &resource{ko}, nil
 }
 
