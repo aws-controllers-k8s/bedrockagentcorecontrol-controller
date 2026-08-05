@@ -153,6 +153,12 @@ type AuthorizingClaimMatchValueType struct {
 	ClaimMatchValue *ClaimMatchValueType `json:"claimMatchValue,omitempty"`
 }
 
+// The configuration for using Amazon Bedrock models in evaluator assessments,
+// including model selection and inference parameters.
+type BedrockEvaluatorModelConfig struct {
+	ModelID *string `json:"modelID,omitempty"`
+}
+
 // Browser enterprise policy configuration.
 type BrowserEnterprisePolicy struct {
 	// The location of a resource.
@@ -670,37 +676,40 @@ type HTTPAPISchemaConfiguration struct {
 	Source *APISchemaConfiguration `json:"source,omitempty"`
 }
 
-// Representation of a harness.
-type Harness struct {
-	// Represents inbound authorization configuration options used to authenticate
-	// incoming requests.
-	AuthorizerConfiguration *AuthorizerConfiguration `json:"authorizerConfiguration,omitempty"`
-	CreatedAt               *metav1.Time             `json:"createdAt,omitempty"`
-	EnvironmentVariables    map[string]*string       `json:"environmentVariables,omitempty"`
-	ExecutionRoleARN        *string                  `json:"executionRoleARN,omitempty"`
-	FailureReason           *string                  `json:"failureReason,omitempty"`
-	MaxIterations           *int64                   `json:"maxIterations,omitempty"`
-	MaxTokens               *int64                   `json:"maxTokens,omitempty"`
-	TimeoutSeconds          *int64                   `json:"timeoutSeconds,omitempty"`
-	UpdatedAt               *metav1.Time             `json:"updatedAt,omitempty"`
+// Configuration for AgentCore Browser.
+type HarnessAgentCoreBrowserConfig struct {
+	// Browser ARN for Harness tool configuration. Accepts both managed (aws.browser.v1)
+	// and custom browser ARNs.
+	BrowserARN *string `json:"browserARN,omitempty"`
+}
+
+// Configuration for AgentCore Code Interpreter.
+type HarnessAgentCoreCodeInterpreterConfig struct {
+	// Code Interpreter ARN for Harness tool configuration. Accepts both managed
+	// (aws.codeinterpreter.v1) and custom code interpreter ARNs.
+	CodeInterpreterARN *string `json:"codeInterpreterARN,omitempty"`
 }
 
 // Configuration for AgentCore Gateway.
 type HarnessAgentCoreGatewayConfig struct {
 	GatewayARN *string `json:"gatewayARN,omitempty"`
+	// Authentication method for calling a Gateway.
+	OutboundAuth *HarnessGatewayOutboundAuth `json:"outboundAuth,omitempty"`
 }
 
 // Configuration for AgentCore Memory integration.
 type HarnessAgentCoreMemoryConfiguration struct {
-	ActorID       *string `json:"actorID,omitempty"`
-	ARN           *string `json:"arn,omitempty"`
-	MessagesCount *int64  `json:"messagesCount,omitempty"`
+	ActorID         *string                                           `json:"actorID,omitempty"`
+	ARN             *string                                           `json:"arn,omitempty"`
+	MessagesCount   *int64                                            `json:"messagesCount,omitempty"`
+	RetrievalConfig map[string]*HarnessAgentCoreMemoryRetrievalConfig `json:"retrievalConfig,omitempty"`
 }
 
 // Configuration for memory retrieval within a namespace.
 type HarnessAgentCoreMemoryRetrievalConfig struct {
-	StrategyID *string `json:"strategyID,omitempty"`
-	TopK       *int64  `json:"topK,omitempty"`
+	RelevanceScore *float64 `json:"relevanceScore,omitempty"`
+	StrategyID     *string  `json:"strategyID,omitempty"`
+	TopK           *int64   `json:"topK,omitempty"`
 }
 
 // The AgentCore Runtime environment for a harness.
@@ -730,12 +739,29 @@ type HarnessAgentCoreRuntimeEnvironmentRequest struct {
 	NetworkConfiguration *NetworkConfiguration `json:"networkConfiguration,omitempty"`
 }
 
+// Configuration for an Amazon Bedrock model provider.
+type HarnessBedrockModelConfig struct {
+	APIFormat   *string  `json:"apiFormat,omitempty"`
+	MaxTokens   *int64   `json:"maxTokens,omitempty"`
+	ModelID     *string  `json:"modelID,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty"`
+	TopP        *float64 `json:"topP,omitempty"`
+}
+
 // Representation of a harness endpoint. An endpoint is a named, stable reference
 // to a specific version of a harness that callers invoke, allowing the underlying
 // version to be updated without changing how the agent is invoked.
-type HarnessEndpoint struct {
+type HarnessEndpoint_SDK struct {
+	ARN           *string      `json:"arn,omitempty"`
 	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
+	Description   *string      `json:"description,omitempty"`
+	EndpointName  *string      `json:"endpointName,omitempty"`
 	FailureReason *string      `json:"failureReason,omitempty"`
+	HarnessID     *string      `json:"harnessID,omitempty"`
+	HarnessName   *string      `json:"harnessName,omitempty"`
+	LiveVersion   *string      `json:"liveVersion,omitempty"`
+	Status        *string      `json:"status,omitempty"`
+	TargetVersion *string      `json:"targetVersion,omitempty"`
 	UpdatedAt     *metav1.Time `json:"updatedAt,omitempty"`
 }
 
@@ -746,28 +772,137 @@ type HarnessEnvironmentArtifact struct {
 	ContainerConfiguration *ContainerConfiguration `json:"containerConfiguration,omitempty"`
 }
 
+// The environment provider for a harness.
+type HarnessEnvironmentProvider struct {
+	// The AgentCore Runtime environment for a harness.
+	AgentCoreRuntimeEnvironment *HarnessAgentCoreRuntimeEnvironment `json:"agentCoreRuntimeEnvironment,omitempty"`
+}
+
+// The environment provider request configuration.
+type HarnessEnvironmentProviderRequest struct {
+	// The AgentCore Runtime environment request configuration.
+	AgentCoreRuntimeEnvironment *HarnessAgentCoreRuntimeEnvironmentRequest `json:"agentCoreRuntimeEnvironment,omitempty"`
+}
+
 // Authentication method for calling a Gateway.
 type HarnessGatewayOutboundAuth struct {
+	AWSIAM map[string]*string `json:"awsIAM,omitempty"`
+	None   map[string]*string `json:"none,omitempty"`
 	// An OAuth credential provider for gateway authentication. This structure contains
 	// the configuration for authenticating with the target endpoint using OAuth.
 	Oauth *OAuthCredentialProvider `json:"oauth,omitempty"`
 }
 
+// Configuration for a Google Gemini model provider. Requires an API key stored
+// in AgentCore Identity.
+type HarnessGeminiModelConfig struct {
+	APIKeyARN   *string  `json:"apiKeyARN,omitempty"`
+	MaxTokens   *int64   `json:"maxTokens,omitempty"`
+	ModelID     *string  `json:"modelID,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty"`
+	TopK        *int64   `json:"topK,omitempty"`
+	TopP        *float64 `json:"topP,omitempty"`
+}
+
+// Configuration for an inline function tool. When the agent calls this tool,
+// the tool call is returned to the caller for external execution.
+type HarnessInlineFunctionConfig struct {
+	Description *string `json:"description,omitempty"`
+}
+
+// Configuration for a LiteLLM model provider, enabling connection to third-party
+// model providers.
+type HarnessLiteLlmModelConfig struct {
+	APIBase     *string  `json:"apiBase,omitempty"`
+	APIKeyARN   *string  `json:"apiKeyARN,omitempty"`
+	MaxTokens   *int64   `json:"maxTokens,omitempty"`
+	ModelID     *string  `json:"modelID,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty"`
+	TopP        *float64 `json:"topP,omitempty"`
+}
+
 // Configuration for managed memory creation.
 type HarnessManagedMemoryConfiguration struct {
-	ARN                 *string `json:"arn,omitempty"`
-	EncryptionKeyARN    *string `json:"encryptionKeyARN,omitempty"`
-	EventExpiryDuration *int64  `json:"eventExpiryDuration,omitempty"`
+	ARN                 *string   `json:"arn,omitempty"`
+	EncryptionKeyARN    *string   `json:"encryptionKeyARN,omitempty"`
+	EventExpiryDuration *int64    `json:"eventExpiryDuration,omitempty"`
+	Strategies          []*string `json:"strategies,omitempty"`
+}
+
+// The memory configuration for a harness.
+type HarnessMemoryConfiguration struct {
+	// Configuration for AgentCore Memory integration.
+	AgentCoreMemoryConfiguration *HarnessAgentCoreMemoryConfiguration `json:"agentCoreMemoryConfiguration,omitempty"`
+	// Explicitly opt out of memory.
+	Disabled map[string]*string `json:"disabled,omitempty"`
+	// Configuration for managed memory creation.
+	ManagedMemoryConfiguration *HarnessManagedMemoryConfiguration `json:"managedMemoryConfiguration,omitempty"`
+}
+
+// Specification of which model to use.
+type HarnessModelConfiguration struct {
+	// Configuration for an Amazon Bedrock model provider.
+	BedrockModelConfig *HarnessBedrockModelConfig `json:"bedrockModelConfig,omitempty"`
+	// Configuration for a Google Gemini model provider. Requires an API key stored
+	// in AgentCore Identity.
+	GeminiModelConfig *HarnessGeminiModelConfig `json:"geminiModelConfig,omitempty"`
+	// Configuration for a LiteLLM model provider, enabling connection to third-party
+	// model providers.
+	LiteLlmModelConfig *HarnessLiteLlmModelConfig `json:"liteLlmModelConfig,omitempty"`
+	// Configuration for an OpenAI model provider. Requires an API key stored in
+	// AgentCore Identity.
+	OpenAiModelConfig *HarnessOpenAiModelConfig `json:"openAiModelConfig,omitempty"`
+}
+
+// Configuration for an OpenAI model provider. Requires an API key stored in
+// AgentCore Identity.
+type HarnessOpenAiModelConfig struct {
+	APIFormat   *string  `json:"apiFormat,omitempty"`
+	APIKeyARN   *string  `json:"apiKeyARN,omitempty"`
+	MaxTokens   *int64   `json:"maxTokens,omitempty"`
+	ModelID     *string  `json:"modelID,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty"`
+	TopP        *float64 `json:"topP,omitempty"`
+}
+
+// Configuration for connecting to a remote MCP server.
+type HarnessRemoteMcpConfig struct {
+	URL *string `json:"url,omitempty"`
+}
+
+// A skill available to the agent.
+type HarnessSkill struct {
+	// Passed to show that AWS Skills should be included.
+	AWSSkills *HarnessSkillAWSSkillsSource `json:"awsSkills,omitempty"`
+	// A git repository source for a skill.
+	Git  *HarnessSkillGitSource `json:"git,omitempty"`
+	Path *string                `json:"path,omitempty"`
+	// An S3 source for a skill.
+	S3 *HarnessSkillS3Source `json:"s3,omitempty"`
+}
+
+// Passed to show that AWS Skills should be included.
+type HarnessSkillAWSSkillsSource struct {
+	Paths []*string `json:"paths,omitempty"`
 }
 
 // Authentication configuration for accessing a private git repository.
 type HarnessSkillGitAuth struct {
-	Username *string `json:"username,omitempty"`
+	CredentialARN *string `json:"credentialARN,omitempty"`
+	Username      *string `json:"username,omitempty"`
 }
 
 // A git repository source for a skill.
 type HarnessSkillGitSource struct {
-	Path *string `json:"path,omitempty"`
+	// Authentication configuration for accessing a private git repository.
+	Auth *HarnessSkillGitAuth `json:"auth,omitempty"`
+	Path *string              `json:"path,omitempty"`
+	URL  *string              `json:"url,omitempty"`
+}
+
+// An S3 source for a skill.
+type HarnessSkillS3Source struct {
+	URI *string `json:"uri,omitempty"`
 }
 
 // Configuration for sliding window truncation strategy.
@@ -777,21 +912,110 @@ type HarnessSlidingWindowConfiguration struct {
 
 // Configuration for summarization-based truncation strategy.
 type HarnessSummarizationConfiguration struct {
-	PreserveRecentMessages    *int64  `json:"preserveRecentMessages,omitempty"`
-	SummarizationSystemPrompt *string `json:"summarizationSystemPrompt,omitempty"`
+	PreserveRecentMessages    *int64   `json:"preserveRecentMessages,omitempty"`
+	SummarizationSystemPrompt *string  `json:"summarizationSystemPrompt,omitempty"`
+	SummaryRatio              *float64 `json:"summaryRatio,omitempty"`
 }
 
 // Summary information about a harness.
 type HarnessSummary struct {
-	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
-	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
+	ARN            *string      `json:"arn,omitempty"`
+	CreatedAt      *metav1.Time `json:"createdAt,omitempty"`
+	HarnessID      *string      `json:"harnessID,omitempty"`
+	HarnessName    *string      `json:"harnessName,omitempty"`
+	HarnessVersion *string      `json:"harnessVersion,omitempty"`
+	Status         *string      `json:"status,omitempty"`
+	UpdatedAt      *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// A content block in the system prompt.
+type HarnessSystemContentBlock struct {
+	Text *string `json:"text,omitempty"`
+}
+
+// A tool available to the agent loop.
+type HarnessTool struct {
+	// Configuration union for different tool types.
+	Config *HarnessToolConfiguration `json:"config,omitempty"`
+	Name   *string                   `json:"name,omitempty"`
+	Type   *string                   `json:"type_,omitempty"`
+}
+
+// Configuration union for different tool types.
+type HarnessToolConfiguration struct {
+	// Configuration for AgentCore Browser.
+	AgentCoreBrowser *HarnessAgentCoreBrowserConfig `json:"agentCoreBrowser,omitempty"`
+	// Configuration for AgentCore Code Interpreter.
+	AgentCoreCodeInterpreter *HarnessAgentCoreCodeInterpreterConfig `json:"agentCoreCodeInterpreter,omitempty"`
+	// Configuration for AgentCore Gateway.
+	AgentCoreGateway *HarnessAgentCoreGatewayConfig `json:"agentCoreGateway,omitempty"`
+	// Configuration for an inline function tool. When the agent calls this tool,
+	// the tool call is returned to the caller for external execution.
+	InlineFunction *HarnessInlineFunctionConfig `json:"inlineFunction,omitempty"`
+	// Configuration for connecting to a remote MCP server.
+	RemoteMcp *HarnessRemoteMcpConfig `json:"remoteMcp,omitempty"`
+}
+
+// Configuration for truncating conversation context when it exceeds model limits.
+type HarnessTruncationConfiguration struct {
+	// Strategy-specific truncation configuration.
+	Config   *HarnessTruncationStrategyConfiguration `json:"config,omitempty"`
+	Strategy *string                                 `json:"strategy,omitempty"`
+}
+
+// Strategy-specific truncation configuration.
+type HarnessTruncationStrategyConfiguration struct {
+	// Configuration for sliding window truncation strategy.
+	SlidingWindow *HarnessSlidingWindowConfiguration `json:"slidingWindow,omitempty"`
+	// Configuration for summarization-based truncation strategy.
+	Summarization *HarnessSummarizationConfiguration `json:"summarization,omitempty"`
 }
 
 // Summary information about a single version of a harness.
 type HarnessVersionSummary struct {
-	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
-	FailureReason *string      `json:"failureReason,omitempty"`
-	UpdatedAt     *metav1.Time `json:"updatedAt,omitempty"`
+	ARN            *string      `json:"arn,omitempty"`
+	CreatedAt      *metav1.Time `json:"createdAt,omitempty"`
+	FailureReason  *string      `json:"failureReason,omitempty"`
+	HarnessID      *string      `json:"harnessID,omitempty"`
+	HarnessName    *string      `json:"harnessName,omitempty"`
+	HarnessVersion *string      `json:"harnessVersion,omitempty"`
+	Status         *string      `json:"status,omitempty"`
+	UpdatedAt      *metav1.Time `json:"updatedAt,omitempty"`
+}
+
+// Representation of a harness.
+type Harness_SDK struct {
+	AllowedTools []*string `json:"allowedTools,omitempty"`
+	ARN          *string   `json:"arn,omitempty"`
+	// Represents inbound authorization configuration options used to authenticate
+	// incoming requests.
+	AuthorizerConfiguration *AuthorizerConfiguration `json:"authorizerConfiguration,omitempty"`
+	CreatedAt               *metav1.Time             `json:"createdAt,omitempty"`
+	// The environment provider for a harness.
+	Environment *HarnessEnvironmentProvider `json:"environment,omitempty"`
+	// The environment artifact for a harness, such as a container image containing
+	// custom dependencies.
+	EnvironmentArtifact  *HarnessEnvironmentArtifact `json:"environmentArtifact,omitempty"`
+	EnvironmentVariables map[string]*string          `json:"environmentVariables,omitempty"`
+	ExecutionRoleARN     *string                     `json:"executionRoleARN,omitempty"`
+	FailureReason        *string                     `json:"failureReason,omitempty"`
+	HarnessID            *string                     `json:"harnessID,omitempty"`
+	HarnessName          *string                     `json:"harnessName,omitempty"`
+	HarnessVersion       *string                     `json:"harnessVersion,omitempty"`
+	MaxIterations        *int64                      `json:"maxIterations,omitempty"`
+	MaxTokens            *int64                      `json:"maxTokens,omitempty"`
+	// The memory configuration for a harness.
+	Memory *HarnessMemoryConfiguration `json:"memory,omitempty"`
+	// Specification of which model to use.
+	Model          *HarnessModelConfiguration   `json:"model,omitempty"`
+	Skills         []*HarnessSkill              `json:"skills,omitempty"`
+	Status         *string                      `json:"status,omitempty"`
+	SystemPrompt   []*HarnessSystemContentBlock `json:"systemPrompt,omitempty"`
+	TimeoutSeconds *int64                       `json:"timeoutSeconds,omitempty"`
+	Tools          []*HarnessTool               `json:"tools,omitempty"`
+	// Configuration for truncating conversation context when it exceeds model limits.
+	Truncation *HarnessTruncationConfiguration `json:"truncation,omitempty"`
+	UpdatedAt  *metav1.Time                    `json:"updatedAt,omitempty"`
 }
 
 // A hosting environment whose workloads are allowed to invoke the target. At
@@ -811,7 +1035,9 @@ type IAMCredentialProvider struct {
 // The configuration parameters that control how the foundation model behaves
 // during evaluation, including response generation settings.
 type InferenceConfiguration struct {
-	MaxTokens *int64 `json:"maxTokens,omitempty"`
+	MaxTokens   *int64   `json:"maxTokens,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty"`
+	TopP        *float64 `json:"topP,omitempty"`
 }
 
 // The interceptor configuration.
@@ -1612,6 +1838,19 @@ type UpdatedAuthorizerConfiguration struct {
 // include the wrapper with optionalValue not specified.
 type UpdatedDescription struct {
 	OptionalValue *string `json:"optionalValue,omitempty"`
+}
+
+// Wrapper for updating the environment artifact configuration.
+type UpdatedHarnessEnvironmentArtifact struct {
+	// The environment artifact for a harness, such as a container image containing
+	// custom dependencies.
+	OptionalValue *HarnessEnvironmentArtifact `json:"optionalValue,omitempty"`
+}
+
+// Wrapper for updating the memory configuration.
+type UpdatedHarnessMemoryConfiguration struct {
+	// The memory configuration for a harness.
+	OptionalValue *HarnessMemoryConfiguration `json:"optionalValue,omitempty"`
 }
 
 // Contains user preference consolidation override configuration.
