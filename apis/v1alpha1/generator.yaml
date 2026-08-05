@@ -21,8 +21,6 @@ ignore:
     - Dataset
     - DatasetVersion
     - GatewayRule
-    - Harness
-    - HarnessEndpoint
     - PaymentConnector
     - PaymentCredentialProvider
     - PaymentManager
@@ -140,11 +138,41 @@ ignore:
     - UserPreferenceMemoryStrategyInput_.MemoryRecordSchema
     # Policy
     - PolicyDefinition.Policy
+    # Harness document-valued fields cannot be represented directly in an ACK
+    # CRD. They are optional and outside the minimal Harness POC surface.
+    # A follow-up can expose them as JSON strings using the GatewayTarget schema
+    # pattern once the core Harness lifecycle is proven.
+    - HarnessBedrockModelConfig.AdditionalParams
+    - HarnessInlineFunctionConfig.InputSchema
+    - HarnessLiteLlmModelConfig.AdditionalParams
+    - HarnessOpenAiModelConfig.AdditionalParams
+    # Remote MCP headers can contain authorization credentials. ACK cannot
+    # represent a map as SecretKeyReferences, so do not persist them in a
+    # normal CR until the model has a secret-backed representation.
+    - HarnessRemoteMcpConfig.Headers
+
+empty_shapes:
+  # Harness uses Unit as the payload for explicit "disabled"/"none" union
+  # members (for example disabled memory and no gateway authentication).
+  - Unit
+  - HarnessDisabledMemoryConfiguration
 
 sdk_names:
   model_name: bedrock-agentcore-control
 
 operations:
+  CreateHarness:
+    output_wrapper_field_path: Harness
+  GetHarness:
+    output_wrapper_field_path: Harness
+  UpdateHarness:
+    output_wrapper_field_path: Harness
+  CreateHarnessEndpoint:
+    output_wrapper_field_path: Endpoint
+  GetHarnessEndpoint:
+    output_wrapper_field_path: Endpoint
+  UpdateHarnessEndpoint:
+    output_wrapper_field_path: Endpoint
   CreateMemory:
     output_wrapper_field_path: Memory
   GetMemory:
@@ -253,6 +281,185 @@ resources:
     hooks:
       sdk_update_pre_build_request:
         template_path: hooks/agentruntimeendpoint/sdk_update_pre_build_request.go.tpl
+
+  Harness:
+    ignore_idempotency_token: true
+    fields:
+      AuthorizerConfiguration:
+        set:
+          - method: Update
+            ignore: all
+      EnvironmentArtifact:
+        set:
+          - method: Update
+            ignore: all
+      Memory:
+        set:
+          - method: Update
+            ignore: all
+      HarnessId:
+        is_primary_key: true
+      HarnessName:
+        is_immutable: true
+      ExecutionRoleArn:
+        references:
+          resource: Role
+          service_name: iam
+          path: Status.ACKResourceMetadata.ARN
+      CreatedAt:
+        is_read_only: true
+        from:
+          operation: GetHarness
+          path: Harness.CreatedAt
+      UpdatedAt:
+        is_read_only: true
+        from:
+          operation: GetHarness
+          path: Harness.UpdatedAt
+      HarnessVersion:
+        is_read_only: true
+        from:
+          operation: GetHarness
+          path: Harness.HarnessVersion
+      FailureReason:
+        is_read_only: true
+        from:
+          operation: GetHarness
+          path: Harness.FailureReason
+      AgentRuntimeArn:
+        is_read_only: true
+        from:
+          operation: GetHarness
+          path: Harness.Environment.AgentCoreRuntimeEnvironment.AgentRuntimeArn
+      AgentRuntimeId:
+        is_read_only: true
+        from:
+          operation: GetHarness
+          path: Harness.Environment.AgentCoreRuntimeEnvironment.AgentRuntimeId
+      AgentRuntimeName:
+        is_read_only: true
+        from:
+          operation: GetHarness
+          path: Harness.Environment.AgentCoreRuntimeEnvironment.AgentRuntimeName
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - CREATE_FAILED
+            - UPDATE_FAILED
+            - DELETE_FAILED
+    updateable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - CREATE_FAILED
+            - UPDATE_FAILED
+            - DELETE_FAILED
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
+    hooks:
+      sdk_read_one_post_build_request:
+        template_path: hooks/harness/sdk_read_one_post_build_request.go.tpl
+      sdk_read_one_post_set_output:
+        template_path: hooks/harness/sdk_read_one_post_set_output.go.tpl
+      sdk_update_pre_build_request:
+        template_path: hooks/harness/sdk_update_pre_build_request.go.tpl
+      sdk_update_post_build_request:
+        template_path: hooks/harness/sdk_update_post_build_request.go.tpl
+
+  HarnessEndpoint:
+    ignore_idempotency_token: true
+    renames:
+      operations:
+        GetHarnessEndpoint:
+          input_fields:
+            EndpointName: Name
+        CreateHarnessEndpoint:
+          input_fields:
+            EndpointName: Name
+        UpdateHarnessEndpoint:
+          input_fields:
+            EndpointName: Name
+        DeleteHarnessEndpoint:
+          input_fields:
+            EndpointName: Name
+    fields:
+      Name:
+        is_primary_key: true
+        is_immutable: true
+      HarnessId:
+        is_immutable: true
+        references:
+          resource: Harness
+          path: Status.HarnessID
+      CreatedAt:
+        is_read_only: true
+        from:
+          operation: GetHarnessEndpoint
+          path: Endpoint.CreatedAt
+      UpdatedAt:
+        is_read_only: true
+        from:
+          operation: GetHarnessEndpoint
+          path: Endpoint.UpdatedAt
+      HarnessName:
+        is_read_only: true
+        from:
+          operation: GetHarnessEndpoint
+          path: Endpoint.HarnessName
+      LiveVersion:
+        is_read_only: true
+        from:
+          operation: GetHarnessEndpoint
+          path: Endpoint.LiveVersion
+      FailureReason:
+        is_read_only: true
+        from:
+          operation: GetHarnessEndpoint
+          path: Endpoint.FailureReason
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - CREATE_FAILED
+            - UPDATE_FAILED
+            - DELETE_FAILED
+    updateable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - CREATE_FAILED
+            - UPDATE_FAILED
+            - DELETE_FAILED
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
+    hooks:
+      sdk_read_one_post_set_output:
+        template_path: hooks/harnessendpoint/sdk_read_one_post_set_output.go.tpl
+      sdk_update_pre_build_request:
+        template_path: hooks/harnessendpoint/sdk_update_pre_build_request.go.tpl
 
   Memory:
     ignore_idempotency_token: true
