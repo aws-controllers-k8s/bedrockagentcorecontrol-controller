@@ -1,0 +1,14 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: HarnessEndpoint
+metadata:
+  name: $ENDPOINT_NAME
+  namespace: $NAMESPACE
+spec:
+  name: $ENDPOINT_NAME
+  harnessRef:
+    from:
+      name: $HARNESS_NAME
+  targetVersion: "$TARGET_VERSION"
+  description: ACK e2e Harness endpoint
+  tags:
+    ack-e2e: harness-endpoint

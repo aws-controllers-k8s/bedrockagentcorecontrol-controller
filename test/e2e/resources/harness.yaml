@@ -1,0 +1,20 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: Harness
+metadata:
+  name: $HARNESS_NAME
+  namespace: $NAMESPACE
+spec:
+  harnessName: $HARNESS_NAME
+  executionRoleARN: $ROLE_ARN
+  environment:
+    agentCoreRuntimeEnvironment:
+      networkConfiguration:
+        networkMode: PUBLIC
+  model:
+    bedrockModelConfig:
+      modelID: $MODEL_ID
+  memory:
+    disabled: {}
+  maxIterations: 3
+  tags:
+    ack-e2e: harness
