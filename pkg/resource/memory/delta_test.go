@@ -146,7 +146,11 @@ func TestCompareMemoryStrategies_DefaultNamespaces_Custom_NoDelta(t *testing.T) 
 	}
 }
 
-func TestCompareMemoryStrategies_NonDefaultNamespaces_HasDelta(t *testing.T) {
+func TestCompareMemoryStrategies_UnsetNamespaces_ServerPopulated_NoDelta(t *testing.T) {
+	// User leaves namespaces unset; the service populates a value. Whatever the
+	// service assigns to an unset field is a server-side default and must be
+	// adopted without diffing — this holds for the new templated defaults, for
+	// which "custom-ns" here stands in.
 	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
 		{EpisodicMemoryStrategy: &svcapitypes.EpisodicMemoryStrategyInput{
 			Name: aws.String("ep1"),
@@ -159,8 +163,29 @@ func TestCompareMemoryStrategies_NonDefaultNamespaces_HasDelta(t *testing.T) {
 		}},
 	})
 
-	if !hasDelta(a, b) {
-		t.Error("expected a difference for non-default namespaces")
+	if hasDelta(a, b) {
+		t.Error("expected no difference when the service populates an unset namespaces field")
+	}
+}
+
+func TestCompareMemoryStrategies_TemplatedDefault_NoDelta(t *testing.T) {
+	// The concrete regression: user leaves namespaceTemplates unset and the
+	// service returns the current templated default. This must not diff.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name: aws.String("sem1"),
+		}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name:               aws.String("sem1"),
+			Namespaces:         []*string{aws.String("/strategies/{memoryStrategyId}/actors/{actorId}/")},
+			NamespaceTemplates: []*string{aws.String("/strategies/{memoryStrategyId}/actors/{actorId}/")},
+		}},
+	})
+
+	if hasDelta(a, b) {
+		t.Error("expected no difference when the service returns templated defaults for unset fields")
 	}
 }
 
@@ -312,8 +337,11 @@ func TestCompareMemoryStrategies_MirroredNamespaces_NoDelta(t *testing.T) {
 	}
 }
 
-func TestCompareMemoryStrategies_MirroredButDifferentValue_HasDelta(t *testing.T) {
-	// User sets namespaceTemplates=["foo"], AWS returns namespaces=["bar"] — real diff
+func TestCompareMemoryStrategies_SetFieldDiffers_HasDelta(t *testing.T) {
+	// User set namespaceTemplates=["foo"] but the service has ["bar"] for that
+	// same set field — a genuine drift the user cares about. The sibling
+	// namespaces field is unset in desired, so its server value is adopted; the
+	// delta must come solely from the set field disagreeing.
 	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
 		{EpisodicMemoryStrategy: &svcapitypes.EpisodicMemoryStrategyInput{
 			Name:               aws.String("ep1"),
@@ -323,13 +351,75 @@ func TestCompareMemoryStrategies_MirroredButDifferentValue_HasDelta(t *testing.T
 	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
 		{EpisodicMemoryStrategy: &svcapitypes.EpisodicMemoryStrategyInput{
 			Name:               aws.String("ep1"),
-			Namespaces:         []*string{aws.String("bar")},
-			NamespaceTemplates: []*string{aws.String("foo")},
+			Namespaces:         []*string{aws.String("server-assigned")},
+			NamespaceTemplates: []*string{aws.String("bar")},
 		}},
 	})
 
 	if !hasDelta(a, b) {
-		t.Error("expected a difference when mirrored value doesn't match")
+		t.Error("expected a difference when a user-set field drifts")
+	}
+}
+
+func TestCompareMemoryStrategies_SetNamespacesDrifts_HasDelta(t *testing.T) {
+	// The symmetric guarantee to SetFieldDiffers: the user set the plain
+	// namespaces field and the server has a different value for it. Option A
+	// must NOT strip a field the user set, so this legitimate change diffs.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name:       aws.String("sem1"),
+			Namespaces: []*string{aws.String("my-ns")},
+		}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name:       aws.String("sem1"),
+			Namespaces: []*string{aws.String("changed-ns")},
+		}},
+	})
+
+	if !hasDelta(a, b) {
+		t.Error("expected a difference when a user-set namespaces value drifts")
+	}
+}
+
+func TestCompareMemoryStrategies_SetNamespacesDrifts_ServerMirrors_HasDelta(t *testing.T) {
+	// Realistic shape of the drift: the user set only namespaces, and the
+	// service mirrors the current (drifted) value into namespaceTemplates. The
+	// mirrored, unset-in-desired namespaceTemplates is stripped, so the delta
+	// must still surface from the user-set namespaces field disagreeing rather
+	// than being masked by the mirror.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name:       aws.String("sem1"),
+			Namespaces: []*string{aws.String("my-ns")},
+		}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{
+			Name:               aws.String("sem1"),
+			Namespaces:         []*string{aws.String("changed-ns")},
+			NamespaceTemplates: []*string{aws.String("changed-ns")},
+		}},
+	})
+
+	if !hasDelta(a, b) {
+		t.Error("expected a difference when a user-set namespaces value drifts and the server mirrors it")
+	}
+}
+
+func TestCompareMemoryStrategies_SameLengthStrategySwap_HasDelta(t *testing.T) {
+	// Count is unchanged but a strategy was replaced with a different one.
+	// Element-wise comparison after name-sorting must catch this.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{EpisodicMemoryStrategy: &svcapitypes.EpisodicMemoryStrategyInput{Name: aws.String("ep1")}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{SemanticMemoryStrategy: &svcapitypes.SemanticMemoryStrategyInput{Name: aws.String("sem1")}},
+	})
+
+	if !hasDelta(a, b) {
+		t.Error("expected a difference when a strategy is swapped for a different one")
 	}
 }
 
@@ -406,6 +496,148 @@ func TestCompareMemoryStrategies_EpisodicReflectionDefault_NoDelta(t *testing.T)
 
 	if hasDelta(a, b) {
 		t.Error("expected no difference when AWS adds default reflection config")
+	}
+}
+
+func TestCompareMemoryStrategies_Custom_SemanticOverrideEmptyConsolidation_NoDelta(t *testing.T) {
+	// The concrete CI regression: user sets only semanticOverride.extraction and
+	// the service returns an empty consolidation placeholder ({} with nil
+	// fields) alongside the mirrored/defaulted namespaces. This must not diff.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{CustomMemoryStrategy: &svcapitypes.CustomMemoryStrategyInput{
+			Name: aws.String("ack_test_custom"),
+			Configuration: &svcapitypes.CustomConfigurationInput{
+				SemanticOverride: &svcapitypes.SemanticOverrideConfigurationInput{
+					Extraction: &svcapitypes.SemanticOverrideExtractionConfigurationInput{
+						AppendToPrompt: aws.String("Extract key facts only."),
+						ModelID:        aws.String("us.amazon.nova-lite-v1:0"),
+					},
+				},
+			},
+		}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{CustomMemoryStrategy: &svcapitypes.CustomMemoryStrategyInput{
+			Name:               aws.String("ack_test_custom"),
+			Namespaces:         []*string{aws.String("/strategies/{memoryStrategyId}/actors/{actorId}/")},
+			NamespaceTemplates: []*string{aws.String("/strategies/{memoryStrategyId}/actors/{actorId}/")},
+			Configuration: &svcapitypes.CustomConfigurationInput{
+				SemanticOverride: &svcapitypes.SemanticOverrideConfigurationInput{
+					Consolidation: &svcapitypes.SemanticOverrideConsolidationConfigurationInput{},
+					Extraction: &svcapitypes.SemanticOverrideExtractionConfigurationInput{
+						AppendToPrompt: aws.String("Extract key facts only."),
+						ModelID:        aws.String("us.amazon.nova-lite-v1:0"),
+					},
+				},
+			},
+		}},
+	})
+
+	if hasDelta(a, b) {
+		t.Error("expected no difference when the service adds an empty consolidation placeholder")
+	}
+}
+
+func TestCompareMemoryStrategies_Custom_ExtractionDrifts_HasDelta(t *testing.T) {
+	// The user-set extraction step genuinely drifts; the empty consolidation
+	// placeholder must not mask it.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{CustomMemoryStrategy: &svcapitypes.CustomMemoryStrategyInput{
+			Name: aws.String("ack_test_custom"),
+			Configuration: &svcapitypes.CustomConfigurationInput{
+				SemanticOverride: &svcapitypes.SemanticOverrideConfigurationInput{
+					Extraction: &svcapitypes.SemanticOverrideExtractionConfigurationInput{
+						AppendToPrompt: aws.String("Extract key facts only."),
+						ModelID:        aws.String("us.amazon.nova-lite-v1:0"),
+					},
+				},
+			},
+		}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{CustomMemoryStrategy: &svcapitypes.CustomMemoryStrategyInput{
+			Name: aws.String("ack_test_custom"),
+			Configuration: &svcapitypes.CustomConfigurationInput{
+				SemanticOverride: &svcapitypes.SemanticOverrideConfigurationInput{
+					Consolidation: &svcapitypes.SemanticOverrideConsolidationConfigurationInput{},
+					Extraction: &svcapitypes.SemanticOverrideExtractionConfigurationInput{
+						AppendToPrompt: aws.String("Extract everything."),
+						ModelID:        aws.String("us.amazon.nova-lite-v1:0"),
+					},
+				},
+			},
+		}},
+	})
+
+	if !hasDelta(a, b) {
+		t.Error("expected a difference when the user-set extraction step drifts")
+	}
+}
+
+func TestCompareMemoryStrategies_Custom_ServerConsolidationHasContent_HasDelta(t *testing.T) {
+	// The user set only extraction, but the service returns a consolidation with
+	// real content (not an empty placeholder). That is a genuine difference the
+	// user should see, so it must NOT be stripped.
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{CustomMemoryStrategy: &svcapitypes.CustomMemoryStrategyInput{
+			Name: aws.String("ack_test_custom"),
+			Configuration: &svcapitypes.CustomConfigurationInput{
+				SemanticOverride: &svcapitypes.SemanticOverrideConfigurationInput{
+					Extraction: &svcapitypes.SemanticOverrideExtractionConfigurationInput{
+						AppendToPrompt: aws.String("Extract key facts only."),
+						ModelID:        aws.String("us.amazon.nova-lite-v1:0"),
+					},
+				},
+			},
+		}},
+	})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{
+		{CustomMemoryStrategy: &svcapitypes.CustomMemoryStrategyInput{
+			Name: aws.String("ack_test_custom"),
+			Configuration: &svcapitypes.CustomConfigurationInput{
+				SemanticOverride: &svcapitypes.SemanticOverrideConfigurationInput{
+					Consolidation: &svcapitypes.SemanticOverrideConsolidationConfigurationInput{
+						ModelID: aws.String("us.amazon.nova-pro-v1:0"),
+					},
+					Extraction: &svcapitypes.SemanticOverrideExtractionConfigurationInput{
+						AppendToPrompt: aws.String("Extract key facts only."),
+						ModelID:        aws.String("us.amazon.nova-lite-v1:0"),
+					},
+				},
+			},
+		}},
+	})
+
+	if !hasDelta(a, b) {
+		t.Error("expected a difference when the server returns a non-empty consolidation the user didn't set")
+	}
+}
+
+func TestCompareMemoryStrategies_Custom_ConfigMatches_NoDelta(t *testing.T) {
+	// User sets both extraction and consolidation identically to the server —
+	// no delta, and stripping must not touch the populated consolidation.
+	strat := func() *svcapitypes.CustomMemoryStrategyInput {
+		return &svcapitypes.CustomMemoryStrategyInput{
+			Name: aws.String("ack_test_custom"),
+			Configuration: &svcapitypes.CustomConfigurationInput{
+				SemanticOverride: &svcapitypes.SemanticOverrideConfigurationInput{
+					Consolidation: &svcapitypes.SemanticOverrideConsolidationConfigurationInput{
+						AppendToPrompt: aws.String("Consolidate."),
+						ModelID:        aws.String("us.amazon.nova-lite-v1:0"),
+					},
+					Extraction: &svcapitypes.SemanticOverrideExtractionConfigurationInput{
+						AppendToPrompt: aws.String("Extract key facts only."),
+						ModelID:        aws.String("us.amazon.nova-lite-v1:0"),
+					},
+				},
+			},
+		}
+	}
+	a := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{{CustomMemoryStrategy: strat()}})
+	b := makeMemoryResource([]*svcapitypes.MemoryStrategyInput{{CustomMemoryStrategy: strat()}})
+
+	if hasDelta(a, b) {
+		t.Error("expected no difference when custom configuration matches exactly")
 	}
 }
 

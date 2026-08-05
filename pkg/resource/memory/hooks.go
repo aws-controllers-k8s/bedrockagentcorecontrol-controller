@@ -86,18 +86,16 @@ func compareMemoryStrategies(
 	}
 }
 
-func isDefaultNamespaces(ns []*string) bool {
-	return len(ns) == 1 && ns[0] != nil && *ns[0] == "default"
-}
-
 // stripAWSDefaults returns a copy of latest with AWS-populated default
 // values removed, but only when the corresponding field in desired is
 // nil/empty. This preserves the distinction when the user explicitly
 // sets a value.
 //
 // AWS applies two default behaviors:
-// 1. If neither namespaces nor namespaceTemplates is set, both default to ["default"].
-// 2. If only one is set, the other is mirrored to the same value.
+//  1. If neither namespaces nor namespaceTemplates is set, both are defaulted.
+//     The default was historically the literal ["default"] and is now a
+//     templated path such as "/strategies/{memoryStrategyId}/actors/{actorId}/".
+//  2. If only one is set, the other is mirrored to the same value.
 func stripAWSDefaults(desired, latest *svcapitypes.MemoryStrategyInput) *svcapitypes.MemoryStrategyInput {
 	if latest == nil {
 		return nil
@@ -114,12 +112,9 @@ func stripAWSDefaults(desired, latest *svcapitypes.MemoryStrategyInput) *svcapit
 		)
 		if out.EpisodicMemoryStrategy.ReflectionConfiguration != nil {
 			if desired.EpisodicMemoryStrategy.ReflectionConfiguration == nil {
-				// User didn't set reflection config; strip if AWS only populated defaults
-				rc := out.EpisodicMemoryStrategy.ReflectionConfiguration
-				if (len(rc.Namespaces) == 0 || isDefaultNamespaces(rc.Namespaces)) &&
-					(len(rc.NamespaceTemplates) == 0 || isDefaultNamespaces(rc.NamespaceTemplates)) {
-					out.EpisodicMemoryStrategy.ReflectionConfiguration = nil
-				}
+				// User didn't set reflection config, so anything AWS populated
+				// here is a server default; drop it so it doesn't diff.
+				out.EpisodicMemoryStrategy.ReflectionConfiguration = nil
 			} else {
 				normalizeNamespacePair(
 					desired.EpisodicMemoryStrategy.ReflectionConfiguration.Namespaces,
@@ -153,34 +148,161 @@ func stripAWSDefaults(desired, latest *svcapitypes.MemoryStrategyInput) *svcapit
 			desired.CustomMemoryStrategy.Namespaces, desired.CustomMemoryStrategy.NamespaceTemplates,
 			&out.CustomMemoryStrategy.Namespaces, &out.CustomMemoryStrategy.NamespaceTemplates,
 		)
+		if out.CustomMemoryStrategy.Configuration != nil {
+			normalizeCustomConfigDefaults(
+				desired.CustomMemoryStrategy.Configuration,
+				out.CustomMemoryStrategy.Configuration,
+			)
+		}
 	}
 	return out
+}
+
+// promptModelEmpty reports whether an override sub-step carrying only the
+// appendToPrompt/modelID pair is an empty server-populated placeholder.
+func promptModelEmpty(appendToPrompt, modelID *string) bool {
+	return appendToPrompt == nil && modelID == nil
+}
+
+// normalizeCustomConfigDefaults strips AWS-populated defaults from a custom
+// strategy's latest configuration based on what the user set in desired,
+// mutating latest in place.
+//
+// The service populates sibling override steps the user did not request. The
+// observed case: when a semantic (or other) override supplies only an
+// extraction step, the service returns an empty consolidation step ({} with
+// nil fields), which otherwise diffs forever against the desired spec that
+// omits it.
+//
+// Stripping is limited to values the user left unset in desired AND that are
+// empty in latest — i.e. the server-populated placeholder. A server value with
+// real content is never removed, so a genuine drift (e.g. the service returns a
+// consolidation the user didn't ask for but with a concrete model) still diffs
+// normally.
+//
+// A nil desired means the user set no custom configuration at all. The empty
+// placeholder shape only arises as a sibling to a step the user did provide, so
+// with no desired config there is nothing to strip: any non-nil latest config
+// is real content that should diff. Return early and leave latest untouched.
+func normalizeCustomConfigDefaults(desired, latest *svcapitypes.CustomConfigurationInput) {
+	if latest == nil || desired == nil {
+		return
+	}
+
+	if latest.EpisodicOverride != nil {
+		lo := latest.EpisodicOverride
+		var do *svcapitypes.EpisodicOverrideConfigurationInput
+		if desired.EpisodicOverride != nil {
+			do = desired.EpisodicOverride
+		}
+		if (do == nil || do.Consolidation == nil) &&
+			lo.Consolidation != nil &&
+			promptModelEmpty(lo.Consolidation.AppendToPrompt, lo.Consolidation.ModelID) {
+			lo.Consolidation = nil
+		}
+		if (do == nil || do.Extraction == nil) &&
+			lo.Extraction != nil &&
+			promptModelEmpty(lo.Extraction.AppendToPrompt, lo.Extraction.ModelID) {
+			lo.Extraction = nil
+		}
+		if do != nil && do.Reflection != nil && lo.Reflection != nil {
+			normalizeNamespacePair(
+				do.Reflection.Namespaces, do.Reflection.NamespaceTemplates,
+				&lo.Reflection.Namespaces, &lo.Reflection.NamespaceTemplates,
+			)
+		} else if (do == nil || do.Reflection == nil) &&
+			lo.Reflection != nil &&
+			promptModelEmpty(lo.Reflection.AppendToPrompt, lo.Reflection.ModelID) &&
+			len(lo.Reflection.Namespaces) == 0 && len(lo.Reflection.NamespaceTemplates) == 0 {
+			lo.Reflection = nil
+		}
+		if lo.Consolidation == nil && lo.Extraction == nil && lo.Reflection == nil &&
+			do == nil {
+			latest.EpisodicOverride = nil
+		}
+	}
+
+	if latest.SemanticOverride != nil {
+		lo := latest.SemanticOverride
+		var do *svcapitypes.SemanticOverrideConfigurationInput
+		if desired.SemanticOverride != nil {
+			do = desired.SemanticOverride
+		}
+		if (do == nil || do.Consolidation == nil) &&
+			lo.Consolidation != nil &&
+			promptModelEmpty(lo.Consolidation.AppendToPrompt, lo.Consolidation.ModelID) {
+			lo.Consolidation = nil
+		}
+		if (do == nil || do.Extraction == nil) &&
+			lo.Extraction != nil &&
+			promptModelEmpty(lo.Extraction.AppendToPrompt, lo.Extraction.ModelID) {
+			lo.Extraction = nil
+		}
+		if lo.Consolidation == nil && lo.Extraction == nil && do == nil {
+			latest.SemanticOverride = nil
+		}
+	}
+
+	if latest.SummaryOverride != nil {
+		lo := latest.SummaryOverride
+		var do *svcapitypes.SummaryOverrideConfigurationInput
+		if desired.SummaryOverride != nil {
+			do = desired.SummaryOverride
+		}
+		if (do == nil || do.Consolidation == nil) &&
+			lo.Consolidation != nil &&
+			promptModelEmpty(lo.Consolidation.AppendToPrompt, lo.Consolidation.ModelID) {
+			lo.Consolidation = nil
+		}
+		if lo.Consolidation == nil && do == nil {
+			latest.SummaryOverride = nil
+		}
+	}
+
+	if latest.UserPreferenceOverride != nil {
+		lo := latest.UserPreferenceOverride
+		var do *svcapitypes.UserPreferenceOverrideConfigurationInput
+		if desired.UserPreferenceOverride != nil {
+			do = desired.UserPreferenceOverride
+		}
+		if (do == nil || do.Consolidation == nil) &&
+			lo.Consolidation != nil &&
+			promptModelEmpty(lo.Consolidation.AppendToPrompt, lo.Consolidation.ModelID) {
+			lo.Consolidation = nil
+		}
+		if (do == nil || do.Extraction == nil) &&
+			lo.Extraction != nil &&
+			promptModelEmpty(lo.Extraction.AppendToPrompt, lo.Extraction.ModelID) {
+			lo.Extraction = nil
+		}
+		if lo.Consolidation == nil && lo.Extraction == nil && do == nil {
+			latest.UserPreferenceOverride = nil
+		}
+	}
 }
 
 // normalizeNamespacePair strips AWS-populated defaults from the latest
 // namespaces/namespaceTemplates pair based on what the user set in desired.
 //
-// Rules:
-//   - If desired didn't set a field (nil/empty) and latest has ["default"], strip it.
-//   - If desired didn't set a field but latest mirrors the value from the other
-//     field (because AWS copies one to the other), strip the mirrored value.
+// When the user left a field unset in desired, whatever the service populated
+// in latest is a server-side default and must not produce a delta. Stripping
+// unconditionally on an unset desired field covers every default shape the
+// service may return: the legacy literal ["default"] (still emitted for
+// pre-existing memory instances), the current templated form (e.g.
+// "/strategies/{memoryStrategyId}/actors/{actorId}/"), and values mirrored from
+// the sibling field — and keeps us resilient to future changes in the default.
+//
+// When the user did set a field, latest is left untouched so a genuine drift
+// still diffs normally.
 func normalizeNamespacePair(
 	desiredNS, desiredNST []*string,
 	latestNS, latestNST *[]*string,
 ) {
 	if len(desiredNS) == 0 {
-		if isDefaultNamespaces(*latestNS) {
-			*latestNS = nil
-		} else if len(desiredNST) > 0 && ptrSliceEqual(*latestNS, desiredNST) {
-			*latestNS = nil
-		}
+		*latestNS = nil
 	}
 	if len(desiredNST) == 0 {
-		if isDefaultNamespaces(*latestNST) {
-			*latestNST = nil
-		} else if len(desiredNS) > 0 && ptrSliceEqual(*latestNST, desiredNS) {
-			*latestNST = nil
-		}
+		*latestNST = nil
 	}
 }
 
