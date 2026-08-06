@@ -22,6 +22,7 @@ import pytest
 from acktest.k8s import condition
 from acktest.k8s import resource as k8s
 from acktest.resources import random_suffix_name
+from botocore.exceptions import ClientError
 from kubernetes import client as k8s_client
 
 from e2e import (
@@ -35,7 +36,6 @@ from e2e.replacement_values import REPLACEMENT_VALUES
 
 from .test_harness import (
     SYNC_WAIT_PERIODS,
-    _wait_for_aws_status,
     _wait_for_not_found,
     _wait_for_runtime_status,
     simple_harness,  # noqa: F401 -- imported so pytest registers the fixture
@@ -43,9 +43,11 @@ from .test_harness import (
 
 HARNESS_ENDPOINT_RESOURCE_PLURAL = "harnessendpoints"
 UPDATE_WAIT_AFTER_SECONDS = 10
+INVOKE_ATTEMPTS = 4
+INVOKE_RETRY_SECONDS = 20
 
 
-def _invoke_harness(client, harness_arn, endpoint_name):
+def _invoke_harness_once(client, harness_arn, endpoint_name):
     response = client.invoke_harness(
         harnessArn=harness_arn,
         qualifier=endpoint_name,
@@ -61,7 +63,9 @@ def _invoke_harness(client, harness_arn, endpoint_name):
     message_stopped = False
     for event in response["stream"]:
         if "runtimeClientError" in event:
-            pytest.fail(f"Harness invocation failed: {event['runtimeClientError']}")
+            raise RuntimeError(
+                f"Harness invocation stream failed: {event['runtimeClientError']}"
+            )
         if "contentBlockDelta" in event:
             delta = event["contentBlockDelta"].get("delta", {})
             if "text" in delta:
@@ -72,6 +76,46 @@ def _invoke_harness(client, harness_arn, endpoint_name):
     response_text = "".join(text_chunks).strip()
     assert response_text, "Harness invocation returned no text"
     return response_text
+
+
+def _invoke_harness(client, harness_arn, endpoint_name):
+    last_error = None
+    for attempt in range(INVOKE_ATTEMPTS):
+        try:
+            return _invoke_harness_once(client, harness_arn, endpoint_name)
+        except ClientError as error:
+            error_code = error.response.get("Error", {}).get("Code")
+            http_status = error.response.get("ResponseMetadata", {}).get(
+                "HTTPStatusCode"
+            )
+            if error_code != "RuntimeClientError" or http_status != 502:
+                raise
+            last_error = error
+        except RuntimeError as error:
+            last_error = error
+
+        if attempt < INVOKE_ATTEMPTS - 1:
+            time.sleep(INVOKE_RETRY_SECONDS)
+
+    pytest.fail(
+        f"Harness invocation did not succeed after {INVOKE_ATTEMPTS} attempts: "
+        f"{last_error}"
+    )
+
+
+def _wait_for_harness_configuration(client, harness_id, **expected):
+    last_harness = None
+    for _ in range(SYNC_WAIT_PERIODS):
+        last_harness = client.get_harness(harnessId=harness_id)["harness"]
+        if last_harness["status"] == "READY" and all(
+            last_harness.get(field) == value for field, value in expected.items()
+        ):
+            return last_harness
+        time.sleep(10)
+    pytest.fail(
+        f"Harness {harness_id} did not reach expected configuration "
+        f"{expected}; last state: {last_harness}"
+    )
 
 
 def _restart_controller():
@@ -270,26 +314,19 @@ class TestHarnessEndpoint:
             harnessId=harness_id,
             maxIterations=desired_iterations + 5,
         )
-        _wait_for_aws_status(bedrockagentcorecontrol_client, harness_id)
-        k8s.patch_custom_resource(
-            harness_ref,
-            {"metadata": {"annotations": {"acktest/full-drift-probe": "1"}}},
+        _wait_for_harness_configuration(
+            bedrockagentcorecontrol_client,
+            harness_id,
+            maxIterations=desired_iterations + 5,
         )
-        time.sleep(UPDATE_WAIT_AFTER_SECONDS)
-        assert k8s.wait_on_condition(
-            harness_ref,
-            "ACK.ResourceSynced",
-            "True",
-            wait_periods=SYNC_WAIT_PERIODS,
+        _restart_controller()
+        corrected = _wait_for_harness_configuration(
+            bedrockagentcorecontrol_client,
+            harness_id,
+            maxIterations=desired_iterations,
         )
-        corrected = _wait_for_aws_status(bedrockagentcorecontrol_client, harness_id)
         assert corrected["maxIterations"] == desired_iterations
 
-        _restart_controller()
-        k8s.patch_custom_resource(
-            harness_ref,
-            {"metadata": {"annotations": {"acktest/post-restart-probe": "1"}}},
-        )
         assert k8s.wait_on_condition(
             harness_ref,
             "ACK.ResourceSynced",
