@@ -8,6 +8,9 @@ import sys
 import boto3
 
 
+# Actions required by the Harness/HarnessEndpoint lifecycle test. Memory is
+# disabled by its fixture, but GetMemory remains required when a Harness refers
+# to an existing Memory. Memory lifecycle tests have separate IAM requirements.
 CONTROLLER_ACTIONS = [
     "bedrock-agentcore:CreateHarness",
     "bedrock-agentcore:GetHarness",
@@ -25,10 +28,7 @@ CONTROLLER_ACTIONS = [
     "bedrock-agentcore:GetAgentRuntimeEndpoint",
     "bedrock-agentcore:UpdateAgentRuntimeEndpoint",
     "bedrock-agentcore:DeleteAgentRuntimeEndpoint",
-    "bedrock-agentcore:CreateMemory",
     "bedrock-agentcore:GetMemory",
-    "bedrock-agentcore:UpdateMemory",
-    "bedrock-agentcore:DeleteMemory",
     "bedrock-agentcore:ListTagsForResource",
     "bedrock-agentcore:TagResource",
     "bedrock-agentcore:UntagResource",
