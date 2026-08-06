@@ -11,6 +11,8 @@
 # express or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
+import os
+
 import boto3
 import pytest
 
@@ -43,3 +45,23 @@ def k8s_client():
 @pytest.fixture(scope='module')
 def bedrockagentcorecontrol_client():
     return boto3.client('bedrock-agentcore-control')
+
+@pytest.fixture(scope='module')
+def bedrockagentcore_client():
+    return boto3.client('bedrock-agentcore')
+
+@pytest.fixture(scope='session')
+def expected_aws_account_id():
+    expected = os.getenv("ACK_E2E_EXPECTED_AWS_ACCOUNT_ID")
+    if not expected:
+        pytest.fail(
+            "ACK_E2E_EXPECTED_AWS_ACCOUNT_ID is required before Harness tests "
+            "can create AWS resources"
+        )
+    identity = boto3.client("sts").get_caller_identity()
+    if identity["Account"] != expected:
+        pytest.fail(
+            f"refusing AWS mutation: caller account {identity['Account']} is "
+            f"not expected account {expected}"
+        )
+    return expected

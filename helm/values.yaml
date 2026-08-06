@@ -158,6 +158,8 @@ reconcile:
     - CodeInterpreter
     - Gateway
     - GatewayTarget
+    - Harness
+    - HarnessEndpoint
     - Memory
     - Policy
     - PolicyEngine

@@ -6,4 +6,6 @@
 bin
 build
 .env
+__pycache__/
+*.py[cod]
 READ_BEFORE_COMMIT.md

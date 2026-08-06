@@ -88,6 +88,8 @@ rules:
   - codeinterpreters
   - gateways
   - gatewaytargets
+  - harnessendpoints
+  - harnesses
   - memories
   - policies
   - policyengines
@@ -111,6 +113,8 @@ rules:
   - codeinterpreters/status
   - gateways/status
   - gatewaytargets/status
+  - harnessendpoints/status
+  - harnesses/status
   - memories/status
   - policies/status
   - policyengines/status

@@ -376,16 +376,16 @@ const (
 	HarnessBedrockAPIFormat_responses        HarnessBedrockAPIFormat = "responses"
 )
 
-type HarnessEndpointStatus string
+type HarnessEndpointStatus_SDK string
 
 const (
-	HarnessEndpointStatus_CREATE_FAILED HarnessEndpointStatus = "CREATE_FAILED"
-	HarnessEndpointStatus_CREATING      HarnessEndpointStatus = "CREATING"
-	HarnessEndpointStatus_DELETE_FAILED HarnessEndpointStatus = "DELETE_FAILED"
-	HarnessEndpointStatus_DELETING      HarnessEndpointStatus = "DELETING"
-	HarnessEndpointStatus_READY         HarnessEndpointStatus = "READY"
-	HarnessEndpointStatus_UPDATE_FAILED HarnessEndpointStatus = "UPDATE_FAILED"
-	HarnessEndpointStatus_UPDATING      HarnessEndpointStatus = "UPDATING"
+	HarnessEndpointStatus_SDK_CREATE_FAILED HarnessEndpointStatus_SDK = "CREATE_FAILED"
+	HarnessEndpointStatus_SDK_CREATING      HarnessEndpointStatus_SDK = "CREATING"
+	HarnessEndpointStatus_SDK_DELETE_FAILED HarnessEndpointStatus_SDK = "DELETE_FAILED"
+	HarnessEndpointStatus_SDK_DELETING      HarnessEndpointStatus_SDK = "DELETING"
+	HarnessEndpointStatus_SDK_READY         HarnessEndpointStatus_SDK = "READY"
+	HarnessEndpointStatus_SDK_UPDATE_FAILED HarnessEndpointStatus_SDK = "UPDATE_FAILED"
+	HarnessEndpointStatus_SDK_UPDATING      HarnessEndpointStatus_SDK = "UPDATING"
 )
 
 type HarnessManagedMemoryStrategyType string
@@ -404,16 +404,16 @@ const (
 	HarnessOpenAiAPIFormat_responses        HarnessOpenAiAPIFormat = "responses"
 )
 
-type HarnessStatus string
+type HarnessStatus_SDK string
 
 const (
-	HarnessStatus_CREATE_FAILED HarnessStatus = "CREATE_FAILED"
-	HarnessStatus_CREATING      HarnessStatus = "CREATING"
-	HarnessStatus_DELETE_FAILED HarnessStatus = "DELETE_FAILED"
-	HarnessStatus_DELETING      HarnessStatus = "DELETING"
-	HarnessStatus_READY         HarnessStatus = "READY"
-	HarnessStatus_UPDATE_FAILED HarnessStatus = "UPDATE_FAILED"
-	HarnessStatus_UPDATING      HarnessStatus = "UPDATING"
+	HarnessStatus_SDK_CREATE_FAILED HarnessStatus_SDK = "CREATE_FAILED"
+	HarnessStatus_SDK_CREATING      HarnessStatus_SDK = "CREATING"
+	HarnessStatus_SDK_DELETE_FAILED HarnessStatus_SDK = "DELETE_FAILED"
+	HarnessStatus_SDK_DELETING      HarnessStatus_SDK = "DELETING"
+	HarnessStatus_SDK_READY         HarnessStatus_SDK = "READY"
+	HarnessStatus_SDK_UPDATE_FAILED HarnessStatus_SDK = "UPDATE_FAILED"
+	HarnessStatus_SDK_UPDATING      HarnessStatus_SDK = "UPDATING"
 )
 
 type HarnessToolType string

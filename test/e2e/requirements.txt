@@ -1,1 +1,4 @@
-acktest @ git+https://github.com/aws-controllers-k8s/test-infra.git@2fe362267de2f6b4103e92a88136464ae724c6a4
+acktest @ git+https://github.com/aws-controllers-k8s/test-infra.git@b6324eeb2feacf2d7617bd8c8f7c2200553036c9
+boto3>=1.43.50
+# acktest imports distutils, which Python 3.12 removed from the standard library.
+setuptools>=68.0.0

@@ -1,0 +1,8 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: Harness
+metadata:
+  name: $HARNESS_NAME
+  namespace: $NAMESPACE
+spec:
+  harnessName: $HARNESS_NAME
+  executionRoleARN: arn:aws:iam::000000000000:role/ack-e2e-role-that-does-not-exist
