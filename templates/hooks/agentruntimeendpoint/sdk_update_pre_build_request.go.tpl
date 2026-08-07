@@ -11,6 +11,3 @@
     if !delta.DifferentExcept("Spec.Tags"){
         return desired, nil
     }
-	if !agentRuntimeEndpointReady(latest) {
-		return latest, requeueNotReady
-	}

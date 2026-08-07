@@ -50,7 +50,7 @@ var (
 // +kubebuilder:rbac:groups=bedrockagentcorecontrol.services.k8s.aws,resources=agentruntimes,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=bedrockagentcorecontrol.services.k8s.aws,resources=agentruntimes/status,verbs=get;update;patch
 
-var lateInitializeFieldNames = []string{"LifecycleConfiguration", "ProtocolConfiguration"}
+var lateInitializeFieldNames = []string{"LifecycleConfiguration", "IdleRuntimeSessionTimeout", "MaxLifetime", "ProtocolConfiguration", "ServerProtocol"}
 
 // resourceManager is responsible for providing a consistent way to perform
 // CRUD operations in a backend AWS service API for Book custom resources.
@@ -265,8 +265,23 @@ func (rm *resourceManager) lateInitializeFromReadOneOutput(
 	if observedKo.Spec.LifecycleConfiguration != nil && latestKo.Spec.LifecycleConfiguration == nil {
 		latestKo.Spec.LifecycleConfiguration = observedKo.Spec.LifecycleConfiguration
 	}
+	if observedKo.Spec.LifecycleConfiguration != nil && latestKo.Spec.LifecycleConfiguration != nil {
+		if observedKo.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil && latestKo.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout == nil {
+			latestKo.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout = observedKo.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout
+		}
+	}
+	if observedKo.Spec.LifecycleConfiguration != nil && latestKo.Spec.LifecycleConfiguration != nil {
+		if observedKo.Spec.LifecycleConfiguration.MaxLifetime != nil && latestKo.Spec.LifecycleConfiguration.MaxLifetime == nil {
+			latestKo.Spec.LifecycleConfiguration.MaxLifetime = observedKo.Spec.LifecycleConfiguration.MaxLifetime
+		}
+	}
 	if observedKo.Spec.ProtocolConfiguration != nil && latestKo.Spec.ProtocolConfiguration == nil {
 		latestKo.Spec.ProtocolConfiguration = observedKo.Spec.ProtocolConfiguration
+	}
+	if observedKo.Spec.ProtocolConfiguration != nil && latestKo.Spec.ProtocolConfiguration != nil {
+		if observedKo.Spec.ProtocolConfiguration.ServerProtocol != nil && latestKo.Spec.ProtocolConfiguration.ServerProtocol == nil {
+			latestKo.Spec.ProtocolConfiguration.ServerProtocol = observedKo.Spec.ProtocolConfiguration.ServerProtocol
+		}
 	}
 	return &resource{latestKo}
 }
@@ -282,7 +297,7 @@ func (rm *resourceManager) IsSynced(ctx context.Context, res acktypes.AWSResourc
 	if r.ko.Status.Status == nil {
 		return false, nil
 	}
-	statusCandidates := []string{"READY"}
+	statusCandidates := []string{"READY", "CREATE_FAILED", "UPDATE_FAILED"}
 	if !ackutil.InStrings(*r.ko.Status.Status, statusCandidates) {
 		return false, nil
 	}

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	ackv1alpha1 "github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
@@ -28,6 +29,7 @@ import (
 	ackerr "github.com/aws-controllers-k8s/runtime/pkg/errors"
 	ackrequeue "github.com/aws-controllers-k8s/runtime/pkg/requeue"
 	ackrtlog "github.com/aws-controllers-k8s/runtime/pkg/runtime/log"
+	ackutil "github.com/aws-controllers-k8s/runtime/pkg/util"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	svcsdk "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol"
 	smithy "github.com/aws/smithy-go"
@@ -281,9 +283,16 @@ func (rm *resourceManager) sdkUpdate(
 	if !delta.DifferentExcept("Spec.Tags") {
 		return desired, nil
 	}
-	if !agentRuntimeEndpointReady(latest) {
-		return latest, requeueNotReady
+	if latest.ko.Status.Status != nil {
+		if !ackutil.InStrings(*latest.ko.Status.Status, []string{"READY"}) {
+			return nil, ackrequeue.NeededAfter(
+				fmt.Errorf("resource is in %s state, cannot be updated",
+					*latest.ko.Status.Status),
+				time.Duration(30)*time.Second,
+			)
+		}
 	}
+
 	input, err := rm.newUpdateRequestPayload(ctx, desired, delta)
 	if err != nil {
 		return nil, err
@@ -364,6 +373,16 @@ func (rm *resourceManager) sdkDelete(
 	defer func() {
 		exit(err)
 	}()
+	if r.ko.Status.Status != nil {
+		if !ackutil.InStrings(*r.ko.Status.Status, []string{"READY", "CREATE_FAILED", "UPDATE_FAILED"}) {
+			return nil, ackrequeue.NeededAfter(
+				fmt.Errorf("resource is in %s state, cannot be deleted",
+					*r.ko.Status.Status),
+				time.Duration(30)*time.Second,
+			)
+		}
+	}
+
 	input, err := rm.newDeleteRequestPayload(r)
 	if err != nil {
 		return nil, err

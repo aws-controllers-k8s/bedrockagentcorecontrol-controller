@@ -160,10 +160,24 @@ resources:
       # observed values so an unset spec doesn't produce a phantom delta (nil vs
       # the AWS default) that would otherwise trigger an endless update loop and
       # keep the resource from ever reporting synced.
+      #
+      # Late-init the struct and each defaulted leaf field. Configuring only the
+      # struct copies it solely when the whole struct is nil; a partially
+      # configured struct would leave the unset, server-defaulted leaves as a
+      # phantom delta. Listing the leaves too late-inits them independently.
       LifecycleConfiguration:
         late_initialize:
           skip_incomplete_check: {}
+      LifecycleConfiguration.IdleRuntimeSessionTimeout:
+        late_initialize:
+          skip_incomplete_check: {}
+      LifecycleConfiguration.MaxLifetime:
+        late_initialize:
+          skip_incomplete_check: {}
       ProtocolConfiguration:
+        late_initialize:
+          skip_incomplete_check: {}
+      ProtocolConfiguration.ServerProtocol:
         late_initialize:
           skip_incomplete_check: {}
       NetworkConfiguration.NetworkModeConfig.SecurityGroups:
@@ -181,6 +195,20 @@ resources:
         - path: Status.Status
           in:
             - READY
+            - CREATE_FAILED
+            - UPDATE_FAILED
+    updateable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - CREATE_FAILED
+            - UPDATE_FAILED
     exceptions:
       terminal_codes:
         - ValidationException
@@ -208,6 +236,20 @@ resources:
         - path: Status.Status
           in:
             - READY
+            - CREATE_FAILED
+            - UPDATE_FAILED
+    updateable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - CREATE_FAILED
+            - UPDATE_FAILED
     hooks:
       sdk_update_pre_build_request:
         template_path: hooks/agentruntimeendpoint/sdk_update_pre_build_request.go.tpl
