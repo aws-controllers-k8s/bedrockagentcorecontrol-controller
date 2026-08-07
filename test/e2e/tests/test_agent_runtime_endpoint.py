@@ -80,6 +80,10 @@ class TestAgentRuntimeEndpoint:
         agent_runtime_endpoint_arn = cr["status"]["ackResourceMetadata"]["arn"]
         assert agent_runtime_endpoint_arn is not None
 
+        # synced:when gates ACK.ResourceSynced on Status.Status == READY, so the
+        # endpoint must be READY once the synced condition is True.
+        assert cr["status"]["status"] == "READY"
+
         agent_runtime_id = cr["spec"]["agentRuntimeID"]
         endpoint_name = cr["spec"]["name"]
 
