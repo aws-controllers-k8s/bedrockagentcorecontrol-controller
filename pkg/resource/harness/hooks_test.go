@@ -36,22 +36,6 @@ func TestSetUpdateWrapperFieldsUnchanged(t *testing.T) {
 	}
 }
 
-func TestPrepareGetHarnessInputReadsCurrentVersion(t *testing.T) {
-	input := &svcsdk.GetHarnessInput{
-		HarnessId:      aws.String("harness-1234567890"),
-		HarnessVersion: aws.String("7"),
-	}
-
-	prepareGetHarnessInput(input)
-
-	if input.HarnessVersion != nil {
-		t.Fatalf("HarnessVersion = %q, want nil", *input.HarnessVersion)
-	}
-	if aws.ToString(input.HarnessId) != "harness-1234567890" {
-		t.Errorf("HarnessId was changed: %q", aws.ToString(input.HarnessId))
-	}
-}
-
 func TestSetAgentRuntimeStatus(t *testing.T) {
 	ko := &svcapitypes.Harness{}
 	environment := &svcsdktypes.HarnessEnvironmentProviderMemberAgentCoreRuntimeEnvironment{

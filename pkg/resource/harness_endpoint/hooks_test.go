@@ -48,18 +48,6 @@ func TestIsSyncedByHarnessEndpointStatus(t *testing.T) {
 	}
 }
 
-func TestTargetVersionFromRead(t *testing.T) {
-	desired := aws.String("1")
-	live := aws.String("2")
-
-	if got := targetVersionFromRead(desired, live); got == nil || *got != "2" {
-		t.Fatalf("targetVersionFromRead with live version = %v, want 2", got)
-	}
-	if got := targetVersionFromRead(desired, nil); got != desired {
-		t.Fatalf("targetVersionFromRead without live version = %v, want desired", got)
-	}
-}
-
 func TestSDKUpdateSkipsNoOp(t *testing.T) {
 	desired := &resource{ko: &svcapitypes.HarnessEndpoint{}}
 	latest := &resource{ko: &svcapitypes.HarnessEndpoint{}}

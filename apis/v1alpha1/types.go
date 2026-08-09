@@ -681,6 +681,8 @@ type HarnessAgentCoreBrowserConfig struct {
 	// Browser ARN for Harness tool configuration. Accepts both managed (aws.browser.v1)
 	// and custom browser ARNs.
 	BrowserARN *string `json:"browserARN,omitempty"`
+	// Reference field for BrowserARN
+	BrowserRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"browserRef,omitempty"`
 }
 
 // Configuration for AgentCore Code Interpreter.
@@ -688,11 +690,15 @@ type HarnessAgentCoreCodeInterpreterConfig struct {
 	// Code Interpreter ARN for Harness tool configuration. Accepts both managed
 	// (aws.codeinterpreter.v1) and custom code interpreter ARNs.
 	CodeInterpreterARN *string `json:"codeInterpreterARN,omitempty"`
+	// Reference field for CodeInterpreterARN
+	CodeInterpreterRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"codeInterpreterRef,omitempty"`
 }
 
 // Configuration for AgentCore Gateway.
 type HarnessAgentCoreGatewayConfig struct {
 	GatewayARN *string `json:"gatewayARN,omitempty"`
+	// Reference field for GatewayARN
+	GatewayRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"gatewayRef,omitempty"`
 	// Authentication method for calling a Gateway.
 	OutboundAuth *HarnessGatewayOutboundAuth `json:"outboundAuth,omitempty"`
 }
@@ -823,10 +829,12 @@ type HarnessLiteLlmModelConfig struct {
 
 // Configuration for managed memory creation.
 type HarnessManagedMemoryConfiguration struct {
-	ARN                 *string   `json:"arn,omitempty"`
-	EncryptionKeyARN    *string   `json:"encryptionKeyARN,omitempty"`
-	EventExpiryDuration *int64    `json:"eventExpiryDuration,omitempty"`
-	Strategies          []*string `json:"strategies,omitempty"`
+	ARN              *string `json:"arn,omitempty"`
+	EncryptionKeyARN *string `json:"encryptionKeyARN,omitempty"`
+	// Reference field for EncryptionKeyARN
+	EncryptionKeyRef    *ackv1alpha1.AWSResourceReferenceWrapper `json:"encryptionKeyRef,omitempty"`
+	EventExpiryDuration *int64                                   `json:"eventExpiryDuration,omitempty"`
+	Strategies          []*string                                `json:"strategies,omitempty"`
 }
 
 // The memory configuration for a harness.
@@ -938,7 +946,7 @@ type HarnessTool struct {
 	// Configuration union for different tool types.
 	Config *HarnessToolConfiguration `json:"config,omitempty"`
 	Name   *string                   `json:"name,omitempty"`
-	Type   *string                   `json:"type_,omitempty"`
+	Type   *string                   `json:"type,omitempty"`
 }
 
 // Configuration union for different tool types.

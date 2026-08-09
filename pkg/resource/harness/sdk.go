@@ -77,10 +77,6 @@ func (rm *resourceManager) sdkFind(
 	if err != nil {
 		return nil, err
 	}
-	// Omitting HarnessVersion makes GetHarness return the current mutable
-	// configuration. Passing the last observed version would pin this read to an
-	// immutable historical version and hide out-of-band updates from ACK.
-	prepareGetHarnessInput(input)
 
 	var resp *svcsdk.GetHarnessOutput
 	resp, err = rm.sdkapi.GetHarness(ctx, input)
@@ -755,9 +751,6 @@ func (rm *resourceManager) newDescribeRequestPayload(
 
 	if r.ko.Status.HarnessID != nil {
 		res.HarnessId = r.ko.Status.HarnessID
-	}
-	if r.ko.Status.HarnessVersion != nil {
-		res.HarnessVersion = r.ko.Status.HarnessVersion
 	}
 
 	return res, nil

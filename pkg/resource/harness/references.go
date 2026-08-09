@@ -24,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	iamapitypes "github.com/aws-controllers-k8s/iam-controller/apis/v1alpha1"
+	kmsapitypes "github.com/aws-controllers-k8s/kms-controller/apis/v1alpha1"
 	ackv1alpha1 "github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
 	ackerr "github.com/aws-controllers-k8s/runtime/pkg/errors"
 	ackrt "github.com/aws-controllers-k8s/runtime/pkg/runtime"
@@ -35,6 +36,9 @@ import (
 // +kubebuilder:rbac:groups=iam.services.k8s.aws,resources=roles,verbs=get;list
 // +kubebuilder:rbac:groups=iam.services.k8s.aws,resources=roles/status,verbs=get;list
 
+// +kubebuilder:rbac:groups=kms.services.k8s.aws,resources=keys,verbs=get;list
+// +kubebuilder:rbac:groups=kms.services.k8s.aws,resources=keys/status,verbs=get;list
+
 // ClearResolvedReferences removes any reference values that were made
 // concrete in the spec. It returns a copy of the input AWSResource which
 // contains the original *Ref values, but none of their respective concrete
@@ -44,6 +48,44 @@ func (rm *resourceManager) ClearResolvedReferences(res acktypes.AWSResource) ack
 
 	if ko.Spec.ExecutionRoleRef != nil {
 		ko.Spec.ExecutionRoleARN = nil
+	}
+
+	if ko.Spec.Memory != nil {
+		if ko.Spec.Memory.ManagedMemoryConfiguration != nil {
+			if ko.Spec.Memory.ManagedMemoryConfiguration.EncryptionKeyRef != nil {
+				ko.Spec.Memory.ManagedMemoryConfiguration.EncryptionKeyARN = nil
+			}
+		}
+	}
+
+	for f0idx, f0iter := range ko.Spec.Tools {
+		if f0iter.Config != nil {
+			if f0iter.Config.AgentCoreBrowser != nil {
+				if f0iter.Config.AgentCoreBrowser.BrowserRef != nil {
+					ko.Spec.Tools[f0idx].Config.AgentCoreBrowser.BrowserARN = nil
+				}
+			}
+		}
+	}
+
+	for f0idx, f0iter := range ko.Spec.Tools {
+		if f0iter.Config != nil {
+			if f0iter.Config.AgentCoreCodeInterpreter != nil {
+				if f0iter.Config.AgentCoreCodeInterpreter.CodeInterpreterRef != nil {
+					ko.Spec.Tools[f0idx].Config.AgentCoreCodeInterpreter.CodeInterpreterARN = nil
+				}
+			}
+		}
+	}
+
+	for f0idx, f0iter := range ko.Spec.Tools {
+		if f0iter.Config != nil {
+			if f0iter.Config.AgentCoreGateway != nil {
+				if f0iter.Config.AgentCoreGateway.GatewayRef != nil {
+					ko.Spec.Tools[f0idx].Config.AgentCoreGateway.GatewayARN = nil
+				}
+			}
+		}
 	}
 
 	return &resource{ko}
@@ -71,6 +113,30 @@ func (rm *resourceManager) ResolveReferences(
 		resourceHasReferences = resourceHasReferences || fieldHasReferences
 	}
 
+	if fieldHasReferences, err := rm.resolveReferenceForMemory_ManagedMemoryConfiguration_EncryptionKeyARN(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
+	if fieldHasReferences, err := rm.resolveReferenceForTools_Config_AgentCoreBrowser_BrowserARN(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
+	if fieldHasReferences, err := rm.resolveReferenceForTools_Config_AgentCoreCodeInterpreter_CodeInterpreterARN(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
+	if fieldHasReferences, err := rm.resolveReferenceForTools_Config_AgentCoreGateway_GatewayARN(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
 	return &resource{ko}, resourceHasReferences, err
 }
 
@@ -83,6 +149,44 @@ func validateReferenceFields(ko *svcapitypes.Harness) error {
 	}
 	if ko.Spec.ExecutionRoleRef == nil && ko.Spec.ExecutionRoleARN == nil {
 		return ackerr.ResourceReferenceOrIDRequiredFor("ExecutionRoleARN", "ExecutionRoleRef")
+	}
+
+	if ko.Spec.Memory != nil {
+		if ko.Spec.Memory.ManagedMemoryConfiguration != nil {
+			if ko.Spec.Memory.ManagedMemoryConfiguration.EncryptionKeyRef != nil && ko.Spec.Memory.ManagedMemoryConfiguration.EncryptionKeyARN != nil {
+				return ackerr.ResourceReferenceAndIDNotSupportedFor("Memory.ManagedMemoryConfiguration.EncryptionKeyARN", "Memory.ManagedMemoryConfiguration.EncryptionKeyRef")
+			}
+		}
+	}
+
+	for _, f0iter := range ko.Spec.Tools {
+		if f0iter.Config != nil {
+			if f0iter.Config.AgentCoreBrowser != nil {
+				if f0iter.Config.AgentCoreBrowser.BrowserRef != nil && f0iter.Config.AgentCoreBrowser.BrowserARN != nil {
+					return ackerr.ResourceReferenceAndIDNotSupportedFor("Tools.Config.AgentCoreBrowser.BrowserARN", "Tools.Config.AgentCoreBrowser.BrowserRef")
+				}
+			}
+		}
+	}
+
+	for _, f0iter := range ko.Spec.Tools {
+		if f0iter.Config != nil {
+			if f0iter.Config.AgentCoreCodeInterpreter != nil {
+				if f0iter.Config.AgentCoreCodeInterpreter.CodeInterpreterRef != nil && f0iter.Config.AgentCoreCodeInterpreter.CodeInterpreterARN != nil {
+					return ackerr.ResourceReferenceAndIDNotSupportedFor("Tools.Config.AgentCoreCodeInterpreter.CodeInterpreterARN", "Tools.Config.AgentCoreCodeInterpreter.CodeInterpreterRef")
+				}
+			}
+		}
+	}
+
+	for _, f0iter := range ko.Spec.Tools {
+		if f0iter.Config != nil {
+			if f0iter.Config.AgentCoreGateway != nil {
+				if f0iter.Config.AgentCoreGateway.GatewayRef != nil && f0iter.Config.AgentCoreGateway.GatewayARN != nil {
+					return ackerr.ResourceReferenceAndIDNotSupportedFor("Tools.Config.AgentCoreGateway.GatewayARN", "Tools.Config.AgentCoreGateway.GatewayRef")
+				}
+			}
+		}
 	}
 	return nil
 }
@@ -172,6 +276,392 @@ func getReferencedResourceState_Role(
 	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
 		return ackerr.ResourceReferenceMissingTargetFieldFor(
 			"Role",
+			namespace, name,
+			"Status.ACKResourceMetadata.ARN")
+	}
+	return nil
+}
+
+// resolveReferenceForMemory_ManagedMemoryConfiguration_EncryptionKeyARN reads the resource referenced
+// from Memory.ManagedMemoryConfiguration.EncryptionKeyRef field and sets the Memory.ManagedMemoryConfiguration.EncryptionKeyARN
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForMemory_ManagedMemoryConfiguration_EncryptionKeyARN(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.Harness,
+) (hasReferences bool, err error) {
+	if ko.Spec.Memory != nil {
+		if ko.Spec.Memory.ManagedMemoryConfiguration != nil {
+			if ko.Spec.Memory.ManagedMemoryConfiguration.EncryptionKeyRef != nil && ko.Spec.Memory.ManagedMemoryConfiguration.EncryptionKeyRef.From != nil {
+				hasReferences = true
+				arr := ko.Spec.Memory.ManagedMemoryConfiguration.EncryptionKeyRef.From
+				if arr.Name == nil || *arr.Name == "" {
+					return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Memory.ManagedMemoryConfiguration.EncryptionKeyRef")
+				}
+				namespace, err := ackrt.ResolveCrossNamespaceReference(
+					ctx,
+					rm.cfg.EnableCrossNamespace,
+					&ko.Status.Conditions,
+					ackrt.CrossNamespaceRefKindResource,
+					ko.ObjectMeta.GetNamespace(),
+					arr.Namespace,
+					*arr.Name,
+				)
+				if err != nil {
+					return hasReferences, err
+				}
+				obj := &kmsapitypes.Key{}
+				if err := getReferencedResourceState_Key(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+					return hasReferences, err
+				}
+				ko.Spec.Memory.ManagedMemoryConfiguration.EncryptionKeyARN = (*string)(obj.Status.ACKResourceMetadata.ARN)
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_Key looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_Key(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *kmsapitypes.Key,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"Key",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"Key",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"Key",
+			namespace, name)
+	}
+	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"Key",
+			namespace, name,
+			"Status.ACKResourceMetadata.ARN")
+	}
+	return nil
+}
+
+// resolveReferenceForTools_Config_AgentCoreBrowser_BrowserARN reads the resource referenced
+// from Tools.Config.AgentCoreBrowser.BrowserRef field and sets the Tools.Config.AgentCoreBrowser.BrowserARN
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForTools_Config_AgentCoreBrowser_BrowserARN(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.Harness,
+) (hasReferences bool, err error) {
+	for f0idx, f0iter := range ko.Spec.Tools {
+		if f0iter.Config != nil {
+			if f0iter.Config.AgentCoreBrowser != nil {
+				if f0iter.Config.AgentCoreBrowser.BrowserRef != nil && f0iter.Config.AgentCoreBrowser.BrowserRef.From != nil {
+					hasReferences = true
+					arr := f0iter.Config.AgentCoreBrowser.BrowserRef.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Tools.Config.AgentCoreBrowser.BrowserRef")
+					}
+					namespace, err := ackrt.ResolveCrossNamespaceReference(
+						ctx,
+						rm.cfg.EnableCrossNamespace,
+						&ko.Status.Conditions,
+						ackrt.CrossNamespaceRefKindResource,
+						ko.ObjectMeta.GetNamespace(),
+						arr.Namespace,
+						*arr.Name,
+					)
+					if err != nil {
+						return hasReferences, err
+					}
+					obj := &svcapitypes.Browser{}
+					if err := getReferencedResourceState_Browser(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					ko.Spec.Tools[f0idx].Config.AgentCoreBrowser.BrowserARN = (*string)(obj.Status.ACKResourceMetadata.ARN)
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_Browser looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_Browser(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *svcapitypes.Browser,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"Browser",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"Browser",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"Browser",
+			namespace, name)
+	}
+	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"Browser",
+			namespace, name,
+			"Status.ACKResourceMetadata.ARN")
+	}
+	return nil
+}
+
+// resolveReferenceForTools_Config_AgentCoreCodeInterpreter_CodeInterpreterARN reads the resource referenced
+// from Tools.Config.AgentCoreCodeInterpreter.CodeInterpreterRef field and sets the Tools.Config.AgentCoreCodeInterpreter.CodeInterpreterARN
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForTools_Config_AgentCoreCodeInterpreter_CodeInterpreterARN(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.Harness,
+) (hasReferences bool, err error) {
+	for f0idx, f0iter := range ko.Spec.Tools {
+		if f0iter.Config != nil {
+			if f0iter.Config.AgentCoreCodeInterpreter != nil {
+				if f0iter.Config.AgentCoreCodeInterpreter.CodeInterpreterRef != nil && f0iter.Config.AgentCoreCodeInterpreter.CodeInterpreterRef.From != nil {
+					hasReferences = true
+					arr := f0iter.Config.AgentCoreCodeInterpreter.CodeInterpreterRef.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Tools.Config.AgentCoreCodeInterpreter.CodeInterpreterRef")
+					}
+					namespace, err := ackrt.ResolveCrossNamespaceReference(
+						ctx,
+						rm.cfg.EnableCrossNamespace,
+						&ko.Status.Conditions,
+						ackrt.CrossNamespaceRefKindResource,
+						ko.ObjectMeta.GetNamespace(),
+						arr.Namespace,
+						*arr.Name,
+					)
+					if err != nil {
+						return hasReferences, err
+					}
+					obj := &svcapitypes.CodeInterpreter{}
+					if err := getReferencedResourceState_CodeInterpreter(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					ko.Spec.Tools[f0idx].Config.AgentCoreCodeInterpreter.CodeInterpreterARN = (*string)(obj.Status.ACKResourceMetadata.ARN)
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_CodeInterpreter looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_CodeInterpreter(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *svcapitypes.CodeInterpreter,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"CodeInterpreter",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"CodeInterpreter",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"CodeInterpreter",
+			namespace, name)
+	}
+	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"CodeInterpreter",
+			namespace, name,
+			"Status.ACKResourceMetadata.ARN")
+	}
+	return nil
+}
+
+// resolveReferenceForTools_Config_AgentCoreGateway_GatewayARN reads the resource referenced
+// from Tools.Config.AgentCoreGateway.GatewayRef field and sets the Tools.Config.AgentCoreGateway.GatewayARN
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForTools_Config_AgentCoreGateway_GatewayARN(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.Harness,
+) (hasReferences bool, err error) {
+	for f0idx, f0iter := range ko.Spec.Tools {
+		if f0iter.Config != nil {
+			if f0iter.Config.AgentCoreGateway != nil {
+				if f0iter.Config.AgentCoreGateway.GatewayRef != nil && f0iter.Config.AgentCoreGateway.GatewayRef.From != nil {
+					hasReferences = true
+					arr := f0iter.Config.AgentCoreGateway.GatewayRef.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Tools.Config.AgentCoreGateway.GatewayRef")
+					}
+					namespace, err := ackrt.ResolveCrossNamespaceReference(
+						ctx,
+						rm.cfg.EnableCrossNamespace,
+						&ko.Status.Conditions,
+						ackrt.CrossNamespaceRefKindResource,
+						ko.ObjectMeta.GetNamespace(),
+						arr.Namespace,
+						*arr.Name,
+					)
+					if err != nil {
+						return hasReferences, err
+					}
+					obj := &svcapitypes.Gateway{}
+					if err := getReferencedResourceState_Gateway(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					ko.Spec.Tools[f0idx].Config.AgentCoreGateway.GatewayARN = (*string)(obj.Status.ACKResourceMetadata.ARN)
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_Gateway looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_Gateway(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *svcapitypes.Gateway,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"Gateway",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"Gateway",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"Gateway",
+			namespace, name)
+	}
+	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"Gateway",
 			namespace, name,
 			"Status.ACKResourceMetadata.ARN")
 	}

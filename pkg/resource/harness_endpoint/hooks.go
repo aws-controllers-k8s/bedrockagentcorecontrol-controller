@@ -54,16 +54,3 @@ func (rm *resourceManager) syncTags(
 		resourceARN, desiredTags, existingTags,
 	)
 }
-
-// targetVersionFromRead returns the endpoint version that should be compared
-// with Spec.TargetVersion after GetHarnessEndpoint. The service does not return
-// TargetVersion in its response, but LiveVersion is the version the endpoint is
-// actually serving once it is ready. Preserve the desired value while AWS has
-// not reported a live version yet so transitional reads do not create a false
-// delta.
-func targetVersionFromRead(desired, live *string) *string {
-	if live != nil {
-		return live
-	}
-	return desired
-}

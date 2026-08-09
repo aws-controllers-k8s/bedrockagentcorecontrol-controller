@@ -319,6 +319,20 @@ spec:
                         type: string
                       encryptionKeyARN:
                         type: string
+                      encryptionKeyRef:
+                        description: Reference field for EncryptionKeyARN
+                        properties:
+                          from:
+                            description: |-
+                              AWSResourceReference provides all the values necessary to reference another
+                              k8s resource for finding the identifier(Id/ARN/Name)
+                            properties:
+                              name:
+                                type: string
+                              namespace:
+                                type: string
+                            type: object
+                        type: object
                       eventExpiryDuration:
                         format: int64
                         type: integer
@@ -487,6 +501,20 @@ spec:
                                 Browser ARN for Harness tool configuration. Accepts both managed (aws.browser.v1)
                                 and custom browser ARNs.
                               type: string
+                            browserRef:
+                              description: Reference field for BrowserARN
+                              properties:
+                                from:
+                                  description: |-
+                                    AWSResourceReference provides all the values necessary to reference another
+                                    k8s resource for finding the identifier(Id/ARN/Name)
+                                  properties:
+                                    name:
+                                      type: string
+                                    namespace:
+                                      type: string
+                                  type: object
+                              type: object
                           type: object
                         agentCoreCodeInterpreter:
                           description: Configuration for AgentCore Code Interpreter.
@@ -496,12 +524,40 @@ spec:
                                 Code Interpreter ARN for Harness tool configuration. Accepts both managed
                                 (aws.codeinterpreter.v1) and custom code interpreter ARNs.
                               type: string
+                            codeInterpreterRef:
+                              description: Reference field for CodeInterpreterARN
+                              properties:
+                                from:
+                                  description: |-
+                                    AWSResourceReference provides all the values necessary to reference another
+                                    k8s resource for finding the identifier(Id/ARN/Name)
+                                  properties:
+                                    name:
+                                      type: string
+                                    namespace:
+                                      type: string
+                                  type: object
+                              type: object
                           type: object
                         agentCoreGateway:
                           description: Configuration for AgentCore Gateway.
                           properties:
                             gatewayARN:
                               type: string
+                            gatewayRef:
+                              description: Reference field for GatewayARN
+                              properties:
+                                from:
+                                  description: |-
+                                    AWSResourceReference provides all the values necessary to reference another
+                                    k8s resource for finding the identifier(Id/ARN/Name)
+                                  properties:
+                                    name:
+                                      type: string
+                                    namespace:
+                                      type: string
+                                  type: object
+                              type: object
                             outboundAuth:
                               description: Authentication method for calling a Gateway.
                               properties:
@@ -553,7 +609,7 @@ spec:
                       type: object
                     name:
                       type: string
-                    type_:
+                    type:
                       type: string
                   type: object
                 type: array

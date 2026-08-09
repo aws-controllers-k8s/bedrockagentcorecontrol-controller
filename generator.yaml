@@ -297,6 +297,25 @@ resources:
         set:
           - method: Update
             ignore: all
+      Memory.ManagedMemoryConfiguration.EncryptionKeyArn:
+        references:
+          resource: Key
+          service_name: kms
+          path: Status.ACKResourceMetadata.ARN
+      Tools.Config.AgentCoreBrowser.BrowserArn:
+        references:
+          resource: Browser
+          path: Status.ACKResourceMetadata.ARN
+      Tools.Config.AgentCoreCodeInterpreter.CodeInterpreterArn:
+        references:
+          resource: CodeInterpreter
+          path: Status.ACKResourceMetadata.ARN
+      Tools.Config.AgentCoreGateway.GatewayArn:
+        references:
+          resource: Gateway
+          path: Status.ACKResourceMetadata.ARN
+      Tools.Type:
+        go_tag: json:"type,omitempty"
       HarnessId:
         is_primary_key: true
       HarnessName:
@@ -321,6 +340,9 @@ resources:
         from:
           operation: GetHarness
           path: Harness.HarnessVersion
+        set:
+          - method: ReadOne
+            ignore: to
       FailureReason:
         is_read_only: true
         from:
@@ -369,8 +391,6 @@ resources:
       terminal_codes:
         - ValidationException
     hooks:
-      sdk_read_one_post_build_request:
-        template_path: hooks/harness/sdk_read_one_post_build_request.go.tpl
       sdk_read_one_post_set_output:
         template_path: hooks/harness/sdk_read_one_post_set_output.go.tpl
       sdk_update_pre_build_request:

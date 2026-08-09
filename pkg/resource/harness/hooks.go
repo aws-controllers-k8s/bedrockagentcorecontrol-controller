@@ -26,10 +26,6 @@ var syncTags = func(
 	)
 }
 
-func prepareGetHarnessInput(input *svcsdk.GetHarnessInput) {
-	input.HarnessVersion = nil
-}
-
 func setAgentRuntimeStatus(
 	ko *svcapitypes.Harness,
 	environment svcsdktypes.HarnessEnvironmentProvider,
