@@ -894,6 +894,8 @@ type ManagedVPCResource struct {
 // defines how the gateway uses a Lambda function to communicate with the target.
 type McpLambdaTargetConfiguration struct {
 	LambdaARN *string `json:"lambdaARN,omitempty"`
+	// Reference field for LambdaARN
+	LambdaRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"lambdaRef,omitempty"`
 	// A tool schema for a gateway target. This structure defines the schema for
 	// a tool that the target exposes through the Model Context Protocol.
 	ToolSchema *ToolSchema `json:"toolSchema,omitempty"`

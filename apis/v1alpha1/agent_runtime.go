@@ -55,8 +55,8 @@ type AgentRuntimeSpec struct {
 	// The IAM role ARN that provides permissions for the AgentCore Runtime.
 	//
 	// Regex Pattern: `^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$`
-	// +kubebuilder:validation:Required
-	RoleARN *string `json:"roleARN"`
+	RoleARN *string                                  `json:"roleARN,omitempty"`
+	RoleRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"roleRef,omitempty"`
 	// A map of tag keys and values to assign to the agent runtime. Tags enable
 	// you to categorize your resources in different ways, for example, by purpose,
 	// owner, or environment.

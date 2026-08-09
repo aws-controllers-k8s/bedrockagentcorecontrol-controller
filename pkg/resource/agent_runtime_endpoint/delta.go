@@ -20,6 +20,7 @@ import (
 
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	acktags "github.com/aws-controllers-k8s/runtime/pkg/tags"
+	"k8s.io/apimachinery/pkg/api/equality"
 )
 
 // Hack to avoid import errors during build...
@@ -47,6 +48,9 @@ func newResourceDelta(
 		if *a.ko.Spec.AgentRuntimeID != *b.ko.Spec.AgentRuntimeID {
 			delta.Add("Spec.AgentRuntimeID", a.ko.Spec.AgentRuntimeID, b.ko.Spec.AgentRuntimeID)
 		}
+	}
+	if !equality.Semantic.Equalities.DeepEqual(a.ko.Spec.AgentRuntimeRef, b.ko.Spec.AgentRuntimeRef) {
+		delta.Add("Spec.AgentRuntimeRef", a.ko.Spec.AgentRuntimeRef, b.ko.Spec.AgentRuntimeRef)
 	}
 	if ackcompare.HasNilDifference(a.ko.Spec.AgentRuntimeVersion, b.ko.Spec.AgentRuntimeVersion) {
 		delta.Add("Spec.AgentRuntimeVersion", a.ko.Spec.AgentRuntimeVersion, b.ko.Spec.AgentRuntimeVersion)

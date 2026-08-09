@@ -190,6 +190,11 @@ resources:
           resource: Subnet
           service_name: ec2
           path: Status.SubnetID
+      RoleARN:
+        references:
+          resource: Role
+          service_name: iam
+          path: Status.ACKResourceMetadata.ARN
     synced:
       when:
         - path: Status.Status
@@ -231,6 +236,15 @@ resources:
     fields:
       Name:
         is_primary_key: true
+      # An endpoint is a sub-resource of a runtime, so this names the runtime it
+      # belongs to. Status.AgentRuntimeID rather than the ARN: the spec field's
+      # own validation pattern is the bare-ID form
+      # (^[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$), which the runtime ARN
+      # would fail before any API call is made.
+      AgentRuntimeID:
+        references:
+          resource: AgentRuntime
+          path: Status.AgentRuntimeID
     synced:
       when:
         - path: Status.Status
@@ -563,6 +577,18 @@ resources:
           resource: Role
           path: Status.ACKResourceMetadata.ARN
           service_name: iam
+      # NOT wireable as a reference today, despite being a confirmed one:
+      #   policyEngineConfiguration.arn        -> PolicyEngine (this service)
+      #   interceptorConfigurations[].interceptor.lambda.arn -> lambda Function
+      # Both leaves are named bare `arn`, and the code-generator derives the
+      # companion name by stripping the identifier suffix, which leaves nothing:
+      #   Error: resource "Gateway", field "PolicyEngineConfiguration.ARN":
+      #   reference field name cannot be just an identifier suffix (id/arn/name)
+      # That is a hard generation failure, not a naming wart. Closing these needs
+      # the code-generator to allow an explicit companion name for such a leaf.
+      # The interceptor one is additionally inside a list whose generated delta is
+      # a whole-list DeepEqual, which would see the *Ref that sdkFind cannot
+      # reconstruct and diff every reconcile.
     synced:
       when:
         - path: Status.Status
@@ -866,6 +892,23 @@ resources:
         references:
           resource: Gateway
           path: Status.GatewayID
+
+      # set: ignore because sdkCreate and sdkUpdate both rewrite this struct from
+      # the response, which carries the resolved ARN but not the *Ref companion.
+      # The existing sdk_create_post_set_output / sdk_update_post_set_output hooks
+      # restore only ToolSchema.InlinePayload, not the surrounding struct, so they
+      # do not cover this.
+      TargetConfiguration:
+        set:
+          - method: Create
+            ignore: true
+          - method: Update
+            ignore: true
+      TargetConfiguration.Mcp.Lambda.LambdaArn:
+        references:
+          resource: Function
+          service_name: lambda
+          path: Status.ACKResourceMetadata.ARN
 
       LastSynchronizedAt:
         is_read_only: true

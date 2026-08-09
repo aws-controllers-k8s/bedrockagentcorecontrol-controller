@@ -475,6 +475,11 @@ func (in *AgentRuntimeEndpointSpec) DeepCopyInto(out *AgentRuntimeEndpointSpec) 
 		*out = new(string)
 		**out = **in
 	}
+	if in.AgentRuntimeRef != nil {
+		in, out := &in.AgentRuntimeRef, &out.AgentRuntimeRef
+		*out = new(corev1alpha1.AWSResourceReferenceWrapper)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.AgentRuntimeVersion != nil {
 		in, out := &in.AgentRuntimeVersion, &out.AgentRuntimeVersion
 		*out = new(string)
@@ -737,6 +742,11 @@ func (in *AgentRuntimeSpec) DeepCopyInto(out *AgentRuntimeSpec) {
 		in, out := &in.RoleARN, &out.RoleARN
 		*out = new(string)
 		**out = **in
+	}
+	if in.RoleRef != nil {
+		in, out := &in.RoleRef, &out.RoleRef
+		*out = new(corev1alpha1.AWSResourceReferenceWrapper)
+		(*in).DeepCopyInto(*out)
 	}
 	if in.Tags != nil {
 		in, out := &in.Tags, &out.Tags
@@ -4559,6 +4569,11 @@ func (in *McpLambdaTargetConfiguration) DeepCopyInto(out *McpLambdaTargetConfigu
 		in, out := &in.LambdaARN, &out.LambdaARN
 		*out = new(string)
 		**out = **in
+	}
+	if in.LambdaRef != nil {
+		in, out := &in.LambdaRef, &out.LambdaRef
+		*out = new(corev1alpha1.AWSResourceReferenceWrapper)
+		(*in).DeepCopyInto(*out)
 	}
 	if in.ToolSchema != nil {
 		in, out := &in.ToolSchema, &out.ToolSchema
