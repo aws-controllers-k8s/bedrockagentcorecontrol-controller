@@ -54,3 +54,20 @@ func (rm *resourceManager) syncTags(
 		resourceARN, desiredTags, existingTags,
 	)
 }
+
+// targetVersionFromRead returns the endpoint version that ACK should compare
+// with Spec.TargetVersion after GetHarnessEndpoint. Prefer TargetVersion when
+// the service returns it. Although that field is present in the service model,
+// the live API omits it once the endpoint is READY; LiveVersion is then the
+// version that the endpoint is actually serving. Preserve the desired value
+// before AWS reports either value so transitional reads do not introduce a
+// false delta.
+func targetVersionFromRead(desired, observedTarget, live *string) *string {
+	if observedTarget != nil {
+		return observedTarget
+	}
+	if live != nil {
+		return live
+	}
+	return desired
+}

@@ -3,3 +3,8 @@
 		return nil, err
 	}
 	ko.Spec.Tags = tags
+	ko.Spec.TargetVersion = targetVersionFromRead(
+		r.ko.Spec.TargetVersion,
+		ko.Spec.TargetVersion,
+		ko.Status.LiveVersion,
+	)
