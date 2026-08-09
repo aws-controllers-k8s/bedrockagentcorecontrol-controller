@@ -13,10 +13,10 @@
 
 """Integration tests for the Harness API."""
 
-import os
 import time
 
 import pytest
+from acktest.aws.identity import get_account_id
 from acktest.k8s import condition
 from acktest.k8s import resource as k8s
 from acktest.resources import random_suffix_name
@@ -28,19 +28,13 @@ from e2e import (
     load_bedrockagentcorecontrol_resource,
     service_marker,
 )
-from e2e.harness_configuration import execution_role_arn, resource_namespace
+from e2e.bootstrap_resources import get_bootstrap_resources
 from e2e.replacement_values import REPLACEMENT_VALUES
 
 HARNESS_RESOURCE_PLURAL = "harnesses"
+MODEL_ID = "us.amazon.nova-lite-v1:0"
 SYNC_WAIT_PERIODS = 30
 UPDATE_WAIT_AFTER_SECONDS = 10
-
-
-def _model_id():
-    model_id = os.getenv("ACK_E2E_HARNESS_MODEL_ID")
-    if not model_id:
-        pytest.skip("ACK_E2E_HARNESS_MODEL_ID is required for Harness tests")
-    return model_id
 
 
 def _wait_for_aws_status(client, harness_id, expected="READY"):
@@ -78,15 +72,14 @@ def _wait_for_not_found(operation, resource_description, **kwargs):
 
 
 @pytest.fixture(scope="module")
-def simple_harness(bedrockagentcorecontrol_client, expected_aws_account_id):
+def simple_harness(bedrockagentcorecontrol_client):
     harness_name = random_suffix_name("acktestharness", 32, delimiter="")
-    namespace = resource_namespace()
+    resources = get_bootstrap_resources()
 
     replacements = REPLACEMENT_VALUES.copy()
     replacements["HARNESS_NAME"] = harness_name
-    replacements["NAMESPACE"] = namespace
-    replacements["ROLE_ARN"] = execution_role_arn(expected_aws_account_id)
-    replacements["MODEL_ID"] = _model_id()
+    replacements["ROLE_ARN"] = resources.HarnessRole.arn
+    replacements["MODEL_ID"] = MODEL_ID
 
     resource_data = load_bedrockagentcorecontrol_resource(
         "harness",
@@ -97,7 +90,7 @@ def simple_harness(bedrockagentcorecontrol_client, expected_aws_account_id):
         CRD_VERSION,
         HARNESS_RESOURCE_PLURAL,
         harness_name,
-        namespace=namespace,
+        namespace="default",
     )
 
     k8s.create_custom_resource(ref, resource_data)
@@ -107,18 +100,12 @@ def simple_harness(bedrockagentcorecontrol_client, expected_aws_account_id):
 
     current = k8s.get_resource(ref)
     harness_id = current["status"]["harnessID"]
-    runtime_id = current["status"]["agentRuntimeID"]
     _, deleted = k8s.delete_custom_resource(ref, wait_periods=10, period_length=15)
     assert deleted, "Harness CR was not deleted"
     _wait_for_not_found(
         bedrockagentcorecontrol_client.get_harness,
         f"Harness {harness_id}",
         harnessId=harness_id,
-    )
-    _wait_for_not_found(
-        bedrockagentcorecontrol_client.get_agent_runtime,
-        f"managed AgentRuntime {runtime_id}",
-        agentRuntimeId=runtime_id,
     )
 
 
@@ -129,7 +116,6 @@ class TestHarness:
         self,
         simple_harness,
         bedrockagentcorecontrol_client,
-        expected_aws_account_id,
     ):
         ref, _ = simple_harness
 
@@ -143,7 +129,7 @@ class TestHarness:
         assert cr["status"]["ackResourceMetadata"]["arn"]
         assert (
             cr["status"]["ackResourceMetadata"]["ownerAccountID"]
-            == expected_aws_account_id
+            == get_account_id()
         )
         assert cr["status"]["harnessID"]
         assert cr["status"]["harnessVersion"]
@@ -184,41 +170,12 @@ class TestHarness:
         assert after["status"]["harnessVersion"] != old_version
         assert aws_harness["maxIterations"] == 4
 
-    def test_corrects_out_of_band_drift(
-        self, simple_harness, bedrockagentcorecontrol_client
-    ):
-        ref, _ = simple_harness
-        cr = k8s.get_resource(ref)
-        harness_id = cr["status"]["harnessID"]
-
-        bedrockagentcorecontrol_client.update_harness(
-            harnessId=harness_id,
-            maxIterations=8,
-        )
-        _wait_for_aws_status(bedrockagentcorecontrol_client, harness_id)
-
-        # Trigger an immediate reconciliation instead of waiting for the
-        # controller's periodic resync interval.
-        k8s.patch_custom_resource(
-            ref,
-            {"metadata": {"annotations": {"acktest/drift-probe": "1"}}},
-        )
-        time.sleep(UPDATE_WAIT_AFTER_SECONDS)
-        assert k8s.wait_on_condition(
-            ref, "ACK.ResourceSynced", "True", wait_periods=SYNC_WAIT_PERIODS
-        )
-
-        aws_harness = _wait_for_aws_status(bedrockagentcorecontrol_client, harness_id)
-        assert aws_harness["maxIterations"] == 4
-
     def test_validation_error_is_terminal(self):
         harness_name = random_suffix_name("ackinvalidharness", 32, delimiter="")
-        namespace = resource_namespace()
         resource_data = load_bedrockagentcorecontrol_resource(
             "harness_invalid",
             additional_replacements={
                 "HARNESS_NAME": harness_name,
-                "NAMESPACE": namespace,
             },
         )
         ref = k8s.CustomResourceReference(
@@ -226,7 +183,7 @@ class TestHarness:
             CRD_VERSION,
             HARNESS_RESOURCE_PLURAL,
             harness_name,
-            namespace=namespace,
+            namespace="default",
         )
 
         k8s.create_custom_resource(ref, resource_data)

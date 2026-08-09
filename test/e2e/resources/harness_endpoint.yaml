@@ -2,7 +2,7 @@ apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
 kind: HarnessEndpoint
 metadata:
   name: $ENDPOINT_NAME
-  namespace: $NAMESPACE
+  namespace: default
 spec:
   name: $ENDPOINT_NAME
   harnessRef:
