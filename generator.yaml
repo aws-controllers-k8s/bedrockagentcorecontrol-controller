@@ -155,6 +155,11 @@ operations:
 resources:
   AgentRuntime:
     fields:
+      RoleArn:
+        references:
+          resource: Role
+          service_name: iam
+          path: Status.ACKResourceMetadata.ARN
       # Optional fields the service defaults server-side when unset (e.g. it
       # populates protocolConfiguration.serverProtocol with HTTP). Late-init the
       # observed values so an unset spec doesn't produce a phantom delta (nil vs

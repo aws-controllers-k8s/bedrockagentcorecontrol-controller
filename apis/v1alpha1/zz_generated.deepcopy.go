@@ -738,6 +738,11 @@ func (in *AgentRuntimeSpec) DeepCopyInto(out *AgentRuntimeSpec) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.RoleRef != nil {
+		in, out := &in.RoleRef, &out.RoleRef
+		*out = new(corev1alpha1.AWSResourceReferenceWrapper)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.Tags != nil {
 		in, out := &in.Tags, &out.Tags
 		*out = make(map[string]*string, len(*in))
