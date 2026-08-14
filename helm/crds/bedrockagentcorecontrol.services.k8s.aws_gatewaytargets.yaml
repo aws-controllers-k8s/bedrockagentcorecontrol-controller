@@ -146,6 +146,100 @@ spec:
 
                   Regex Pattern: `^([0-9a-zA-Z][-]?){1,100}$`
                 type: string
+              privateEndpoint:
+                description: |-
+                  The private endpoint configuration for the gateway target. Use this to connect
+                  the gateway to private resources in your VPC.
+                properties:
+                  managedVPCResource:
+                    description: |-
+                      Configuration for a managed VPC Lattice resource. The gateway creates and
+                      manages the VPC Lattice resource gateway and resource configuration on your
+                      behalf using a service-linked role.
+                    properties:
+                      endpointIPAddressType:
+                        type: string
+                      routingDomain:
+                        type: string
+                      securityGroupIDs:
+                        items:
+                          type: string
+                        type: array
+                      securityGroupRefs:
+                        description: Reference field for SecurityGroupIDs
+                        items:
+                          description: "AWSResourceReferenceWrapper provides a wrapper
+                            around *AWSResourceReference\ntype to provide more user
+                            friendly syntax for references using 'from' field\nEx:\nAPIIDRef:\n\n\tfrom:\n\t
+                            \ name: my-api"
+                          properties:
+                            from:
+                              description: |-
+                                AWSResourceReference provides all the values necessary to reference another
+                                k8s resource for finding the identifier(Id/ARN/Name)
+                              properties:
+                                name:
+                                  type: string
+                                namespace:
+                                  type: string
+                              type: object
+                          type: object
+                        type: array
+                      subnetIDs:
+                        items:
+                          type: string
+                        type: array
+                      subnetRefs:
+                        description: Reference field for SubnetIDs
+                        items:
+                          description: "AWSResourceReferenceWrapper provides a wrapper
+                            around *AWSResourceReference\ntype to provide more user
+                            friendly syntax for references using 'from' field\nEx:\nAPIIDRef:\n\n\tfrom:\n\t
+                            \ name: my-api"
+                          properties:
+                            from:
+                              description: |-
+                                AWSResourceReference provides all the values necessary to reference another
+                                k8s resource for finding the identifier(Id/ARN/Name)
+                              properties:
+                                name:
+                                  type: string
+                                namespace:
+                                  type: string
+                              type: object
+                          type: object
+                        type: array
+                      tags:
+                        additionalProperties:
+                          type: string
+                        type: object
+                      vpcIdentifier:
+                        type: string
+                      vpcIdentifierRef:
+                        description: Reference field for VPCIdentifier
+                        properties:
+                          from:
+                            description: |-
+                              AWSResourceReference provides all the values necessary to reference another
+                              k8s resource for finding the identifier(Id/ARN/Name)
+                            properties:
+                              name:
+                                type: string
+                              namespace:
+                                type: string
+                            type: object
+                        type: object
+                    type: object
+                  selfManagedLatticeResource:
+                    description: |-
+                      Configuration for a self-managed VPC Lattice resource. You create and manage
+                      the VPC Lattice resource gateway and resource configuration, then provide
+                      the resource configuration identifier.
+                    properties:
+                      resourceConfigurationIdentifier:
+                        type: string
+                    type: object
+                type: object
               targetConfiguration:
                 description: |-
                   The configuration settings for the target, including endpoint information
@@ -383,6 +477,22 @@ spec:
                 description: The last synchronization of the target.
                 format: date-time
                 type: string
+              privateEndpointManagedResources:
+                description: The managed resources created by the gateway for private
+                  endpoint connectivity.
+                items:
+                  description: |-
+                    Details of a resource created and managed by the gateway for private endpoint
+                    connectivity.
+                  properties:
+                    domain:
+                      type: string
+                    resourceAssociationARN:
+                      type: string
+                    resourceGatewayARN:
+                      type: string
+                  type: object
+                type: array
               status:
                 description: The current status of the target.
                 type: string

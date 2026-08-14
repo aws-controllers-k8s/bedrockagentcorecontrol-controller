@@ -126,6 +126,8 @@ rules:
   - securitygroups/status
   - subnets
   - subnets/status
+  - vpcs
+  - vpcs/status
   verbs:
   - get
   - list
