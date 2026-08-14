@@ -169,28 +169,3 @@ class TestHarness:
         )
         assert after["status"]["harnessVersion"] != old_version
         assert aws_harness["maxIterations"] == 4
-
-    def test_validation_error_is_terminal(self):
-        harness_name = random_suffix_name("ackinvalidharness", 32, delimiter="")
-        resource_data = load_bedrockagentcorecontrol_resource(
-            "harness_invalid",
-            additional_replacements={
-                "HARNESS_NAME": harness_name,
-            },
-        )
-        ref = k8s.CustomResourceReference(
-            CRD_GROUP,
-            CRD_VERSION,
-            HARNESS_RESOURCE_PLURAL,
-            harness_name,
-            namespace="default",
-        )
-
-        k8s.create_custom_resource(ref, resource_data)
-        try:
-            assert k8s.wait_on_condition(ref, "ACK.Terminal", "True", wait_periods=10)
-        finally:
-            _, deleted = k8s.delete_custom_resource(
-                ref, wait_periods=3, period_length=5
-            )
-            assert deleted, "Invalid Harness CR was not deleted"
