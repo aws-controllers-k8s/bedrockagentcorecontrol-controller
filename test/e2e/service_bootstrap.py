@@ -43,6 +43,14 @@ def service_bootstrap() -> Resources:
                 "arn:aws:iam::aws:policy/BedrockAgentCoreFullAccess",
             ],
         ),
+        HarnessRole=Role(
+            name_prefix="ack-bedrock-harness",
+            principal_service="bedrock-agentcore.amazonaws.com",
+            description="IAM role for ACK Bedrock Harness e2e tests",
+            managed_policies=[
+                "arn:aws:iam::aws:policy/AmazonBedrockFullAccess",
+            ],
+        ),
         GatewayRole=Role(
             name_prefix="ack-bedrock-gateway",
             principal_service="bedrock-agentcore.amazonaws.com",
