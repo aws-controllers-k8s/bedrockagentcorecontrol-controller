@@ -27,6 +27,7 @@ from acktest.bootstrapping.s3 import Bucket
 @dataclass
 class BootstrapResources(Resources):
     AgentRuntimeRole: Role = None
+    HarnessRole: Role = None
     GatewayRole: Role = None
     GatewayUserPool: UserPool = None
     GatewayTargetLambda: Function = None

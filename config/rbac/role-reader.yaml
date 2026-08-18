@@ -17,6 +17,8 @@ rules:
   - codeinterpreters
   - gateways
   - gatewaytargets
+  - harnesses
+  - harnessendpoints
   - memories
   - policies
   - policyengines

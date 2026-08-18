@@ -10,6 +10,8 @@ resources:
   - bases/bedrockagentcorecontrol.services.k8s.aws_codeinterpreters.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_gateways.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_gatewaytargets.yaml
+  - bases/bedrockagentcorecontrol.services.k8s.aws_harnesses.yaml
+  - bases/bedrockagentcorecontrol.services.k8s.aws_harnessendpoints.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_memories.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_policies.yaml
   - bases/bedrockagentcorecontrol.services.k8s.aws_policyengines.yaml
