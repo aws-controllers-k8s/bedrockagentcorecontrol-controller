@@ -46,9 +46,12 @@ ignore:
     - MemoryStrategy.Description
     - MemoryStrategy.Namespaces
     - MemoryStrategy.NamespaceTemplates
-    # New fields introduced in aws_service_sdk_version v1.47.0. Ignored for now so
-    # the model bump doesn't add any fields to the existing CRDs. Top-level fields
-    # are rooted at the operation's (renamed) Input/Output shape. Fields on nested
+    # New fields introduced in aws_service_sdk_version v1.47.0. Ignored so that
+    # the model bump doesn't add fields to the existing CRDs before each one has
+    # been modeled deliberately. Fields are removed from this list as support for
+    # them is added (GatewayTarget.PrivateEndpoint is no longer listed here).
+    # Top-level fields are rooted at the operation's (renamed) Input/Output shape.
+    # Fields on nested
     # shapes are rooted at the owning structure shape (not the operation), because
     # the field path resolver deletes from the named structure's members — a path
     # that traverses a list/map to a nested member silently no-ops. Rooting at the
@@ -80,19 +83,11 @@ ignore:
     - GetGatewayOutput.WafConfiguration
     - GetGatewayOutput.WebAclArn
     # GatewayTarget
-    - CreateGatewayTargetInput.PrivateEndpoint
     - CreateGatewayTargetOutput.AuthorizationData
-    - CreateGatewayTargetOutput.PrivateEndpoint
-    - CreateGatewayTargetOutput.PrivateEndpointManagedResources
     - CreateGatewayTargetOutput.ProtocolType
-    - UpdateGatewayTargetInput.PrivateEndpoint
     - UpdateGatewayTargetOutput.AuthorizationData
-    - UpdateGatewayTargetOutput.PrivateEndpoint
-    - UpdateGatewayTargetOutput.PrivateEndpointManagedResources
     - UpdateGatewayTargetOutput.ProtocolType
     - GetGatewayTargetOutput.AuthorizationData
-    - GetGatewayTargetOutput.PrivateEndpoint
-    - GetGatewayTargetOutput.PrivateEndpointManagedResources
     - GetGatewayTargetOutput.ProtocolType
     # Memory
     - CreateMemoryInput.IndexedKeys
@@ -1111,7 +1106,26 @@ resources:
           resource: RestAPI
           service_name: apigateway
           path: Status.ID
-      
+
+      # PrivateEndpoint.ManagedVpcResource describes the VPC the service
+      # provisions the managed endpoint into. Mirrors how AgentRuntime and
+      # Browser model their network configuration.
+      PrivateEndpoint.ManagedVpcResource.VpcIdentifier:
+        references:
+          resource: VPC
+          service_name: ec2
+          path: Status.VPCID
+      PrivateEndpoint.ManagedVpcResource.SubnetIds:
+        references:
+          resource: Subnet
+          service_name: ec2
+          path: Status.SubnetID
+      PrivateEndpoint.ManagedVpcResource.SecurityGroupIds:
+        references:
+          resource: SecurityGroup
+          service_name: ec2
+          path: Status.ID
+
       TargetConfiguration.Mcp.Lambda.ToolSchema.InlinePayload:
         # explictly don't update this value from API response to avoid
         # tool definitions from erroneously having InputSchema and OutputSchema removed.

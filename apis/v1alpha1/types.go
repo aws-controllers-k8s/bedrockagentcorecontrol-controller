@@ -429,6 +429,20 @@ type CustomMemoryStrategyInput struct {
 	Namespaces         []*string                 `json:"namespaces,omitempty"`
 }
 
+// Input configuration for a custom OAuth2 provider.
+type CustomOauth2ProviderConfigInput struct {
+	// The private endpoint configuration for a gateway target. Defines how the
+	// gateway connects to private resources in your VPC.
+	PrivateEndpoint *PrivateEndpoint `json:"privateEndpoint,omitempty"`
+}
+
+// Output configuration for a custom OAuth2 provider.
+type CustomOauth2ProviderConfigOutput struct {
+	// The private endpoint configuration for a gateway target. Defines how the
+	// gateway connects to private resources in your VPC.
+	PrivateEndpoint *PrivateEndpoint `json:"privateEndpoint,omitempty"`
+}
+
 // Input for a custom reflection configuration.
 type CustomReflectionConfigurationInput struct {
 	// Configurations for overriding the reflection step of the episodic memory
@@ -658,8 +672,13 @@ type GatewayTarget_SDK struct {
 	// gateway and target servers.
 	MetadataConfiguration *MetadataConfiguration `json:"metadataConfiguration,omitempty"`
 	Name                  *string                `json:"name,omitempty"`
-	Status                *string                `json:"status,omitempty"`
-	StatusReasons         []*string              `json:"statusReasons,omitempty"`
+	// The private endpoint configuration for a gateway target. Defines how the
+	// gateway connects to private resources in your VPC.
+	PrivateEndpoint *PrivateEndpoint `json:"privateEndpoint,omitempty"`
+	// A list of managed resources created by the gateway for private endpoint connectivity.
+	PrivateEndpointManagedResources []*ManagedResourceDetails `json:"privateEndpointManagedResources,omitempty"`
+	Status                          *string                   `json:"status,omitempty"`
+	StatusReasons                   []*string                 `json:"statusReasons,omitempty"`
 	// The configuration for a gateway target. This structure defines how the gateway
 	// connects to and interacts with the target endpoint.
 	TargetConfiguration *TargetConfiguration `json:"targetConfiguration,omitempty"`
@@ -1115,11 +1134,30 @@ type MCPGatewayConfiguration struct {
 	SupportedVersions []*string `json:"supportedVersions,omitempty"`
 }
 
+// Details of a resource created and managed by the gateway for private endpoint
+// connectivity.
+type ManagedResourceDetails struct {
+	Domain                 *string `json:"domain,omitempty"`
+	ResourceAssociationARN *string `json:"resourceAssociationARN,omitempty"`
+	ResourceGatewayARN     *string `json:"resourceGatewayARN,omitempty"`
+}
+
 // Configuration for a managed VPC Lattice resource. The gateway creates and
 // manages the VPC Lattice resource gateway and resource configuration on your
 // behalf using a service-linked role.
 type ManagedVPCResource struct {
-	Tags map[string]*string `json:"tags,omitempty"`
+	EndpointIPAddressType *string   `json:"endpointIPAddressType,omitempty"`
+	RoutingDomain         *string   `json:"routingDomain,omitempty"`
+	SecurityGroupIDs      []*string `json:"securityGroupIDs,omitempty"`
+	// Reference field for SecurityGroupIDs
+	SecurityGroupRefs []*ackv1alpha1.AWSResourceReferenceWrapper `json:"securityGroupRefs,omitempty"`
+	SubnetIDs         []*string                                  `json:"subnetIDs,omitempty"`
+	// Reference field for SubnetIDs
+	SubnetRefs    []*ackv1alpha1.AWSResourceReferenceWrapper `json:"subnetRefs,omitempty"`
+	Tags          map[string]*string                         `json:"tags,omitempty"`
+	VPCIdentifier *string                                    `json:"vpcIdentifier,omitempty"`
+	// Reference field for VPCIdentifier
+	VPCIdentifierRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"vpcIdentifierRef,omitempty"`
 }
 
 // The Lambda configuration for a Model Context Protocol target. This structure
@@ -1485,6 +1523,27 @@ type Policy_SDK struct {
 	UpdatedAt       *metav1.Time `json:"updatedAt,omitempty"`
 }
 
+// The private endpoint configuration for a gateway target. Defines how the
+// gateway connects to private resources in your VPC.
+type PrivateEndpoint struct {
+	// Configuration for a managed VPC Lattice resource. The gateway creates and
+	// manages the VPC Lattice resource gateway and resource configuration on your
+	// behalf using a service-linked role.
+	ManagedVPCResource *ManagedVPCResource `json:"managedVPCResource,omitempty"`
+	// Configuration for a self-managed VPC Lattice resource. You create and manage
+	// the VPC Lattice resource gateway and resource configuration, then provide
+	// the resource configuration identifier.
+	SelfManagedLatticeResource *SelfManagedLatticeResource `json:"selfManagedLatticeResource,omitempty"`
+}
+
+// A mapping of a specific domain to a private endpoint for secure connectivity
+// through a VPC Lattice resource configuration.
+type PrivateEndpointOverride struct {
+	// The private endpoint configuration for a gateway target. Defines how the
+	// gateway connects to private resources in your VPC.
+	PrivateEndpoint *PrivateEndpoint `json:"privateEndpoint,omitempty"`
+}
+
 // The protocol configuration for an agent runtime. This structure defines how
 // the agent runtime communicates with clients.
 type ProtocolConfiguration struct {
@@ -1598,6 +1657,13 @@ type SelfManagedConfigurationInput struct {
 	// The configuration to invoke a self-managed memory processing pipeline with.
 	InvocationConfiguration *InvocationConfigurationInput `json:"invocationConfiguration,omitempty"`
 	TriggerConditions       []*TriggerConditionInput      `json:"triggerConditions,omitempty"`
+}
+
+// Configuration for a self-managed VPC Lattice resource. You create and manage
+// the VPC Lattice resource gateway and resource configuration, then provide
+// the resource configuration identifier.
+type SelfManagedLatticeResource struct {
+	ResourceConfigurationIdentifier *string `json:"resourceConfigurationIdentifier,omitempty"`
 }
 
 // Contains semantic consolidation override configuration.

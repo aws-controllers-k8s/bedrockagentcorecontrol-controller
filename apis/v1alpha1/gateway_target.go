@@ -43,6 +43,9 @@ type GatewayTargetSpec struct {
 	// Regex Pattern: `^([0-9a-zA-Z][-]?){1,100}$`
 	// +kubebuilder:validation:Required
 	Name *string `json:"name"`
+	// The private endpoint configuration for the gateway target. Use this to connect
+	// the gateway to private resources in your VPC.
+	PrivateEndpoint *PrivateEndpoint `json:"privateEndpoint,omitempty"`
 	// The configuration settings for the target, including endpoint information
 	// and schema definitions.
 	// +kubebuilder:validation:Required
@@ -73,6 +76,9 @@ type GatewayTargetStatus struct {
 	// The last synchronization of the target.
 	// +kubebuilder:validation:Optional
 	LastSynchronizedAt *metav1.Time `json:"lastSynchronizedAt,omitempty"`
+	// The managed resources created by the gateway for private endpoint connectivity.
+	// +kubebuilder:validation:Optional
+	PrivateEndpointManagedResources []*ManagedResourceDetails `json:"privateEndpointManagedResources,omitempty"`
 	// The current status of the target.
 	// +kubebuilder:validation:Optional
 	Status *string `json:"status,omitempty"`

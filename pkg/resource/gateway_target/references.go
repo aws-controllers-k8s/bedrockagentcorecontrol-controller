@@ -24,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	apigatewayapitypes "github.com/aws-controllers-k8s/apigateway-controller/apis/v1alpha1"
+	ec2apitypes "github.com/aws-controllers-k8s/ec2-controller/apis/v1alpha1"
 	ackv1alpha1 "github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
 	ackerr "github.com/aws-controllers-k8s/runtime/pkg/errors"
 	ackrt "github.com/aws-controllers-k8s/runtime/pkg/runtime"
@@ -31,6 +32,15 @@ import (
 
 	svcapitypes "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/apis/v1alpha1"
 )
+
+// +kubebuilder:rbac:groups=ec2.services.k8s.aws,resources=securitygroups,verbs=get;list
+// +kubebuilder:rbac:groups=ec2.services.k8s.aws,resources=securitygroups/status,verbs=get;list
+
+// +kubebuilder:rbac:groups=ec2.services.k8s.aws,resources=subnets,verbs=get;list
+// +kubebuilder:rbac:groups=ec2.services.k8s.aws,resources=subnets/status,verbs=get;list
+
+// +kubebuilder:rbac:groups=ec2.services.k8s.aws,resources=vpcs,verbs=get;list
+// +kubebuilder:rbac:groups=ec2.services.k8s.aws,resources=vpcs/status,verbs=get;list
 
 // +kubebuilder:rbac:groups=apigateway.services.k8s.aws,resources=restapis,verbs=get;list
 // +kubebuilder:rbac:groups=apigateway.services.k8s.aws,resources=restapis/status,verbs=get;list
@@ -44,6 +54,30 @@ func (rm *resourceManager) ClearResolvedReferences(res acktypes.AWSResource) ack
 
 	if ko.Spec.GatewayIdentifierRef != nil {
 		ko.Spec.GatewayIdentifier = nil
+	}
+
+	if ko.Spec.PrivateEndpoint != nil {
+		if ko.Spec.PrivateEndpoint.ManagedVPCResource != nil {
+			if len(ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupRefs) > 0 {
+				ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs = nil
+			}
+		}
+	}
+
+	if ko.Spec.PrivateEndpoint != nil {
+		if ko.Spec.PrivateEndpoint.ManagedVPCResource != nil {
+			if len(ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetRefs) > 0 {
+				ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs = nil
+			}
+		}
+	}
+
+	if ko.Spec.PrivateEndpoint != nil {
+		if ko.Spec.PrivateEndpoint.ManagedVPCResource != nil {
+			if ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifierRef != nil {
+				ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier = nil
+			}
+		}
 	}
 
 	if ko.Spec.TargetConfiguration != nil {
@@ -81,6 +115,24 @@ func (rm *resourceManager) ResolveReferences(
 		resourceHasReferences = resourceHasReferences || fieldHasReferences
 	}
 
+	if fieldHasReferences, err := rm.resolveReferenceForPrivateEndpoint_ManagedVPCResource_SecurityGroupIDs(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
+	if fieldHasReferences, err := rm.resolveReferenceForPrivateEndpoint_ManagedVPCResource_SubnetIDs(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
+	if fieldHasReferences, err := rm.resolveReferenceForPrivateEndpoint_ManagedVPCResource_VPCIdentifier(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
 	if fieldHasReferences, err := rm.resolveReferenceForTargetConfiguration_Mcp_APIGateway_RestAPIID(ctx, apiReader, ko); err != nil {
 		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
 	} else {
@@ -99,6 +151,30 @@ func validateReferenceFields(ko *svcapitypes.GatewayTarget) error {
 	}
 	if ko.Spec.GatewayIdentifierRef == nil && ko.Spec.GatewayIdentifier == nil {
 		return ackerr.ResourceReferenceOrIDRequiredFor("GatewayIdentifier", "GatewayIdentifierRef")
+	}
+
+	if ko.Spec.PrivateEndpoint != nil {
+		if ko.Spec.PrivateEndpoint.ManagedVPCResource != nil {
+			if len(ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupRefs) > 0 && len(ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs) > 0 {
+				return ackerr.ResourceReferenceAndIDNotSupportedFor("PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs", "PrivateEndpoint.ManagedVPCResource.SecurityGroupRefs")
+			}
+		}
+	}
+
+	if ko.Spec.PrivateEndpoint != nil {
+		if ko.Spec.PrivateEndpoint.ManagedVPCResource != nil {
+			if len(ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetRefs) > 0 && len(ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs) > 0 {
+				return ackerr.ResourceReferenceAndIDNotSupportedFor("PrivateEndpoint.ManagedVPCResource.SubnetIDs", "PrivateEndpoint.ManagedVPCResource.SubnetRefs")
+			}
+		}
+	}
+
+	if ko.Spec.PrivateEndpoint != nil {
+		if ko.Spec.PrivateEndpoint.ManagedVPCResource != nil {
+			if ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifierRef != nil && ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier != nil {
+				return ackerr.ResourceReferenceAndIDNotSupportedFor("PrivateEndpoint.ManagedVPCResource.VPCIdentifier", "PrivateEndpoint.ManagedVPCResource.VPCIdentifierRef")
+			}
+		}
 	}
 
 	if ko.Spec.TargetConfiguration != nil {
@@ -200,6 +276,301 @@ func getReferencedResourceState_Gateway(
 			"Gateway",
 			namespace, name,
 			"Status.GatewayID")
+	}
+	return nil
+}
+
+// resolveReferenceForPrivateEndpoint_ManagedVPCResource_SecurityGroupIDs reads the resource referenced
+// from PrivateEndpoint.ManagedVPCResource.SecurityGroupRefs field and sets the PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForPrivateEndpoint_ManagedVPCResource_SecurityGroupIDs(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.GatewayTarget,
+) (hasReferences bool, err error) {
+	if ko.Spec.PrivateEndpoint != nil {
+		if ko.Spec.PrivateEndpoint.ManagedVPCResource != nil {
+			for _, f0iter := range ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupRefs {
+				if f0iter != nil && f0iter.From != nil {
+					hasReferences = true
+					arr := f0iter.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: PrivateEndpoint.ManagedVPCResource.SecurityGroupRefs")
+					}
+					namespace, err := ackrt.ResolveCrossNamespaceReference(
+						ctx,
+						rm.cfg.EnableCrossNamespace,
+						&ko.Status.Conditions,
+						ackrt.CrossNamespaceRefKindResource,
+						ko.ObjectMeta.GetNamespace(),
+						arr.Namespace,
+						*arr.Name,
+					)
+					if err != nil {
+						return hasReferences, err
+					}
+					obj := &ec2apitypes.SecurityGroup{}
+					if err := getReferencedResourceState_SecurityGroup(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					if ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs == nil {
+						ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs = make([]*string, 0, 1)
+					}
+					ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs = append(ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs, (*string)(obj.Status.ID))
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_SecurityGroup looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_SecurityGroup(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *ec2apitypes.SecurityGroup,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"SecurityGroup",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"SecurityGroup",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"SecurityGroup",
+			namespace, name)
+	}
+	if obj.Status.ID == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"SecurityGroup",
+			namespace, name,
+			"Status.ID")
+	}
+	return nil
+}
+
+// resolveReferenceForPrivateEndpoint_ManagedVPCResource_SubnetIDs reads the resource referenced
+// from PrivateEndpoint.ManagedVPCResource.SubnetRefs field and sets the PrivateEndpoint.ManagedVPCResource.SubnetIDs
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForPrivateEndpoint_ManagedVPCResource_SubnetIDs(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.GatewayTarget,
+) (hasReferences bool, err error) {
+	if ko.Spec.PrivateEndpoint != nil {
+		if ko.Spec.PrivateEndpoint.ManagedVPCResource != nil {
+			for _, f0iter := range ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetRefs {
+				if f0iter != nil && f0iter.From != nil {
+					hasReferences = true
+					arr := f0iter.From
+					if arr.Name == nil || *arr.Name == "" {
+						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: PrivateEndpoint.ManagedVPCResource.SubnetRefs")
+					}
+					namespace, err := ackrt.ResolveCrossNamespaceReference(
+						ctx,
+						rm.cfg.EnableCrossNamespace,
+						&ko.Status.Conditions,
+						ackrt.CrossNamespaceRefKindResource,
+						ko.ObjectMeta.GetNamespace(),
+						arr.Namespace,
+						*arr.Name,
+					)
+					if err != nil {
+						return hasReferences, err
+					}
+					obj := &ec2apitypes.Subnet{}
+					if err := getReferencedResourceState_Subnet(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+						return hasReferences, err
+					}
+					if ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs == nil {
+						ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs = make([]*string, 0, 1)
+					}
+					ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs = append(ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs, (*string)(obj.Status.SubnetID))
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_Subnet looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_Subnet(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *ec2apitypes.Subnet,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"Subnet",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"Subnet",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"Subnet",
+			namespace, name)
+	}
+	if obj.Status.SubnetID == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"Subnet",
+			namespace, name,
+			"Status.SubnetID")
+	}
+	return nil
+}
+
+// resolveReferenceForPrivateEndpoint_ManagedVPCResource_VPCIdentifier reads the resource referenced
+// from PrivateEndpoint.ManagedVPCResource.VPCIdentifierRef field and sets the PrivateEndpoint.ManagedVPCResource.VPCIdentifier
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForPrivateEndpoint_ManagedVPCResource_VPCIdentifier(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.GatewayTarget,
+) (hasReferences bool, err error) {
+	if ko.Spec.PrivateEndpoint != nil {
+		if ko.Spec.PrivateEndpoint.ManagedVPCResource != nil {
+			if ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifierRef != nil && ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifierRef.From != nil {
+				hasReferences = true
+				arr := ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifierRef.From
+				if arr.Name == nil || *arr.Name == "" {
+					return hasReferences, fmt.Errorf("provided resource reference is nil or empty: PrivateEndpoint.ManagedVPCResource.VPCIdentifierRef")
+				}
+				namespace, err := ackrt.ResolveCrossNamespaceReference(
+					ctx,
+					rm.cfg.EnableCrossNamespace,
+					&ko.Status.Conditions,
+					ackrt.CrossNamespaceRefKindResource,
+					ko.ObjectMeta.GetNamespace(),
+					arr.Namespace,
+					*arr.Name,
+				)
+				if err != nil {
+					return hasReferences, err
+				}
+				obj := &ec2apitypes.VPC{}
+				if err := getReferencedResourceState_VPC(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+					return hasReferences, err
+				}
+				ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier = (*string)(obj.Status.VPCID)
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_VPC looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_VPC(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *ec2apitypes.VPC,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"VPC",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"VPC",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"VPC",
+			namespace, name)
+	}
+	if obj.Status.VPCID == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"VPC",
+			namespace, name,
+			"Status.VPCID")
 	}
 	return nil
 }

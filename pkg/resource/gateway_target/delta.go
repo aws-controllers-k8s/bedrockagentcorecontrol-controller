@@ -99,6 +99,67 @@ func newResourceDelta(
 			delta.Add("Spec.Name", a.ko.Spec.Name, b.ko.Spec.Name)
 		}
 	}
+	if ackcompare.HasNilDifference(a.ko.Spec.PrivateEndpoint, b.ko.Spec.PrivateEndpoint) {
+		delta.Add("Spec.PrivateEndpoint", a.ko.Spec.PrivateEndpoint, b.ko.Spec.PrivateEndpoint)
+	} else if a.ko.Spec.PrivateEndpoint != nil && b.ko.Spec.PrivateEndpoint != nil {
+		if ackcompare.HasNilDifference(a.ko.Spec.PrivateEndpoint.ManagedVPCResource, b.ko.Spec.PrivateEndpoint.ManagedVPCResource) {
+			delta.Add("Spec.PrivateEndpoint.ManagedVPCResource", a.ko.Spec.PrivateEndpoint.ManagedVPCResource, b.ko.Spec.PrivateEndpoint.ManagedVPCResource)
+		} else if a.ko.Spec.PrivateEndpoint.ManagedVPCResource != nil && b.ko.Spec.PrivateEndpoint.ManagedVPCResource != nil {
+			if ackcompare.HasNilDifference(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType) {
+				delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType)
+			} else if a.ko.Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType != nil && b.ko.Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType != nil {
+				if *a.ko.Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType != *b.ko.Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType {
+					delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.EndpointIPAddressType)
+				}
+			}
+			if ackcompare.HasNilDifference(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain) {
+				delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain)
+			} else if a.ko.Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain != nil && b.ko.Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain != nil {
+				if *a.ko.Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain != *b.ko.Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain {
+					delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.RoutingDomain)
+				}
+			}
+			if len(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs) != len(b.ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs) {
+				delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs)
+			} else if len(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs) > 0 {
+				if !ackcompare.SliceStringPEqual(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs) {
+					delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.SecurityGroupIDs)
+				}
+			}
+			if len(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs) != len(b.ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs) {
+				delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs)
+			} else if len(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs) > 0 {
+				if !ackcompare.SliceStringPEqual(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs) {
+					delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.SubnetIDs)
+				}
+			}
+			if len(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.Tags) != len(b.ko.Spec.PrivateEndpoint.ManagedVPCResource.Tags) {
+				delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.Tags", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.Tags, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.Tags)
+			} else if len(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.Tags) > 0 {
+				if !ackcompare.MapStringStringPEqual(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.Tags, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.Tags) {
+					delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.Tags", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.Tags, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.Tags)
+				}
+			}
+			if ackcompare.HasNilDifference(a.ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier) {
+				delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier)
+			} else if a.ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier != nil && b.ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier != nil {
+				if *a.ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier != *b.ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier {
+					delta.Add("Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier", a.ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier, b.ko.Spec.PrivateEndpoint.ManagedVPCResource.VPCIdentifier)
+				}
+			}
+		}
+		if ackcompare.HasNilDifference(a.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource, b.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource) {
+			delta.Add("Spec.PrivateEndpoint.SelfManagedLatticeResource", a.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource, b.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource)
+		} else if a.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource != nil && b.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource != nil {
+			if ackcompare.HasNilDifference(a.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier, b.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier) {
+				delta.Add("Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier", a.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier, b.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier)
+			} else if a.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier != nil && b.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier != nil {
+				if *a.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier != *b.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier {
+					delta.Add("Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier", a.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier, b.ko.Spec.PrivateEndpoint.SelfManagedLatticeResource.ResourceConfigurationIdentifier)
+				}
+			}
+		}
+	}
 	if ackcompare.HasNilDifference(a.ko.Spec.TargetConfiguration, b.ko.Spec.TargetConfiguration) {
 		delta.Add("Spec.TargetConfiguration", a.ko.Spec.TargetConfiguration, b.ko.Spec.TargetConfiguration)
 	} else if a.ko.Spec.TargetConfiguration != nil && b.ko.Spec.TargetConfiguration != nil {
