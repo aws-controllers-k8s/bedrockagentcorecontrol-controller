@@ -28,23 +28,22 @@ type GatewaySpec struct {
 	AuthorizerConfiguration *AuthorizerConfiguration `json:"authorizerConfiguration,omitempty"`
 	// The type of authorizer to use for the gateway.
 	//
-	//   - CUSTOM_JWT - Authorize with a bearer token.
+	//    * CUSTOM_JWT - Authorize with a bearer token.
 	//
-	//   - AWS_IAM - Authorize with your Amazon Web Services IAM credentials.
+	//    * AWS_IAM - Authorize with your Amazon Web Services IAM credentials.
 	//
-	//   - NONE - No authorization
-	//
+	//    * NONE - No authorization
 	// +kubebuilder:validation:Required
 	AuthorizerType *string `json:"authorizerType"`
 	// The description of the gateway.
 	Description *string `json:"description,omitempty"`
 	// The level of detail in error messages returned when invoking the gateway.
 	//
-	//   - If the value is DEBUG, granular exception messages are returned to help
-	//     a user debug the gateway.
+	//    * If the value is DEBUG, granular exception messages are returned to help
+	//    a user debug the gateway.
 	//
-	//   - If the value is omitted, a generic error message is returned to the
-	//     end user.
+	//    * If the value is omitted, a generic error message is returned to the
+	//    end user.
 	ExceptionLevel *string `json:"exceptionLevel,omitempty"`
 	// A list of configuration settings for a gateway interceptor. Gateway interceptors
 	// allow custom code to be invoked during gateway invocations.
