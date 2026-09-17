@@ -107,11 +107,11 @@ spec:
                 description: |-
                   The type of authorizer to use for the gateway.
 
-                    - CUSTOM_JWT - Authorize with a bearer token.
+                     * CUSTOM_JWT - Authorize with a bearer token.
 
-                    - AWS_IAM - Authorize with your Amazon Web Services IAM credentials.
+                     * AWS_IAM - Authorize with your Amazon Web Services IAM credentials.
 
-                    - NONE - No authorization
+                     * NONE - No authorization
                 type: string
               description:
                 description: The description of the gateway.
@@ -120,11 +120,11 @@ spec:
                 description: |-
                   The level of detail in error messages returned when invoking the gateway.
 
-                    - If the value is DEBUG, granular exception messages are returned to help
-                      a user debug the gateway.
+                     * If the value is DEBUG, granular exception messages are returned to help
+                     a user debug the gateway.
 
-                    - If the value is omitted, a generic error message is returned to the
-                      end user.
+                     * If the value is omitted, a generic error message is returned to the
+                     end user.
                 type: string
               interceptorConfigurations:
                 description: |-
