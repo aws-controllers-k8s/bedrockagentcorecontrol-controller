@@ -248,14 +248,38 @@ func (rm *resourceManager) sdkFind(
 		for _, f10iter := range resp.FilesystemConfigurations {
 			f10elem := &svcapitypes.FilesystemConfiguration{}
 			switch f10iter.(type) {
-			case *svcsdktypes.FilesystemConfigurationMemberSessionStorage:
-				f10elemf0 := f10iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
+			case *svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint:
+				f10elemf0 := f10iter.(*svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint)
 				if f10elemf0 != nil {
-					f10elemf0f0 := &svcapitypes.SessionStorageConfiguration{}
+					f10elemf0f0 := &svcapitypes.EFSAccessPointConfiguration{}
+					if f10elemf0.Value.AccessPointArn != nil {
+						f10elemf0f0.AccessPointARN = f10elemf0.Value.AccessPointArn
+					}
 					if f10elemf0.Value.MountPath != nil {
 						f10elemf0f0.MountPath = f10elemf0.Value.MountPath
 					}
-					f10elem.SessionStorage = f10elemf0f0
+					f10elem.EFSAccessPoint = f10elemf0f0
+				}
+			case *svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint:
+				f10elemf1 := f10iter.(*svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint)
+				if f10elemf1 != nil {
+					f10elemf1f1 := &svcapitypes.S3FilesAccessPointConfiguration{}
+					if f10elemf1.Value.AccessPointArn != nil {
+						f10elemf1f1.AccessPointARN = f10elemf1.Value.AccessPointArn
+					}
+					if f10elemf1.Value.MountPath != nil {
+						f10elemf1f1.MountPath = f10elemf1.Value.MountPath
+					}
+					f10elem.S3FilesAccessPoint = f10elemf1f1
+				}
+			case *svcsdktypes.FilesystemConfigurationMemberSessionStorage:
+				f10elemf2 := f10iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
+				if f10elemf2 != nil {
+					f10elemf2f2 := &svcapitypes.SessionStorageConfiguration{}
+					if f10elemf2.Value.MountPath != nil {
+						f10elemf2f2.MountPath = f10elemf2.Value.MountPath
+					}
+					f10elem.SessionStorage = f10elemf2f2
 				}
 			}
 			f10 = append(f10, f10elem)
@@ -592,17 +616,49 @@ func (rm *resourceManager) newCreateRequestPayload(
 		for _, f5iter := range r.ko.Spec.FilesystemConfigurations {
 			var f5elem svcsdktypes.FilesystemConfiguration
 			isInterfaceSet := false
+			if f5iter.EFSAccessPoint != nil {
+				if isInterfaceSet {
+					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for EfsAccessPoint"))
+				}
+				f5elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint{}
+				f5elemf0 := &svcsdktypes.EfsAccessPointConfiguration{}
+				if f5iter.EFSAccessPoint.AccessPointARN != nil {
+					f5elemf0.AccessPointArn = f5iter.EFSAccessPoint.AccessPointARN
+				}
+				if f5iter.EFSAccessPoint.MountPath != nil {
+					f5elemf0.MountPath = f5iter.EFSAccessPoint.MountPath
+				}
+				f5elemf0Parent.Value = *f5elemf0
+				f5elem = f5elemf0Parent
+				isInterfaceSet = true
+			}
+			if f5iter.S3FilesAccessPoint != nil {
+				if isInterfaceSet {
+					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for S3FilesAccessPoint"))
+				}
+				f5elemf1Parent := &svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint{}
+				f5elemf1 := &svcsdktypes.S3FilesAccessPointConfiguration{}
+				if f5iter.S3FilesAccessPoint.AccessPointARN != nil {
+					f5elemf1.AccessPointArn = f5iter.S3FilesAccessPoint.AccessPointARN
+				}
+				if f5iter.S3FilesAccessPoint.MountPath != nil {
+					f5elemf1.MountPath = f5iter.S3FilesAccessPoint.MountPath
+				}
+				f5elemf1Parent.Value = *f5elemf1
+				f5elem = f5elemf1Parent
+				isInterfaceSet = true
+			}
 			if f5iter.SessionStorage != nil {
 				if isInterfaceSet {
 					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for SessionStorage"))
 				}
-				f5elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
-				f5elemf0 := &svcsdktypes.SessionStorageConfiguration{}
+				f5elemf2Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
+				f5elemf2 := &svcsdktypes.SessionStorageConfiguration{}
 				if f5iter.SessionStorage.MountPath != nil {
-					f5elemf0.MountPath = f5iter.SessionStorage.MountPath
+					f5elemf2.MountPath = f5iter.SessionStorage.MountPath
 				}
-				f5elemf0Parent.Value = *f5elemf0
-				f5elem = f5elemf0Parent
+				f5elemf2Parent.Value = *f5elemf2
+				f5elem = f5elemf2Parent
 				isInterfaceSet = true
 			}
 			f5 = append(f5, f5elem)
@@ -926,17 +982,49 @@ func (rm *resourceManager) newUpdateRequestPayload(
 		for _, f6iter := range r.ko.Spec.FilesystemConfigurations {
 			var f6elem svcsdktypes.FilesystemConfiguration
 			isInterfaceSet := false
+			if f6iter.EFSAccessPoint != nil {
+				if isInterfaceSet {
+					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for EfsAccessPoint"))
+				}
+				f6elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint{}
+				f6elemf0 := &svcsdktypes.EfsAccessPointConfiguration{}
+				if f6iter.EFSAccessPoint.AccessPointARN != nil {
+					f6elemf0.AccessPointArn = f6iter.EFSAccessPoint.AccessPointARN
+				}
+				if f6iter.EFSAccessPoint.MountPath != nil {
+					f6elemf0.MountPath = f6iter.EFSAccessPoint.MountPath
+				}
+				f6elemf0Parent.Value = *f6elemf0
+				f6elem = f6elemf0Parent
+				isInterfaceSet = true
+			}
+			if f6iter.S3FilesAccessPoint != nil {
+				if isInterfaceSet {
+					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for S3FilesAccessPoint"))
+				}
+				f6elemf1Parent := &svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint{}
+				f6elemf1 := &svcsdktypes.S3FilesAccessPointConfiguration{}
+				if f6iter.S3FilesAccessPoint.AccessPointARN != nil {
+					f6elemf1.AccessPointArn = f6iter.S3FilesAccessPoint.AccessPointARN
+				}
+				if f6iter.S3FilesAccessPoint.MountPath != nil {
+					f6elemf1.MountPath = f6iter.S3FilesAccessPoint.MountPath
+				}
+				f6elemf1Parent.Value = *f6elemf1
+				f6elem = f6elemf1Parent
+				isInterfaceSet = true
+			}
 			if f6iter.SessionStorage != nil {
 				if isInterfaceSet {
 					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for SessionStorage"))
 				}
-				f6elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
-				f6elemf0 := &svcsdktypes.SessionStorageConfiguration{}
+				f6elemf2Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
+				f6elemf2 := &svcsdktypes.SessionStorageConfiguration{}
 				if f6iter.SessionStorage.MountPath != nil {
-					f6elemf0.MountPath = f6iter.SessionStorage.MountPath
+					f6elemf2.MountPath = f6iter.SessionStorage.MountPath
 				}
-				f6elemf0Parent.Value = *f6elemf0
-				f6elem = f6elemf0Parent
+				f6elemf2Parent.Value = *f6elemf2
+				f6elem = f6elemf2Parent
 				isInterfaceSet = true
 			}
 			f6 = append(f6, f6elem)
