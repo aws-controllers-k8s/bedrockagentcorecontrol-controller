@@ -1,0 +1,22 @@
+apiVersion: bedrockagentcorecontrol.services.k8s.aws/v1alpha1
+kind: GatewayRateLimit
+metadata:
+  name: $RATE_LIMIT_NAME
+  namespace: default
+spec:
+  gatewayIdentifierRef:
+    from:
+      name: $GATEWAY_NAME
+  description: "ACK e2e test gateway rate limit with an invalid dimension key"
+  # The service constrains dimension keys to targetName, toolName,
+  # qualifiedModelId or a $.context.* expression. The CRD carries the pattern
+  # as documentation only, so this reaches the API and comes back as a
+  # ValidationException, which the controller must treat as terminal.
+  dimensionKeys:
+    - notADimensionKey
+  entries:
+    - dimensions:
+        notADimensionKey: "*"
+      requests:
+        - period: minute
+          rate: 100

@@ -54,6 +54,7 @@ import (
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/browser_profile"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/code_interpreter"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway"
+	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway_rate_limit"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/gateway_target"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/harness"
 	_ "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/resource/harness_endpoint"

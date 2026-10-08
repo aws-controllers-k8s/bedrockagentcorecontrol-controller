@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: policies.bedrockagentcorecontrol.services.k8s.aws
+  name: gatewayratelimits.bedrockagentcorecontrol.services.k8s.aws
 spec:
   group: bedrockagentcorecontrol.services.k8s.aws
   names:
-    kind: Policy
-    listKind: PolicyList
-    plural: policies
-    singular: policy
+    kind: GatewayRateLimit
+    listKind: GatewayRateLimitList
+    plural: gatewayratelimits
+    singular: gatewayratelimit
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Policy is the Schema for the Policies API
+        description: GatewayRateLimit is the Schema for the GatewayRateLimits API
         properties:
           apiVersion:
             description: |-
@@ -37,75 +37,98 @@ spec:
           metadata:
             type: object
           spec:
-            description: |-
-              PolicySpec defines the desired state of Policy.
-
-              Represents a complete policy resource within the AgentCore Policy system.
-              Policies are ARN-able resources that contain Cedar or Dogwood policy statements
-              and associated metadata for controlling agent behavior and access decisions.
-              Each policy belongs to a policy engine and defines fine-grained authorization
-              rules that are evaluated in real-time as agents interact with tools through
-              Gateway. Policies use Cedar or Dogwood to specify who (principals based on
-              OAuth claims like username, role, or scope) can perform what actions (tool
-              calls) on which resources (Gateways), with optional conditions for attribute-based
-              access control. Multiple policies can apply to a single request, with forbid-wins
-              semantics ensuring that security restrictions are never accidentally overridden.
+            description: GatewayRateLimitSpec defines the desired state of GatewayRateLimit.
             properties:
-              definition:
-                description: |-
-                  The Cedar or Dogwood policy statement that defines the access control rules.
-                  This contains the actual policy logic written in Cedar or Dogwood, specifying
-                  effect (permit or forbid), principals, actions, resources, and conditions
-                  for agent behavior control.
-                properties:
-                  cedar:
-                    description: |-
-                      Represents a Cedar policy statement within the AgentCore Policy system. Cedar
-                      is a policy language designed for authorization that provides human-readable,
-                      analyzable, and high-performance policy evaluation for controlling agent
-                      behavior and access decisions.
-                    properties:
-                      statement:
-                        type: string
-                    type: object
-                type: object
               description:
                 description: |-
-                  A human-readable description of the policy's purpose and functionality (1-4,096
-                  characters). This helps policy administrators understand the policy's intent,
-                  business rules, and operational scope. Use this field to document why the
-                  policy exists, what business requirement it addresses, and any special considerations
-                  for maintenance. Clear descriptions are essential for policy governance,
-                  auditing, and troubleshooting.
+                  An optional human-readable description for this rate limit. If not provided,
+                  the rate limit is created without a description.
                 type: string
-              enforcementMode:
+              dimensionKeys:
                 description: |-
-                  The enforcement mode for the policy. Run this policy in LOG_ONLY mode to
-                  collect data on how it affects your application. Once you are satisfied with
-                  the data gathered, switch the policy to ACTIVE. Defaults to ACTIVE.
-                type: string
-              name:
+                  The ordered list of dimension key names that define the scope of this rate
+                  limit. Must be unique per gateway—no two rate limits can share the same
+                  dimension keys.
+                items:
+                  type: string
+                type: array
+                x-kubernetes-validations:
+                - message: Value is immutable once set
+                  rule: self == oldSelf
+              entries:
+                description: The rule entries that map dimension values to rate configurations.
+                items:
+                  description: |-
+                    A single rule entry within a rate limit that maps dimension values to rate
+                    configurations. Each entry defines the rate limits for a specific combination
+                    of dimension values.
+                  properties:
+                    connections:
+                      description: |-
+                        A list of rate configurations for the limit. Currently supports one entry
+                        per limit.
+                      items:
+                        description: |-
+                          Contains the rate configuration for a rate limit metric, specifying the allowed
+                          rate and time period.
+                        properties:
+                          period:
+                            description: The time period for rate limiting.
+                            type: string
+                          rate:
+                            type: number
+                        type: object
+                      type: array
+                    dimensions:
+                      additionalProperties:
+                        type: string
+                      description: A map of dimension name to dimension value for
+                        a rule entry.
+                      type: object
+                    requests:
+                      description: |-
+                        A list of rate configurations for the limit. Currently supports one entry
+                        per limit.
+                      items:
+                        description: |-
+                          Contains the rate configuration for a rate limit metric, specifying the allowed
+                          rate and time period.
+                        properties:
+                          period:
+                            description: The time period for rate limiting.
+                            type: string
+                          rate:
+                            type: number
+                        type: object
+                      type: array
+                    tokens:
+                      description: |-
+                        A list of rate configurations for the limit. Currently supports one entry
+                        per limit.
+                      items:
+                        description: |-
+                          Contains the rate configuration for a rate limit metric, specifying the allowed
+                          rate and time period.
+                        properties:
+                          period:
+                            description: The time period for rate limiting.
+                            type: string
+                          rate:
+                            type: number
+                        type: object
+                      type: array
+                  type: object
+                type: array
+              gatewayIdentifier:
                 description: |-
-                  The customer-assigned immutable name for the policy. Must be unique within
-                  the account. This name is used for policy identification and cannot be changed
-                  after creation.
+                  The unique identifier of the gateway to create the rate limit for.
 
-                  Regex Pattern: `^[A-Za-z][A-Za-z0-9_]*$`
+                  Regex Pattern: `^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$`
                 type: string
                 x-kubernetes-validations:
                 - message: Value is immutable once set
                   rule: self == oldSelf
-              policyEngineID:
-                description: |-
-                  The identifier of the policy engine which contains this policy. Policy engines
-                  group related policies and provide the execution context for policy evaluation.
-
-                  Regex Pattern: `^[A-Za-z][A-Za-z0-9_]*-[a-z0-9_]{10}$`
-                type: string
-                x-kubernetes-validations:
-                - message: Value is immutable once set
-                  rule: self == oldSelf
-              policyEngineRef:
+              gatewayIdentifierRef:
                 description: "AWSResourceReferenceWrapper provides a wrapper around
                   *AWSResourceReference\ntype to provide more user friendly syntax
                   for references using 'from' field\nEx:\nAPIIDRef:\n\n\tfrom:\n\t
@@ -122,24 +145,22 @@ spec:
                         type: string
                     type: object
                 type: object
-              validationMode:
+              rateLimitID:
                 description: |-
-                  The validation mode for the policy creation. Determines how Cedar analyzer
-                  validation results are handled during policy creation. FAIL_ON_ANY_FINDINGS
-                  (default) runs the Cedar analyzer to validate the policy against the Cedar
-                  schema and tool context, failing creation if the analyzer detects any validation
-                  issues to ensure strict conformance. IGNORE_ALL_FINDINGS runs the Cedar analyzer
-                  but allows policy creation even if validation issues are detected, useful
-                  for testing or when the policy schema is evolving. Use FAIL_ON_ANY_FINDINGS
-                  for production policies to ensure correctness, and IGNORE_ALL_FINDINGS only
-                  when you understand and accept the analyzer findings.
+                  An optional customer-defined identifier for the rate limit. If not provided,
+                  the system generates one.
+
+                  Regex Pattern: `^[a-zA-Z0-9][a-zA-Z0-9\-_\.]{0,62}[a-zA-Z0-9]$`
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable once set
+                  rule: self == oldSelf
             required:
-            - definition
-            - name
+            - dimensionKeys
+            - entries
             type: object
           status:
-            description: PolicyStatus defines the observed state of Policy
+            description: GatewayRateLimitStatus defines the observed state of GatewayRateLimit
             properties:
               ackResourceMetadata:
                 description: |-
@@ -210,33 +231,14 @@ spec:
                   type: object
                 type: array
               createdAt:
-                description: The timestamp when the policy was originally created.
+                description: The timestamp when the rate limit was created.
                 format: date-time
                 type: string
-              id:
-                description: |-
-                  The unique identifier for the created policy. This is a system-generated
-                  identifier consisting of the user name plus a 10-character generated suffix,
-                  used for all subsequent policy operations.
-
-                  Regex Pattern: `^[A-Za-z][A-Za-z0-9_]*-[a-z0-9_]{10}$`
-                type: string
               status:
-                description: |-
-                  The current status of the policy. A status of ACTIVE indicates the policy
-                  is ready for use.
+                description: The current status of the rate limit.
                 type: string
-              statusReasons:
-                description: |-
-                  Additional information about the policy status. This provides details about
-                  any failures or the current state of the policy.
-                items:
-                  type: string
-                type: array
               updatedAt:
-                description: |-
-                  The timestamp when the policy was last modified. This tracks the most recent
-                  changes to the policy configuration.
+                description: The timestamp when the rate limit was last updated.
                 format: date-time
                 type: string
             type: object

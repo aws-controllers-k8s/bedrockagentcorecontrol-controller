@@ -62,7 +62,7 @@ type AgentRuntimeEndpointStatus struct {
 	Conditions []*ackv1alpha1.Condition `json:"conditions"`
 	// The Amazon Resource Name (ARN) of the AgentCore Runtime.
 	//
-	// Regex Pattern: `^arn:(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:agent/[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}:([0-9]{0,4}[1-9][0-9]{0,4})$`
+	// Regex Pattern: `^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$`
 	// +kubebuilder:validation:Optional
 	AgentRuntimeARN *string `json:"agentRuntimeARN,omitempty"`
 	// The timestamp when the AgentCore Runtime endpoint was created.
