@@ -241,11 +241,8 @@ func (rm *resourceManager) resolveReferenceForCertificates_Location_SecretsManag
 					if arr.Name == nil || *arr.Name == "" {
 						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Certificates.Location.SecretsManager.SecretRef")
 					}
-					namespace, err := ackrt.ResolveCrossNamespaceReference(
-						ctx,
+					namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 						rm.cfg.EnableCrossNamespace,
-						&ko.Status.Conditions,
-						ackrt.CrossNamespaceRefKindResource,
 						ko.ObjectMeta.GetNamespace(),
 						arr.Namespace,
 						*arr.Name,
@@ -335,11 +332,8 @@ func (rm *resourceManager) resolveReferenceForExecutionRoleARN(
 		if arr.Name == nil || *arr.Name == "" {
 			return hasReferences, fmt.Errorf("provided resource reference is nil or empty: ExecutionRoleRef")
 		}
-		namespace, err := ackrt.ResolveCrossNamespaceReference(
-			ctx,
+		namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 			rm.cfg.EnableCrossNamespace,
-			&ko.Status.Conditions,
-			ackrt.CrossNamespaceRefKindResource,
 			ko.ObjectMeta.GetNamespace(),
 			arr.Namespace,
 			*arr.Name,
@@ -429,11 +423,8 @@ func (rm *resourceManager) resolveReferenceForNetworkConfiguration_VPCConfig_Sec
 					if arr.Name == nil || *arr.Name == "" {
 						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: NetworkConfiguration.VPCConfig.SecurityGroupRefs")
 					}
-					namespace, err := ackrt.ResolveCrossNamespaceReference(
-						ctx,
+					namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 						rm.cfg.EnableCrossNamespace,
-						&ko.Status.Conditions,
-						ackrt.CrossNamespaceRefKindResource,
 						ko.ObjectMeta.GetNamespace(),
 						arr.Namespace,
 						*arr.Name,
@@ -529,11 +520,8 @@ func (rm *resourceManager) resolveReferenceForNetworkConfiguration_VPCConfig_Sub
 					if arr.Name == nil || *arr.Name == "" {
 						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: NetworkConfiguration.VPCConfig.SubnetRefs")
 					}
-					namespace, err := ackrt.ResolveCrossNamespaceReference(
-						ctx,
+					namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 						rm.cfg.EnableCrossNamespace,
-						&ko.Status.Conditions,
-						ackrt.CrossNamespaceRefKindResource,
 						ko.ObjectMeta.GetNamespace(),
 						arr.Namespace,
 						*arr.Name,
