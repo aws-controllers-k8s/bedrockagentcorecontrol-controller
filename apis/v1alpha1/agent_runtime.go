@@ -46,8 +46,7 @@ type AgentRuntimeSpec struct {
 	// The life cycle configuration for the AgentCore Runtime.
 	LifecycleConfiguration *LifecycleConfiguration `json:"lifecycleConfiguration,omitempty"`
 	// The network configuration for the AgentCore Runtime.
-	// +kubebuilder:validation:Required
-	NetworkConfiguration  *NetworkConfiguration  `json:"networkConfiguration"`
+	NetworkConfiguration  *NetworkConfiguration  `json:"networkConfiguration,omitempty"`
 	ProtocolConfiguration *ProtocolConfiguration `json:"protocolConfiguration,omitempty"`
 	// Configuration for HTTP request headers that will be passed through to the
 	// runtime.

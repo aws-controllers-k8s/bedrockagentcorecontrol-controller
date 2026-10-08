@@ -46,6 +46,7 @@ type AgentRuntimeEndpointStatus_SDK string
 const (
 	AgentRuntimeEndpointStatus_SDK_CREATE_FAILED AgentRuntimeEndpointStatus_SDK = "CREATE_FAILED"
 	AgentRuntimeEndpointStatus_SDK_CREATING      AgentRuntimeEndpointStatus_SDK = "CREATING"
+	AgentRuntimeEndpointStatus_SDK_DELETE_FAILED AgentRuntimeEndpointStatus_SDK = "DELETE_FAILED"
 	AgentRuntimeEndpointStatus_SDK_DELETING      AgentRuntimeEndpointStatus_SDK = "DELETING"
 	AgentRuntimeEndpointStatus_SDK_READY         AgentRuntimeEndpointStatus_SDK = "READY"
 	AgentRuntimeEndpointStatus_SDK_UPDATE_FAILED AgentRuntimeEndpointStatus_SDK = "UPDATE_FAILED"
@@ -57,6 +58,7 @@ type AgentRuntimeStatus_SDK string
 const (
 	AgentRuntimeStatus_SDK_CREATE_FAILED AgentRuntimeStatus_SDK = "CREATE_FAILED"
 	AgentRuntimeStatus_SDK_CREATING      AgentRuntimeStatus_SDK = "CREATING"
+	AgentRuntimeStatus_SDK_DELETE_FAILED AgentRuntimeStatus_SDK = "DELETE_FAILED"
 	AgentRuntimeStatus_SDK_DELETING      AgentRuntimeStatus_SDK = "DELETING"
 	AgentRuntimeStatus_SDK_READY         AgentRuntimeStatus_SDK = "READY"
 	AgentRuntimeStatus_SDK_UPDATE_FAILED AgentRuntimeStatus_SDK = "UPDATE_FAILED"
@@ -106,6 +108,35 @@ const (
 	BrowserStatus_SDK_READY         BrowserStatus_SDK = "READY"
 )
 
+type CapacityProviderStatus string
+
+const (
+	CapacityProviderStatus_CREATE_FAILED CapacityProviderStatus = "CREATE_FAILED"
+	CapacityProviderStatus_CREATING      CapacityProviderStatus = "CREATING"
+	CapacityProviderStatus_DELETE_FAILED CapacityProviderStatus = "DELETE_FAILED"
+	CapacityProviderStatus_DELETING      CapacityProviderStatus = "DELETING"
+	CapacityProviderStatus_READY         CapacityProviderStatus = "READY"
+	CapacityProviderStatus_UPDATE_FAILED CapacityProviderStatus = "UPDATE_FAILED"
+	CapacityProviderStatus_UPDATING      CapacityProviderStatus = "UPDATING"
+)
+
+type CapacityProviderStatusCode string
+
+const (
+	CapacityProviderStatusCode_INTERNAL_SERVER_EXCEPTION CapacityProviderStatusCode = "INTERNAL_SERVER_EXCEPTION"
+	CapacityProviderStatusCode_QUOTA_EXCEEDED            CapacityProviderStatusCode = "QUOTA_EXCEEDED"
+	CapacityProviderStatusCode_THROTTLED                 CapacityProviderStatusCode = "THROTTLED"
+	CapacityProviderStatusCode_VALIDATION_ERROR          CapacityProviderStatusCode = "VALIDATION_ERROR"
+)
+
+type CapacityReservationPreference string
+
+const (
+	CapacityReservationPreference_capacity_reservations_only CapacityReservationPreference = "capacity-reservations-only"
+	CapacityReservationPreference_none                       CapacityReservationPreference = "none"
+	CapacityReservationPreference_open                       CapacityReservationPreference = "open"
+)
+
 type ClaimMatchOperatorType string
 
 const (
@@ -120,6 +151,7 @@ const (
 	ClientAuthenticationMethodType_AWS_IAM_ID_TOKEN_JWT ClientAuthenticationMethodType = "AWS_IAM_ID_TOKEN_JWT"
 	ClientAuthenticationMethodType_CLIENT_SECRET_BASIC  ClientAuthenticationMethodType = "CLIENT_SECRET_BASIC"
 	ClientAuthenticationMethodType_CLIENT_SECRET_POST   ClientAuthenticationMethodType = "CLIENT_SECRET_POST"
+	ClientAuthenticationMethodType_PRIVATE_KEY_JWT      ClientAuthenticationMethodType = "PRIVATE_KEY_JWT"
 )
 
 type ClusteringFrequency string
@@ -149,6 +181,13 @@ const (
 	CodeInterpreterStatus_SDK_READY         CodeInterpreterStatus_SDK = "READY"
 )
 
+type CoinbaseCdpSecret string
+
+const (
+	CoinbaseCdpSecret_API_KEY       CoinbaseCdpSecret = "API_KEY"
+	CoinbaseCdpSecret_WALLET_SECRET CoinbaseCdpSecret = "WALLET_SECRET"
+)
+
 type ConfigurationBundleStatus string
 
 const (
@@ -159,6 +198,23 @@ const (
 	ConfigurationBundleStatus_DELETING      ConfigurationBundleStatus = "DELETING"
 	ConfigurationBundleStatus_UPDATE_FAILED ConfigurationBundleStatus = "UPDATE_FAILED"
 	ConfigurationBundleStatus_UPDATING      ConfigurationBundleStatus = "UPDATING"
+)
+
+type ConsentPortalSourceType string
+
+const (
+	ConsentPortalSourceType_agentcore_gateway ConsentPortalSourceType = "agentcore-gateway"
+)
+
+type ConsentPortalStatus string
+
+const (
+	ConsentPortalStatus_ACTIVE        ConsentPortalStatus = "ACTIVE"
+	ConsentPortalStatus_CREATING      ConsentPortalStatus = "CREATING"
+	ConsentPortalStatus_DELETING      ConsentPortalStatus = "DELETING"
+	ConsentPortalStatus_FAILED        ConsentPortalStatus = "FAILED"
+	ConsentPortalStatus_UPDATE_FAILED ConsentPortalStatus = "UPDATE_FAILED"
+	ConsentPortalStatus_UPDATING      ConsentPortalStatus = "UPDATING"
 )
 
 type ContentLevel string
@@ -219,6 +275,7 @@ type DatasetSchemaType string
 const (
 	DatasetSchemaType_AGENTCORE_EVALUATION_PREDEFINED_V1 DatasetSchemaType = "AGENTCORE_EVALUATION_PREDEFINED_V1"
 	DatasetSchemaType_AGENTCORE_EVALUATION_SIMULATED_V1  DatasetSchemaType = "AGENTCORE_EVALUATION_SIMULATED_V1"
+	DatasetSchemaType_THIRD_PARTY_EVALUATION_V1          DatasetSchemaType = "THIRD_PARTY_EVALUATION_V1"
 )
 
 type DatasetStatus string
@@ -247,6 +304,18 @@ type DraftStatus string
 const (
 	DraftStatus_MODIFIED   DraftStatus = "MODIFIED"
 	DraftStatus_UNMODIFIED DraftStatus = "UNMODIFIED"
+)
+
+type EBSVolumeType string
+
+const (
+	EBSVolumeType_gp2      EBSVolumeType = "gp2"
+	EBSVolumeType_gp3      EBSVolumeType = "gp3"
+	EBSVolumeType_io1      EBSVolumeType = "io1"
+	EBSVolumeType_io2      EBSVolumeType = "io2"
+	EBSVolumeType_sc1      EBSVolumeType = "sc1"
+	EBSVolumeType_st1      EBSVolumeType = "st1"
+	EBSVolumeType_standard EBSVolumeType = "standard"
 )
 
 type EndpointIPAddressType string
@@ -285,9 +354,11 @@ const (
 type EvaluatorType string
 
 const (
-	EvaluatorType_Builtin    EvaluatorType = "Builtin"
-	EvaluatorType_Custom     EvaluatorType = "Custom"
-	EvaluatorType_CustomCode EvaluatorType = "CustomCode"
+	EvaluatorType_Builtin       EvaluatorType = "Builtin"
+	EvaluatorType_Custom        EvaluatorType = "Custom"
+	EvaluatorType_CustomCode    EvaluatorType = "CustomCode"
+	EvaluatorType_CustomDerived EvaluatorType = "CustomDerived"
+	EvaluatorType_ThirdParty    EvaluatorType = "ThirdParty"
 )
 
 type ExceptionLevel string
@@ -348,6 +419,15 @@ const (
 	GatewayProtocolType_MCP GatewayProtocolType = "MCP"
 )
 
+type GatewayRateLimitStatus string
+
+const (
+	GatewayRateLimitStatus_ACTIVE   GatewayRateLimitStatus = "ACTIVE"
+	GatewayRateLimitStatus_CREATING GatewayRateLimitStatus = "CREATING"
+	GatewayRateLimitStatus_DELETING GatewayRateLimitStatus = "DELETING"
+	GatewayRateLimitStatus_UPDATING GatewayRateLimitStatus = "UPDATING"
+)
+
 type GatewayRuleStatus string
 
 const (
@@ -386,6 +466,13 @@ const (
 	HarnessEndpointStatus_SDK_READY         HarnessEndpointStatus_SDK = "READY"
 	HarnessEndpointStatus_SDK_UPDATE_FAILED HarnessEndpointStatus_SDK = "UPDATE_FAILED"
 	HarnessEndpointStatus_SDK_UPDATING      HarnessEndpointStatus_SDK = "UPDATING"
+)
+
+type HarnessHookFailureMode string
+
+const (
+	HarnessHookFailureMode_allow HarnessHookFailureMode = "allow"
+	HarnessHookFailureMode_deny  HarnessHookFailureMode = "deny"
 )
 
 type HarnessManagedMemoryStrategyType string
@@ -512,6 +599,13 @@ const (
 	MetadataValueType_STRINGLIST MetadataValueType = "STRINGLIST"
 )
 
+type Monitoring string
+
+const (
+	Monitoring_BASIC    Monitoring = "BASIC"
+	Monitoring_DETAILED Monitoring = "DETAILED"
+)
+
 type NetworkMode string
 
 const (
@@ -553,6 +647,13 @@ const (
 	OnlineEvaluationExecutionStatus_ENABLED  OnlineEvaluationExecutionStatus = "ENABLED"
 )
 
+type OperatingSystem string
+
+const (
+	OperatingSystem_LINUX_ARM64  OperatingSystem = "LINUX_ARM64"
+	OperatingSystem_LINUX_X86_64 OperatingSystem = "LINUX_X86_64"
+)
+
 type OverrideType string
 
 const (
@@ -572,16 +673,28 @@ const (
 	PassthroughProtocolType_MCP       PassthroughProtocolType = "MCP"
 )
 
+type PaymentConnectorProvisionMode string
+
+const (
+	PaymentConnectorProvisionMode_MANUAL       PaymentConnectorProvisionMode = "MANUAL"
+	PaymentConnectorProvisionMode_QUICK_CREATE PaymentConnectorProvisionMode = "QUICK_CREATE"
+)
+
 type PaymentConnectorStatus string
 
 const (
-	PaymentConnectorStatus_CREATE_FAILED PaymentConnectorStatus = "CREATE_FAILED"
-	PaymentConnectorStatus_CREATING      PaymentConnectorStatus = "CREATING"
-	PaymentConnectorStatus_DELETE_FAILED PaymentConnectorStatus = "DELETE_FAILED"
-	PaymentConnectorStatus_DELETING      PaymentConnectorStatus = "DELETING"
-	PaymentConnectorStatus_READY         PaymentConnectorStatus = "READY"
-	PaymentConnectorStatus_UPDATE_FAILED PaymentConnectorStatus = "UPDATE_FAILED"
-	PaymentConnectorStatus_UPDATING      PaymentConnectorStatus = "UPDATING"
+	PaymentConnectorStatus_AUTHENTICATION_EXPIRED                PaymentConnectorStatus = "AUTHENTICATION_EXPIRED"
+	PaymentConnectorStatus_AUTHENTICATION_FAILED                 PaymentConnectorStatus = "AUTHENTICATION_FAILED"
+	PaymentConnectorStatus_AWS_MARKETPLACE_SUBSCRIPTION_REQUIRED PaymentConnectorStatus = "AWS_MARKETPLACE_SUBSCRIPTION_REQUIRED"
+	PaymentConnectorStatus_CREATE_FAILED                         PaymentConnectorStatus = "CREATE_FAILED"
+	PaymentConnectorStatus_CREATING                              PaymentConnectorStatus = "CREATING"
+	PaymentConnectorStatus_DELETE_FAILED                         PaymentConnectorStatus = "DELETE_FAILED"
+	PaymentConnectorStatus_DELETING                              PaymentConnectorStatus = "DELETING"
+	PaymentConnectorStatus_PENDING_AUTHENTICATION                PaymentConnectorStatus = "PENDING_AUTHENTICATION"
+	PaymentConnectorStatus_PROVISIONING                          PaymentConnectorStatus = "PROVISIONING"
+	PaymentConnectorStatus_READY                                 PaymentConnectorStatus = "READY"
+	PaymentConnectorStatus_UPDATE_FAILED                         PaymentConnectorStatus = "UPDATE_FAILED"
+	PaymentConnectorStatus_UPDATING                              PaymentConnectorStatus = "UPDATING"
 )
 
 type PaymentConnectorType string
@@ -615,6 +728,13 @@ type PaymentsAuthorizerType string
 const (
 	PaymentsAuthorizerType_AWS_IAM    PaymentsAuthorizerType = "AWS_IAM"
 	PaymentsAuthorizerType_CUSTOM_JWT PaymentsAuthorizerType = "CUSTOM_JWT"
+)
+
+type Period string
+
+const (
+	Period_minute Period = "minute"
+	Period_second Period = "second"
 )
 
 type PolicyEngineStatus_SDK string
@@ -662,6 +782,15 @@ type PrincipalMatchOperator string
 const (
 	PrincipalMatchOperator_StringEquals PrincipalMatchOperator = "StringEquals"
 	PrincipalMatchOperator_StringLike   PrincipalMatchOperator = "StringLike"
+)
+
+type Provider string
+
+const (
+	Provider_AWS      Provider = "AWS"
+	Provider_AutoEval Provider = "AutoEval"
+	Provider_Custom   Provider = "Custom"
+	Provider_DeepEval Provider = "DeepEval"
 )
 
 type RegistryAuthorizerType string
@@ -729,6 +858,13 @@ const (
 	RestAPIMethod_PUT     RestAPIMethod = "PUT"
 )
 
+type ResultDestination string
+
+const (
+	ResultDestination_DEDICATED_LOG_GROUP ResultDestination = "DEDICATED_LOG_GROUP"
+	ResultDestination_SOURCE_LOG_GROUP    ResultDestination = "SOURCE_LOG_GROUP"
+)
+
 type SchemaType string
 
 const (
@@ -760,6 +896,21 @@ const (
 	ServerProtocol_AGUI ServerProtocol = "AGUI"
 	ServerProtocol_HTTP ServerProtocol = "HTTP"
 	ServerProtocol_MCP  ServerProtocol = "MCP"
+)
+
+type SigningAlgorithm string
+
+const (
+	SigningAlgorithm_ES256 SigningAlgorithm = "ES256"
+	SigningAlgorithm_PS256 SigningAlgorithm = "PS256"
+	SigningAlgorithm_RS256 SigningAlgorithm = "RS256"
+)
+
+type StaticQueryParameterConflictResolution string
+
+const (
+	StaticQueryParameterConflictResolution_CLIENT_OVERRIDE StaticQueryParameterConflictResolution = "CLIENT_OVERRIDE"
+	StaticQueryParameterConflictResolution_STATIC_OVERRIDE StaticQueryParameterConflictResolution = "STATIC_OVERRIDE"
 )
 
 type Status string
@@ -809,6 +960,7 @@ const (
 	TargetType_AGENTCORE_RUNTIME TargetType = "AGENTCORE_RUNTIME"
 	TargetType_API_GATEWAY       TargetType = "API_GATEWAY"
 	TargetType_CONNECTOR         TargetType = "CONNECTOR"
+	TargetType_HTTP_CONNECTOR    TargetType = "HTTP_CONNECTOR"
 	TargetType_LAMBDA            TargetType = "LAMBDA"
 	TargetType_MCP_SERVER        TargetType = "MCP_SERVER"
 	TargetType_OPEN_API_SCHEMA   TargetType = "OPEN_API_SCHEMA"

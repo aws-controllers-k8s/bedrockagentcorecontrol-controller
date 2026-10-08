@@ -23,22 +23,21 @@ import (
 // PolicySpec defines the desired state of Policy.
 //
 // Represents a complete policy resource within the AgentCore Policy system.
-// Policies are ARN-able resources that contain Cedar policy statements and
-// associated metadata for controlling agent behavior and access decisions.
+// Policies are ARN-able resources that contain Cedar or Dogwood policy statements
+// and associated metadata for controlling agent behavior and access decisions.
 // Each policy belongs to a policy engine and defines fine-grained authorization
 // rules that are evaluated in real-time as agents interact with tools through
-// Gateway. Policies use the Cedar policy language to specify who (principals
-// based on OAuth claims like username, role, or scope) can perform what actions
-// (tool calls) on which resources (Gateways), with optional conditions for
-// attribute-based access control. Multiple policies can apply to a single request,
-// with Cedar's forbid-wins semantics ensuring that security restrictions are
-// never accidentally overridden.
+// Gateway. Policies use Cedar or Dogwood to specify who (principals based on
+// OAuth claims like username, role, or scope) can perform what actions (tool
+// calls) on which resources (Gateways), with optional conditions for attribute-based
+// access control. Multiple policies can apply to a single request, with forbid-wins
+// semantics ensuring that security restrictions are never accidentally overridden.
 type PolicySpec struct {
 
-	// The Cedar policy statement that defines the access control rules. This contains
-	// the actual policy logic written in Cedar policy language, specifying effect
-	// (permit or forbid), principals, actions, resources, and conditions for agent
-	// behavior control.
+	// The Cedar or Dogwood policy statement that defines the access control rules.
+	// This contains the actual policy logic written in Cedar or Dogwood, specifying
+	// effect (permit or forbid), principals, actions, resources, and conditions
+	// for agent behavior control.
 	// +kubebuilder:validation:Required
 	Definition *PolicyDefinition `json:"definition"`
 	// A human-readable description of the policy's purpose and functionality (1-4,096

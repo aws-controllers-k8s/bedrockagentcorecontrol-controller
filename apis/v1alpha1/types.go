@@ -101,6 +101,14 @@ type AgentRuntimeEndpoint_SDK struct {
 	TargetVersion           *string      `json:"targetVersion,omitempty"`
 }
 
+// Summary information about an agent runtime version associated with a capacity
+// provider. This is returned by ListAgentRuntimeVersionsByCapacityProvider.
+type AgentRuntimeVersionSummary struct {
+	AgentRuntimeARN     *string `json:"agentRuntimeARN,omitempty"`
+	AgentRuntimeVersion *string `json:"agentRuntimeVersion,omitempty"`
+	Status              *string `json:"status,omitempty"`
+}
+
 // Contains information about an agent runtime. An agent runtime is the execution
 // environment for a Amazon Bedrock AgentCore Agent.
 type AgentRuntime_SDK struct {
@@ -210,6 +218,20 @@ type BrowserSummary struct {
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
 	Name          *string      `json:"name,omitempty"`
 	Status        *string      `json:"status,omitempty"`
+}
+
+// A summary of a capacity provider, as returned by ListCapacityProviders. Each
+// summary includes the capacity provider identifier, Amazon Resource Name (ARN),
+// name, status, and last-updated timestamp.
+type CapacityProviderSummary struct {
+	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+}
+
+// Configuration for a capacity provider volume mounted into the AgentCore Runtime.
+// This references a persistent volume by its logical name, as defined in the
+// capacity provider's list of volumes.
+type CapacityProviderVolumeConfiguration struct {
+	MountPath *string `json:"mountPath,omitempty"`
 }
 
 // The definition of a categorical rating scale option that provides a named
@@ -327,6 +349,18 @@ type ConnectorParameterOverride struct {
 	Description *string `json:"description,omitempty"`
 	Path        *string `json:"path,omitempty"`
 	Visible     *bool   `json:"visible,omitempty"`
+}
+
+// The identity provider configuration used to authenticate end users to the
+// consent portal.
+type ConsentPortalIDpConfig struct {
+	Scopes []*string `json:"scopes,omitempty"`
+}
+
+// Summary information about a consent portal.
+type ConsentPortalSummary struct {
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Representation of a container configuration.
@@ -467,11 +501,31 @@ type DeleteMemoryStrategyInput struct {
 	MemoryStrategyID *string `json:"memoryStrategyID,omitempty"`
 }
 
+// The configuration for an Amazon EBS-backed persistent volume. The service
+// creates persistent volumes when a session first launches, and the volumes
+// survive instance termination. The volumes persist until you delete the session.
+type EBSVolumeConfiguration struct {
+	Encrypted *bool `json:"encrypted,omitempty"`
+}
+
 // Configuration for an Amazon EFS access point filesystem mounted into the
 // AgentCore Runtime. EFS access points provide shared file storage accessible
 // from your AgentCore Runtime sessions.
 type EFSAccessPointConfiguration struct {
 	MountPath *string `json:"mountPath,omitempty"`
+}
+
+// The configuration for mounting an Amazon Elastic File System (Amazon EFS)
+// access point that you own into a session.
+type EFSConfiguration struct {
+	MountPath *string `json:"mountPath,omitempty"`
+}
+
+// The shared Amazon EBS performance and encryption properties for a volume.
+// These properties are common across the different volume configurations for
+// a capacity provider.
+type EphemeralEBSVolumeConfiguration struct {
+	Encrypted *bool `json:"encrypted,omitempty"`
 }
 
 // Contains configurations to override the default consolidation step for the
@@ -636,6 +690,14 @@ type GatewayProtocolConfiguration struct {
 	// The configuration for a Model Context Protocol (MCP) gateway. This structure
 	// defines how the gateway implements the MCP protocol.
 	Mcp *MCPGatewayConfiguration `json:"mcp,omitempty"`
+}
+
+// Contains detailed information about a gateway rate limit, including its configuration
+// and current status.
+type GatewayRateLimitDetail struct {
+	CreatedAt         *metav1.Time `json:"createdAt,omitempty"`
+	GatewayIdentifier *string      `json:"gatewayIdentifier,omitempty"`
+	UpdatedAt         *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Detailed information about a gateway rule.
@@ -825,6 +887,11 @@ type HarnessGeminiModelConfig struct {
 	Temperature *float64 `json:"temperature,omitempty"`
 	TopK        *int64   `json:"topK,omitempty"`
 	TopP        *float64 `json:"topP,omitempty"`
+}
+
+// The configuration for an AWS Lambda hook target.
+type HarnessHookLambdaTarget struct {
+	TimeoutSeconds *int64 `json:"timeoutSeconds,omitempty"`
 }
 
 // Configuration for an inline function tool. When the agent calls this tool,
@@ -1065,6 +1132,13 @@ type InferenceConfiguration struct {
 	TopP        *float64 `json:"topP,omitempty"`
 }
 
+// The configuration that manages the lifecycle of instances in a capacity provider,
+// including idle timeout and maximum lifetime.
+type InstanceLifecycleConfiguration struct {
+	IdleInstanceTimeout *int64 `json:"idleInstanceTimeout,omitempty"`
+	MaxLifetime         *int64 `json:"maxLifetime,omitempty"`
+}
+
 // The interceptor configuration.
 type InterceptorConfiguration struct {
 	// The lambda configuration for the interceptor
@@ -1095,6 +1169,11 @@ type KMSConfiguration struct {
 	KMSKeyARN *string `json:"kmsKeyARN,omitempty"`
 }
 
+// Contains the KMS key configuration for a JWT client assertion.
+type KMSKeySourceType struct {
+	KMSKeyARN *string `json:"kmsKeyARN,omitempty"`
+}
+
 // Configuration for Kinesis Data Stream delivery.
 type KinesisResource struct {
 	ContentConfigurations []*ContentConfiguration `json:"contentConfigurations,omitempty"`
@@ -1115,6 +1194,11 @@ type LambdaInterceptorConfiguration struct {
 // the Lambda function that the gateway invokes to transform data.
 type LambdaTransformConfiguration struct {
 	ARN *string `json:"arn,omitempty"`
+}
+
+// The parameters for launching Amazon EC2 instances in a capacity provider.
+type LaunchParameters struct {
+	PropagatedTags map[string]*string `json:"propagatedTags,omitempty"`
 }
 
 // LifecycleConfiguration lets you manage the lifecycle of runtime sessions
@@ -1346,6 +1430,15 @@ type OnlineEvaluationConfigSummary struct {
 	UpdatedAt     *metav1.Time `json:"updatedAt,omitempty"`
 }
 
+// The configuration for using models served through the OpenResponses API in
+// evaluator assessments, including model selection and inference parameters.
+type OpenResponsesEvaluatorModelConfig struct {
+	MaxOutputTokens *int64   `json:"maxOutputTokens,omitempty"`
+	ModelID         *string  `json:"modelID,omitempty"`
+	Temperature     *float64 `json:"temperature,omitempty"`
+	TopP            *float64 `json:"topP,omitempty"`
+}
+
 // Contains summary information about a payment connector.
 type PaymentConnectorSummary struct {
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
@@ -1361,8 +1454,16 @@ type PaymentCredentialProviderItem struct {
 // Contains summary information about a payment manager.
 type PaymentManagerSummary struct {
 	CreatedAt     *metav1.Time `json:"createdAt,omitempty"`
+	KMSKeyARN     *string      `json:"kmsKeyARN,omitempty"`
 	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
 	RoleARN       *string      `json:"roleARN,omitempty"`
+}
+
+// The permissions configuration for a capacity provider. This specifies the
+// IAM role that AgentCore uses to manage the Amazon EC2 instances for the capacity
+// provider on your behalf.
+type PermissionsConfiguration struct {
+	CapacityProviderOperatorRoleARN *string `json:"capacityProviderOperatorRoleARN,omitempty"`
 }
 
 // Represents the definition structure for policies within the AgentCore Policy
@@ -1414,7 +1515,7 @@ type PolicyEngine_SDK struct {
 }
 
 // Represents a policy generation request within the AgentCore Policy system.
-// Tracks the AI-powered conversion of natural language descriptions into Cedar
+// Tracks the AI-powered conversion of natural language descriptions into Dogwood
 // policy statements, enabling users to author policies by describing authorization
 // requirements in plain English. The generation process analyzes the natural
 // language input along with the Gateway's tool context and Cedar schema to
@@ -1433,10 +1534,10 @@ type PolicyGeneration struct {
 }
 
 // Represents a generated policy asset from the AI-powered policy generation
-// process within the AgentCore Policy system. Each asset contains a Cedar policy
-// statement generated from natural language input, along with associated metadata
-// and analysis findings to help users evaluate and select the most appropriate
-// policy option.
+// process within the AgentCore Policy system. Each asset contains a Dogwood
+// policy statement generated from natural language input, along with associated
+// metadata and analysis findings to help users evaluate and select the most
+// appropriate policy option.
 type PolicyGenerationAsset struct {
 	// Represents the definition structure for policies within the AgentCore Policy
 	// system. This structure encapsulates different policy formats and languages
@@ -1447,7 +1548,7 @@ type PolicyGenerationAsset struct {
 
 // Represents the information identifying a generated policy asset from the
 // AI-powered policy generation process within the AgentCore Policy system.
-// Each asset contains a Cedar policy statement generated from natural language
+// Each asset contains a Dogwood policy statement generated from natural language
 // input, along with associated metadata and analysis findings to help users
 // evaluate and select the most appropriate policy option.
 type PolicyGenerationDetails struct {
@@ -1468,8 +1569,8 @@ type PolicyGenerationSummary struct {
 	UpdatedAt          *metav1.Time `json:"updatedAt,omitempty"`
 }
 
-// An AgentCore policy statement, which supports plain Cedar policies as well
-// as guardrails definitions.
+// An AgentCore Cedar or Dogwood policy statement, which supports plain Cedar
+// policies, temporal policies, and guardrails definitions.
 type PolicyStatement struct {
 	Statement *string `json:"statement,omitempty"`
 }
@@ -1493,16 +1594,15 @@ type PolicySummary struct {
 }
 
 // Represents a complete policy resource within the AgentCore Policy system.
-// Policies are ARN-able resources that contain Cedar policy statements and
-// associated metadata for controlling agent behavior and access decisions.
+// Policies are ARN-able resources that contain Cedar or Dogwood policy statements
+// and associated metadata for controlling agent behavior and access decisions.
 // Each policy belongs to a policy engine and defines fine-grained authorization
 // rules that are evaluated in real-time as agents interact with tools through
-// Gateway. Policies use the Cedar policy language to specify who (principals
-// based on OAuth claims like username, role, or scope) can perform what actions
-// (tool calls) on which resources (Gateways), with optional conditions for
-// attribute-based access control. Multiple policies can apply to a single request,
-// with Cedar's forbid-wins semantics ensuring that security restrictions are
-// never accidentally overridden.
+// Gateway. Policies use Cedar or Dogwood to specify who (principals based on
+// OAuth claims like username, role, or scope) can perform what actions (tool
+// calls) on which resources (Gateways), with optional conditions for attribute-based
+// access control. Multiple policies can apply to a single request, with forbid-wins
+// semantics ensuring that security restrictions are never accidentally overridden.
 type Policy_SDK struct {
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
 	// Represents the definition structure for policies within the AgentCore Policy
@@ -1557,6 +1657,12 @@ type ProviderPrefix struct {
 	Strip     *bool   `json:"strip,omitempty"`
 }
 
+// The reasoning configuration that controls how a reasoning model allocates
+// effort during evaluation.
+type ReasoningConfiguration struct {
+	Effort *string `json:"effort,omitempty"`
+}
+
 // The recording configuration for a browser. This structure defines how browser
 // sessions are recorded.
 type RecordingConfig struct {
@@ -1601,6 +1707,13 @@ type ResourceLocation struct {
 	S3 *S3Location `json:"s3,omitempty"`
 }
 
+// The configuration for the root volume of a capacity provider instance. Specify
+// the amount of free space to guarantee on the root volume. The device name
+// and delete-on-termination settings are fixed and cannot be changed.
+type RootVolumeConfiguration struct {
+	Encrypted *bool `json:"encrypted,omitempty"`
+}
+
 // Configuration for microVM metadata service settings.
 type RuntimeMetadataConfiguration struct {
 	RequireMMDSV2 *bool `json:"requireMMDSV2,omitempty"`
@@ -1617,6 +1730,12 @@ type S3Configuration struct {
 // the AgentCore Runtime. S3 Files access points provide shared file storage
 // accessible from your AgentCore Runtime sessions.
 type S3FilesAccessPointConfiguration struct {
+	MountPath *string `json:"mountPath,omitempty"`
+}
+
+// The configuration for mounting an Amazon Simple Storage Service (Amazon S3)
+// Files access point that you own into a session.
+type S3FilesConfiguration struct {
 	MountPath *string `json:"mountPath,omitempty"`
 }
 
