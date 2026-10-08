@@ -155,11 +155,8 @@ func (rm *resourceManager) resolveReferenceForEncryptionKeyARN(
 		if arr.Name == nil || *arr.Name == "" {
 			return hasReferences, fmt.Errorf("provided resource reference is nil or empty: EncryptionKeyRef")
 		}
-		namespace, err := ackrt.ResolveCrossNamespaceReference(
-			ctx,
+		namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 			rm.cfg.EnableCrossNamespace,
-			&ko.Status.Conditions,
-			ackrt.CrossNamespaceRefKindResource,
 			ko.ObjectMeta.GetNamespace(),
 			arr.Namespace,
 			*arr.Name,
@@ -246,11 +243,8 @@ func (rm *resourceManager) resolveReferenceForMemoryExecutionRoleARN(
 		if arr.Name == nil || *arr.Name == "" {
 			return hasReferences, fmt.Errorf("provided resource reference is nil or empty: MemoryExecutionRoleRef")
 		}
-		namespace, err := ackrt.ResolveCrossNamespaceReference(
-			ctx,
+		namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 			rm.cfg.EnableCrossNamespace,
-			&ko.Status.Conditions,
-			ackrt.CrossNamespaceRefKindResource,
 			ko.ObjectMeta.GetNamespace(),
 			arr.Namespace,
 			*arr.Name,
@@ -342,11 +336,8 @@ func (rm *resourceManager) resolveReferenceForMemoryStrategies_CustomMemoryStrat
 							if arr.Name == nil || *arr.Name == "" {
 								return hasReferences, fmt.Errorf("provided resource reference is nil or empty: MemoryStrategies.CustomMemoryStrategy.Configuration.SelfManagedConfiguration.InvocationConfiguration.TopicRef")
 							}
-							namespace, err := ackrt.ResolveCrossNamespaceReference(
-								ctx,
+							namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 								rm.cfg.EnableCrossNamespace,
-								&ko.Status.Conditions,
-								ackrt.CrossNamespaceRefKindResource,
 								ko.ObjectMeta.GetNamespace(),
 								arr.Namespace,
 								*arr.Name,

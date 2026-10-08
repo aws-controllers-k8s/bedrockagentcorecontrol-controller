@@ -293,11 +293,8 @@ func (rm *resourceManager) resolveReferenceForGatewayIdentifier(
 		if arr.Name == nil || *arr.Name == "" {
 			return hasReferences, fmt.Errorf("provided resource reference is nil or empty: GatewayIdentifierRef")
 		}
-		namespace, err := ackrt.ResolveCrossNamespaceReference(
-			ctx,
+		namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 			rm.cfg.EnableCrossNamespace,
-			&ko.Status.Conditions,
-			ackrt.CrossNamespaceRefKindResource,
 			ko.ObjectMeta.GetNamespace(),
 			arr.Namespace,
 			*arr.Name,
@@ -387,11 +384,8 @@ func (rm *resourceManager) resolveReferenceForPrivateEndpoint_ManagedVPCResource
 					if arr.Name == nil || *arr.Name == "" {
 						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: PrivateEndpoint.ManagedVPCResource.SecurityGroupRefs")
 					}
-					namespace, err := ackrt.ResolveCrossNamespaceReference(
-						ctx,
+					namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 						rm.cfg.EnableCrossNamespace,
-						&ko.Status.Conditions,
-						ackrt.CrossNamespaceRefKindResource,
 						ko.ObjectMeta.GetNamespace(),
 						arr.Namespace,
 						*arr.Name,
@@ -487,11 +481,8 @@ func (rm *resourceManager) resolveReferenceForPrivateEndpoint_ManagedVPCResource
 					if arr.Name == nil || *arr.Name == "" {
 						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: PrivateEndpoint.ManagedVPCResource.SubnetRefs")
 					}
-					namespace, err := ackrt.ResolveCrossNamespaceReference(
-						ctx,
+					namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 						rm.cfg.EnableCrossNamespace,
-						&ko.Status.Conditions,
-						ackrt.CrossNamespaceRefKindResource,
 						ko.ObjectMeta.GetNamespace(),
 						arr.Namespace,
 						*arr.Name,
@@ -586,11 +577,8 @@ func (rm *resourceManager) resolveReferenceForPrivateEndpoint_ManagedVPCResource
 				if arr.Name == nil || *arr.Name == "" {
 					return hasReferences, fmt.Errorf("provided resource reference is nil or empty: PrivateEndpoint.ManagedVPCResource.VPCIdentifierRef")
 				}
-				namespace, err := ackrt.ResolveCrossNamespaceReference(
-					ctx,
+				namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 					rm.cfg.EnableCrossNamespace,
-					&ko.Status.Conditions,
-					ackrt.CrossNamespaceRefKindResource,
 					ko.ObjectMeta.GetNamespace(),
 					arr.Namespace,
 					*arr.Name,
@@ -682,11 +670,8 @@ func (rm *resourceManager) resolveReferenceForTargetConfiguration_Mcp_APIGateway
 					if arr.Name == nil || *arr.Name == "" {
 						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: TargetConfiguration.Mcp.APIGateway.RestAPIRef")
 					}
-					namespace, err := ackrt.ResolveCrossNamespaceReference(
-						ctx,
+					namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 						rm.cfg.EnableCrossNamespace,
-						&ko.Status.Conditions,
-						ackrt.CrossNamespaceRefKindResource,
 						ko.ObjectMeta.GetNamespace(),
 						arr.Namespace,
 						*arr.Name,

@@ -253,11 +253,8 @@ func (rm *resourceManager) resolveReferenceForExecutionRoleARN(
 		if arr.Name == nil || *arr.Name == "" {
 			return hasReferences, fmt.Errorf("provided resource reference is nil or empty: ExecutionRoleRef")
 		}
-		namespace, err := ackrt.ResolveCrossNamespaceReference(
-			ctx,
+		namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 			rm.cfg.EnableCrossNamespace,
-			&ko.Status.Conditions,
-			ackrt.CrossNamespaceRefKindResource,
 			ko.ObjectMeta.GetNamespace(),
 			arr.Namespace,
 			*arr.Name,
@@ -346,11 +343,8 @@ func (rm *resourceManager) resolveReferenceForMemory_ManagedMemoryConfiguration_
 				if arr.Name == nil || *arr.Name == "" {
 					return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Memory.ManagedMemoryConfiguration.EncryptionKeyRef")
 				}
-				namespace, err := ackrt.ResolveCrossNamespaceReference(
-					ctx,
+				namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 					rm.cfg.EnableCrossNamespace,
-					&ko.Status.Conditions,
-					ackrt.CrossNamespaceRefKindResource,
 					ko.ObjectMeta.GetNamespace(),
 					arr.Namespace,
 					*arr.Name,
@@ -442,11 +436,8 @@ func (rm *resourceManager) resolveReferenceForTools_Config_AgentCoreBrowser_Brow
 					if arr.Name == nil || *arr.Name == "" {
 						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Tools.Config.AgentCoreBrowser.BrowserRef")
 					}
-					namespace, err := ackrt.ResolveCrossNamespaceReference(
-						ctx,
+					namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 						rm.cfg.EnableCrossNamespace,
-						&ko.Status.Conditions,
-						ackrt.CrossNamespaceRefKindResource,
 						ko.ObjectMeta.GetNamespace(),
 						arr.Namespace,
 						*arr.Name,
@@ -539,11 +530,8 @@ func (rm *resourceManager) resolveReferenceForTools_Config_AgentCoreCodeInterpre
 					if arr.Name == nil || *arr.Name == "" {
 						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Tools.Config.AgentCoreCodeInterpreter.CodeInterpreterRef")
 					}
-					namespace, err := ackrt.ResolveCrossNamespaceReference(
-						ctx,
+					namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 						rm.cfg.EnableCrossNamespace,
-						&ko.Status.Conditions,
-						ackrt.CrossNamespaceRefKindResource,
 						ko.ObjectMeta.GetNamespace(),
 						arr.Namespace,
 						*arr.Name,
@@ -636,11 +624,8 @@ func (rm *resourceManager) resolveReferenceForTools_Config_AgentCoreGateway_Gate
 					if arr.Name == nil || *arr.Name == "" {
 						return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Tools.Config.AgentCoreGateway.GatewayRef")
 					}
-					namespace, err := ackrt.ResolveCrossNamespaceReference(
-						ctx,
+					namespace, _, err := ackrt.ValidateCrossNamespaceReference(
 						rm.cfg.EnableCrossNamespace,
-						&ko.Status.Conditions,
-						ackrt.CrossNamespaceRefKindResource,
 						ko.ObjectMeta.GetNamespace(),
 						arr.Namespace,
 						*arr.Name,
