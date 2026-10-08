@@ -159,6 +159,20 @@ type AuthorizingClaimMatchValueType struct {
 	ClaimMatchValue *ClaimMatchValueType `json:"claimMatchValue,omitempty"`
 }
 
+// A rate limit definition within a batch put request. If you provide a rateLimitId,
+// the service uses it for upsert matching against existing rate limits.
+type BatchPutLimitEntry struct {
+	// An optional human-readable description for a gateway limit.
+	Description *string `json:"description,omitempty"`
+	// An ordered list of dimension key names defining the scope of a limit.
+	DimensionKeys []*string `json:"dimensionKeys,omitempty"`
+	// A list of rule entries within a limit.
+	Entries []*LimitEntry `json:"entries,omitempty"`
+	// The limit identifier. Optional on create (the system generates it if not
+	// provided by the customer). Always present in responses.
+	RateLimitID *string `json:"rateLimitID,omitempty"`
+}
+
 // The configuration for using Amazon Bedrock models in evaluator assessments,
 // including model selection and inference parameters.
 type BedrockEvaluatorModelConfig struct {
@@ -635,8 +649,9 @@ type Filter struct {
 // The value used in filter comparisons, supporting different data types for
 // flexible filtering criteria.
 type FilterValue struct {
-	BooleanValue *bool   `json:"booleanValue,omitempty"`
-	StringValue  *string `json:"stringValue,omitempty"`
+	BooleanValue *bool    `json:"booleanValue,omitempty"`
+	DoubleValue  *float64 `json:"doubleValue,omitempty"`
+	StringValue  *string  `json:"stringValue,omitempty"`
 }
 
 // Represents a finding or issue discovered during policy generation or validation.
@@ -695,9 +710,20 @@ type GatewayProtocolConfiguration struct {
 // Contains detailed information about a gateway rate limit, including its configuration
 // and current status.
 type GatewayRateLimitDetail struct {
-	CreatedAt         *metav1.Time `json:"createdAt,omitempty"`
-	GatewayIdentifier *string      `json:"gatewayIdentifier,omitempty"`
-	UpdatedAt         *metav1.Time `json:"updatedAt,omitempty"`
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	// An optional human-readable description for a gateway limit.
+	Description *string `json:"description,omitempty"`
+	// An ordered list of dimension key names defining the scope of a limit.
+	DimensionKeys []*string `json:"dimensionKeys,omitempty"`
+	// A list of rule entries within a limit.
+	Entries           []*LimitEntry `json:"entries,omitempty"`
+	GatewayIdentifier *string       `json:"gatewayIdentifier,omitempty"`
+	// The limit identifier. Optional on create (the system generates it if not
+	// provided by the customer). Always present in responses.
+	RateLimitID *string `json:"rateLimitID,omitempty"`
+	// The status of a gateway limit.
+	Status    *string      `json:"status,omitempty"`
+	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
 }
 
 // Detailed information about a gateway rule.
@@ -1210,6 +1236,23 @@ type LifecycleConfiguration struct {
 	MaxLifetime               *int64 `json:"maxLifetime,omitempty"`
 }
 
+// A single rule entry within a rate limit that maps dimension values to rate
+// configurations. Each entry defines the rate limits for a specific combination
+// of dimension values.
+type LimitEntry struct {
+	// A list of rate configurations for the limit. Currently supports one entry
+	// per limit.
+	Connections []*RateConfig `json:"connections,omitempty"`
+	// A map of dimension name to dimension value for a rule entry.
+	Dimensions map[string]*string `json:"dimensions,omitempty"`
+	// A list of rate configurations for the limit. Currently supports one entry
+	// per limit.
+	Requests []*RateConfig `json:"requests,omitempty"`
+	// A list of rate configurations for the limit. Currently supports one entry
+	// per limit.
+	Tokens []*RateConfig `json:"tokens,omitempty"`
+}
+
 // The configuration for a Model Context Protocol (MCP) gateway. This structure
 // defines how the gateway implements the MCP protocol.
 type MCPGatewayConfiguration struct {
@@ -1391,11 +1434,18 @@ type NetworkConfiguration struct {
 	NetworkModeConfig *VPCConfig `json:"networkModeConfig,omitempty"`
 }
 
+// Validation for NUMBER fields.
+type NumberValidation struct {
+	MaxValue *float64 `json:"maxValue,omitempty"`
+	MinValue *float64 `json:"minValue,omitempty"`
+}
+
 // The definition of a numerical rating scale option that provides a numeric
 // value with its description for evaluation scoring.
 type NumericalScaleDefinition struct {
-	Definition *string `json:"definition,omitempty"`
-	Label      *string `json:"label,omitempty"`
+	Definition *string  `json:"definition,omitempty"`
+	Label      *string  `json:"label,omitempty"`
+	Value      *float64 `json:"value,omitempty"`
 }
 
 // OAuth2-specific authorization data, including the authorization URL and user
@@ -1655,6 +1705,14 @@ type ProtocolConfiguration struct {
 type ProviderPrefix struct {
 	Separator *string `json:"separator,omitempty"`
 	Strip     *bool   `json:"strip,omitempty"`
+}
+
+// Contains the rate configuration for a rate limit metric, specifying the allowed
+// rate and time period.
+type RateConfig struct {
+	// The time period for rate limiting.
+	Period *string  `json:"period,omitempty"`
+	Rate   *float64 `json:"rate,omitempty"`
 }
 
 // The reasoning configuration that controls how a reasoning model allocates

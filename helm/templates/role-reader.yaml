@@ -23,6 +23,7 @@ rules:
   - browserprofiles
   - codeinterpreters
   - gateways
+  - gatewayratelimits
   - gatewaytargets
   - harnesses
   - harnessendpoints
