@@ -283,7 +283,6 @@ spec:
             required:
             - agentRuntimeArtifact
             - agentRuntimeName
-            - networkConfiguration
             - roleARN
             type: object
           status:
