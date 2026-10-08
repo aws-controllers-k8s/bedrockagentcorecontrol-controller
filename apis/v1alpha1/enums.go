@@ -419,13 +419,13 @@ const (
 	GatewayProtocolType_MCP GatewayProtocolType = "MCP"
 )
 
-type GatewayRateLimitStatus string
+type GatewayRateLimitStatus_SDK string
 
 const (
-	GatewayRateLimitStatus_ACTIVE   GatewayRateLimitStatus = "ACTIVE"
-	GatewayRateLimitStatus_CREATING GatewayRateLimitStatus = "CREATING"
-	GatewayRateLimitStatus_DELETING GatewayRateLimitStatus = "DELETING"
-	GatewayRateLimitStatus_UPDATING GatewayRateLimitStatus = "UPDATING"
+	GatewayRateLimitStatus_SDK_ACTIVE   GatewayRateLimitStatus_SDK = "ACTIVE"
+	GatewayRateLimitStatus_SDK_CREATING GatewayRateLimitStatus_SDK = "CREATING"
+	GatewayRateLimitStatus_SDK_DELETING GatewayRateLimitStatus_SDK = "DELETING"
+	GatewayRateLimitStatus_SDK_UPDATING GatewayRateLimitStatus_SDK = "UPDATING"
 )
 
 type GatewayRuleStatus string

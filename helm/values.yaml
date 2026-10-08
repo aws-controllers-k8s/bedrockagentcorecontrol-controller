@@ -157,6 +157,7 @@ reconcile:
     - BrowserProfile
     - CodeInterpreter
     - Gateway
+    - GatewayRateLimit
     - GatewayTarget
     - Harness
     - HarnessEndpoint
