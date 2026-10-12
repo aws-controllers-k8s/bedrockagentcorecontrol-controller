@@ -471,7 +471,8 @@ type DeleteMemoryStrategyInput struct {
 // AgentCore Runtime. EFS access points provide shared file storage accessible
 // from your AgentCore Runtime sessions.
 type EFSAccessPointConfiguration struct {
-	MountPath *string `json:"mountPath,omitempty"`
+	AccessPointARN *string `json:"accessPointARN,omitempty"`
+	MountPath      *string `json:"mountPath,omitempty"`
 }
 
 // Contains configurations to override the default consolidation step for the
@@ -566,6 +567,14 @@ type EvaluatorSummary struct {
 
 // Configuration for a filesystem that can be mounted into the AgentCore Runtime.
 type FilesystemConfiguration struct {
+	// Configuration for an Amazon EFS access point filesystem mounted into the
+	// AgentCore Runtime. EFS access points provide shared file storage accessible
+	// from your AgentCore Runtime sessions.
+	EFSAccessPoint *EFSAccessPointConfiguration `json:"efsAccessPoint,omitempty"`
+	// Configuration for an Amazon S3 Files access point filesystem mounted into
+	// the AgentCore Runtime. S3 Files access points provide shared file storage
+	// accessible from your AgentCore Runtime sessions.
+	S3FilesAccessPoint *S3FilesAccessPointConfiguration `json:"s3FilesAccessPoint,omitempty"`
 	// Configuration for a session storage filesystem mounted into the AgentCore
 	// Runtime. Session storage provides persistent storage that is preserved across
 	// AgentCore Runtime session invocations.
@@ -1617,7 +1626,8 @@ type S3Configuration struct {
 // the AgentCore Runtime. S3 Files access points provide shared file storage
 // accessible from your AgentCore Runtime sessions.
 type S3FilesAccessPointConfiguration struct {
-	MountPath *string `json:"mountPath,omitempty"`
+	AccessPointARN *string `json:"accessPointARN,omitempty"`
+	MountPath      *string `json:"mountPath,omitempty"`
 }
 
 // The Amazon S3 location for storing data. This structure defines where in
