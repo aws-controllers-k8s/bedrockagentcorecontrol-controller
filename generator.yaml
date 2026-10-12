@@ -99,8 +99,6 @@ ignore:
     #
     # AgentRuntime, Browser, CodeInterpreter (VpcConfig / NetworkModeConfig)
     - VpcConfig.RequireServiceS3Endpoint
-    - FilesystemConfiguration.EfsAccessPoint
-    - FilesystemConfiguration.S3FilesAccessPoint
     # Gateway / AgentRuntime JWT authorizer + MCP protocol + interceptor
     - CustomJWTAuthorizerConfiguration.AdvertisedScopeMapping
     - CustomJWTAuthorizerConfiguration.AllowedWorkloadConfiguration
