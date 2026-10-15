@@ -126,9 +126,11 @@ class TestGatewayRateLimit:
         assert cr["status"]["createdAt"]
         assert cr["status"]["updatedAt"]
 
-        # The Gateway reference resolved into the concrete gateway identifier.
+        # Addressing the rate limit under the referenced gateway's identifier
+        # is what proves the Gateway reference resolved: the spec itself only
+        # carries gatewayIdentifierRef, since a resolved value is cleared from
+        # the spec while its sibling *Ref is set.
         gateway_id = k8s.get_resource(gateway_ref)["status"]["gatewayID"]
-        assert cr["spec"]["gatewayIdentifier"] == gateway_id
 
         aws_rate_limit = bedrockagentcorecontrol_client.get_gateway_rate_limit(
             gatewayIdentifier=gateway_id,
