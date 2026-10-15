@@ -15,8 +15,8 @@ ignore:
     # - Policy
     # - PolicyEngine
     # - WorkloadIdentity
-    # New resources introduced in aws_service_sdk_version v1.47.0. Ignored for
-    # now — not yet modeled as ACK resources.
+    # Resources the service model exposes but that are not yet modeled as ACK
+    # resources. Introduced in aws_service_sdk_version v1.47.0:
     - ConfigurationBundle
     - Dataset
     - DatasetVersion
@@ -26,6 +26,9 @@ ignore:
     - PaymentManager
     - Registry
     - RegistryRecord
+    # Introduced between v1.47.0 and v1.72.1:
+    - CapacityProvider
+    - ConsentPortal
 
   field_paths:
     # SchemaDefinition shape used by InputSchema/OutputSchema recursively
@@ -94,6 +97,46 @@ ignore:
     - UpdateMemoryInput.AddIndexedKeys
 
     #
+    # New top-level fields introduced between aws_service_sdk_version v1.47.0
+    # and v1.72.1. Ignored on the same terms as the v1.47.0 bump above: the
+    # model bump should not widen the existing CRDs until each field has been
+    # modeled deliberately.
+    #
+    # AgentRuntime
+    - CreateAgentRuntimeInput.CapacityProviderConfiguration
+    - CreateAgentRuntimeInput.PlatformVersion
+    - UpdateAgentRuntimeInput.CapacityProviderConfiguration
+    - UpdateAgentRuntimeInput.PlatformVersion
+    - GetAgentRuntimeOutput.CapacityProviderConfiguration
+    - GetAgentRuntimeOutput.PlatformVersion
+    # DeleteAgentRuntime gained an optional AgentRuntimeVersion. Per the API:
+    # "When you provide this value, only that version is deleted. When you omit
+    # it, the entire AgentCore Runtime and all of its versions are deleted."
+    # The generated delete payload would populate it from
+    # Status.AgentRuntimeVersion, silently narrowing deletion of an AgentRuntime
+    # CR to a single version and orphaning the runtime in AWS. Ignore it so
+    # delete keeps deleting the whole runtime.
+    - DeleteAgentRuntimeInput.AgentRuntimeVersion
+    - DeleteAgentRuntimeOutput.AgentRuntimeVersion
+    # Browser / CodeInterpreter
+    - CreateBrowserInput.FilesystemConfigurations
+    - GetBrowserOutput.FilesystemConfigurations
+    - CreateCodeInterpreterInput.FilesystemConfigurations
+    - GetCodeInterpreterOutput.FilesystemConfigurations
+    # GatewayTarget
+    - CreateGatewayTargetInput.CertificateConfigurations
+    - CreateGatewayTargetOutput.CertificateConfigurations
+    - UpdateGatewayTargetInput.CertificateConfigurations
+    - UpdateGatewayTargetOutput.CertificateConfigurations
+    - GetGatewayTargetOutput.CertificateConfigurations
+    # Harness
+    - CreateHarnessInput.Hooks
+    - UpdateHarnessInput.Hooks
+    # Memory
+    - CreateMemoryInput.NamespaceKeys
+    - UpdateMemoryInput.NamespaceKeys
+
+    #
     # Fields on shared / nested shapes (list or map elements, reused structs),
     # rooted at the owning structure shape:
     #
@@ -138,6 +181,7 @@ ignore:
     # A follow-up can expose them as JSON strings using the GatewayTarget schema
     # pattern once the core Harness lifecycle is proven.
     - HarnessBedrockModelConfig.AdditionalParams
+    - HarnessGeminiModelConfig.AdditionalParams
     - HarnessInlineFunctionConfig.InputSchema
     - HarnessLiteLlmModelConfig.AdditionalParams
     - HarnessOpenAiModelConfig.AdditionalParams
@@ -145,6 +189,16 @@ ignore:
     # represent a map as SecretKeyReferences, so do not persist them in a
     # normal CR until the model has a secret-backed representation.
     - HarnessRemoteMcpConfig.Headers
+    # New fields on shared / nested shapes introduced between
+    # aws_service_sdk_version v1.47.0 and v1.72.1.
+    - FilesystemConfiguration.CapacityProviderVolume
+    - Harness.Hooks
+    - HarnessOpenAiModelConfig.ApiBase
+    - MCPGatewayConfiguration.DisableMcpListToolsPagination
+    - Memory.NamespaceKeys
+    - PassthroughTargetConfiguration.StaticQueryParameterConflictResolution
+    - PassthroughTargetConfiguration.StaticQueryParameters
+    - StickinessConfiguration.CompositeIdentifier
 
 empty_shapes:
   # Harness uses Unit as the payload for explicit "disabled"/"none" union
@@ -1186,6 +1240,64 @@ resources:
         template_path: hooks/gateway_target/sdk_update_post_set_output.go.tpl
       sdk_read_one_post_set_output:
         template_path: hooks/gateway_target/sdk_read_one_post_set_output.go.tpl
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+      terminal_codes:
+        - ValidationException
+
+  GatewayRateLimit:
+    ignore_idempotency_token: true
+    fields:
+      # RateLimitId is an optional create input: the caller may supply one, and
+      # the service generates it otherwise. Either way it identifies the rate
+      # limit for the rest of its life.
+      RateLimitId:
+        is_primary_key: true
+        is_immutable: true
+      GatewayIdentifier:
+        is_immutable: true
+        references:
+          resource: Gateway
+          path: Status.GatewayID
+      # The API rejects changes to the dimension keys after creation:
+      # "The dimension keys are immutable after creation and cannot be changed."
+      # UpdateGatewayRateLimit does not accept them at all, so without this the
+      # delta would report a diff that no Update call could ever resolve.
+      DimensionKeys:
+        is_immutable: true
+      CreatedAt:
+        is_read_only: true
+        from:
+          operation: GetGatewayRateLimit
+          path: CreatedAt
+      UpdatedAt:
+        is_read_only: true
+        from:
+          operation: GetGatewayRateLimit
+          path: UpdatedAt
+    # https://docs.aws.amazon.com/bedrock-agentcore-control/latest/APIReference/API_TagResource.html
+    # Tags are not supported for gateway rate limits.
+    tags:
+      ignore: true
+    synced:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+    # CREATING, UPDATING and DELETING are transient. Gate update and delete on
+    # ACTIVE so the reconciler requeues instead of calling the API mid-transition.
+    updateable:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - ACTIVE
     exceptions:
       errors:
         404:

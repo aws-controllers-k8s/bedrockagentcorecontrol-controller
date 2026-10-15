@@ -86,6 +86,7 @@ rules:
   - browserprofiles
   - browsers
   - codeinterpreters
+  - gatewayratelimits
   - gateways
   - gatewaytargets
   - harnessendpoints
@@ -111,6 +112,7 @@ rules:
   - browserprofiles/status
   - browsers/status
   - codeinterpreters/status
+  - gatewayratelimits/status
   - gateways/status
   - gatewaytargets/status
   - harnessendpoints/status
