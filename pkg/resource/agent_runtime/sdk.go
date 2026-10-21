@@ -297,25 +297,30 @@ func (rm *resourceManager) sdkFind(
 	} else {
 		ko.Spec.NetworkConfiguration = nil
 	}
+	if resp.PlatformVersion != nil {
+		ko.Spec.PlatformVersion = resp.PlatformVersion
+	} else {
+		ko.Spec.PlatformVersion = nil
+	}
 	if resp.ProtocolConfiguration != nil {
-		f15 := &svcapitypes.ProtocolConfiguration{}
+		f16 := &svcapitypes.ProtocolConfiguration{}
 		if resp.ProtocolConfiguration.ServerProtocol != "" {
-			f15.ServerProtocol = aws.String(string(resp.ProtocolConfiguration.ServerProtocol))
+			f16.ServerProtocol = aws.String(string(resp.ProtocolConfiguration.ServerProtocol))
 		}
-		ko.Spec.ProtocolConfiguration = f15
+		ko.Spec.ProtocolConfiguration = f16
 	} else {
 		ko.Spec.ProtocolConfiguration = nil
 	}
 	if resp.RequestHeaderConfiguration != nil {
-		f16 := &svcapitypes.RequestHeaderConfiguration{}
+		f17 := &svcapitypes.RequestHeaderConfiguration{}
 		switch resp.RequestHeaderConfiguration.(type) {
 		case *svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist:
-			f16f0 := resp.RequestHeaderConfiguration.(*svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist)
-			if f16f0 != nil {
-				f16.RequestHeaderAllowlist = aws.StringSlice(f16f0.Value)
+			f17f0 := resp.RequestHeaderConfiguration.(*svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist)
+			if f17f0 != nil {
+				f17.RequestHeaderAllowlist = aws.StringSlice(f17f0.Value)
 			}
 		}
-		ko.Spec.RequestHeaderConfiguration = f16
+		ko.Spec.RequestHeaderConfiguration = f17
 	} else {
 		ko.Spec.RequestHeaderConfiguration = nil
 	}
@@ -330,11 +335,11 @@ func (rm *resourceManager) sdkFind(
 		ko.Status.Status = nil
 	}
 	if resp.WorkloadIdentityDetails != nil {
-		f19 := &svcapitypes.WorkloadIdentityDetails{}
+		f20 := &svcapitypes.WorkloadIdentityDetails{}
 		if resp.WorkloadIdentityDetails.WorkloadIdentityArn != nil {
-			f19.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
+			f20.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
 		}
-		ko.Status.WorkloadIdentityDetails = f19
+		ko.Status.WorkloadIdentityDetails = f20
 	} else {
 		ko.Status.WorkloadIdentityDetails = nil
 	}
@@ -659,28 +664,31 @@ func (rm *resourceManager) newCreateRequestPayload(
 		}
 		res.NetworkConfiguration = f7
 	}
+	if r.ko.Spec.PlatformVersion != nil {
+		res.PlatformVersion = r.ko.Spec.PlatformVersion
+	}
 	if r.ko.Spec.ProtocolConfiguration != nil {
-		f8 := &svcsdktypes.ProtocolConfiguration{}
+		f9 := &svcsdktypes.ProtocolConfiguration{}
 		if r.ko.Spec.ProtocolConfiguration.ServerProtocol != nil {
-			f8.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
+			f9.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
 		}
-		res.ProtocolConfiguration = f8
+		res.ProtocolConfiguration = f9
 	}
 	if r.ko.Spec.RequestHeaderConfiguration != nil {
-		var f9 svcsdktypes.RequestHeaderConfiguration
+		var f10 svcsdktypes.RequestHeaderConfiguration
 		isInterfaceSet := false
 		if r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for RequestHeaderAllowlist"))
 			}
-			f9f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
-			f9f0 := []string{}
-			f9f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
-			f9f0Parent.Value = f9f0
-			f9 = f9f0Parent
+			f10f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
+			f10f0 := []string{}
+			f10f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
+			f10f0Parent.Value = f10f0
+			f10 = f10f0Parent
 			isInterfaceSet = true
 		}
-		res.RequestHeaderConfiguration = f9
+		res.RequestHeaderConfiguration = f10
 	}
 	if r.ko.Spec.RoleARN != nil {
 		res.RoleArn = r.ko.Spec.RoleARN
@@ -993,28 +1001,31 @@ func (rm *resourceManager) newUpdateRequestPayload(
 		}
 		res.NetworkConfiguration = f9
 	}
+	if r.ko.Spec.PlatformVersion != nil {
+		res.PlatformVersion = r.ko.Spec.PlatformVersion
+	}
 	if r.ko.Spec.ProtocolConfiguration != nil {
-		f10 := &svcsdktypes.ProtocolConfiguration{}
+		f11 := &svcsdktypes.ProtocolConfiguration{}
 		if r.ko.Spec.ProtocolConfiguration.ServerProtocol != nil {
-			f10.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
+			f11.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
 		}
-		res.ProtocolConfiguration = f10
+		res.ProtocolConfiguration = f11
 	}
 	if r.ko.Spec.RequestHeaderConfiguration != nil {
-		var f11 svcsdktypes.RequestHeaderConfiguration
+		var f12 svcsdktypes.RequestHeaderConfiguration
 		isInterfaceSet := false
 		if r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for RequestHeaderAllowlist"))
 			}
-			f11f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
-			f11f0 := []string{}
-			f11f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
-			f11f0Parent.Value = f11f0
-			f11 = f11f0Parent
+			f12f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
+			f12f0 := []string{}
+			f12f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
+			f12f0Parent.Value = f12f0
+			f12 = f12f0Parent
 			isInterfaceSet = true
 		}
-		res.RequestHeaderConfiguration = f11
+		res.RequestHeaderConfiguration = f12
 	}
 	if r.ko.Spec.RoleARN != nil {
 		res.RoleArn = r.ko.Spec.RoleARN

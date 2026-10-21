@@ -50,7 +50,7 @@ var (
 // +kubebuilder:rbac:groups=bedrockagentcorecontrol.services.k8s.aws,resources=agentruntimes,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=bedrockagentcorecontrol.services.k8s.aws,resources=agentruntimes/status,verbs=get;update;patch
 
-var lateInitializeFieldNames = []string{"LifecycleConfiguration", "IdleRuntimeSessionTimeout", "MaxLifetime", "ProtocolConfiguration", "ServerProtocol"}
+var lateInitializeFieldNames = []string{"LifecycleConfiguration", "IdleRuntimeSessionTimeout", "MaxLifetime", "PlatformVersion", "ProtocolConfiguration", "ServerProtocol"}
 
 // resourceManager is responsible for providing a consistent way to perform
 // CRUD operations in a backend AWS service API for Book custom resources.
@@ -274,6 +274,9 @@ func (rm *resourceManager) lateInitializeFromReadOneOutput(
 		if observedKo.Spec.LifecycleConfiguration.MaxLifetime != nil && latestKo.Spec.LifecycleConfiguration.MaxLifetime == nil {
 			latestKo.Spec.LifecycleConfiguration.MaxLifetime = observedKo.Spec.LifecycleConfiguration.MaxLifetime
 		}
+	}
+	if observedKo.Spec.PlatformVersion != nil && latestKo.Spec.PlatformVersion == nil {
+		latestKo.Spec.PlatformVersion = observedKo.Spec.PlatformVersion
 	}
 	if observedKo.Spec.ProtocolConfiguration != nil && latestKo.Spec.ProtocolConfiguration == nil {
 		latestKo.Spec.ProtocolConfiguration = observedKo.Spec.ProtocolConfiguration

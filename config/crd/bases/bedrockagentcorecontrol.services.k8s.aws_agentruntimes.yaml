@@ -248,6 +248,12 @@ spec:
                         type: array
                     type: object
                 type: object
+              platformVersion:
+                description: |-
+                  The version of the runtime platform to use for the AgentCore Runtime.
+
+                  Regex Pattern: `^[^\s]+$`
+                type: string
               protocolConfiguration:
                 description: |-
                   The protocol configuration for an agent runtime. This structure defines how

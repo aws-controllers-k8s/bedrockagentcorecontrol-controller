@@ -46,7 +46,11 @@ type AgentRuntimeSpec struct {
 	// The life cycle configuration for the AgentCore Runtime.
 	LifecycleConfiguration *LifecycleConfiguration `json:"lifecycleConfiguration,omitempty"`
 	// The network configuration for the AgentCore Runtime.
-	NetworkConfiguration  *NetworkConfiguration  `json:"networkConfiguration,omitempty"`
+	NetworkConfiguration *NetworkConfiguration `json:"networkConfiguration,omitempty"`
+	// The version of the runtime platform to use for the AgentCore Runtime.
+	//
+	// Regex Pattern: `^[^\s]+$`
+	PlatformVersion       *string                `json:"platformVersion,omitempty"`
 	ProtocolConfiguration *ProtocolConfiguration `json:"protocolConfiguration,omitempty"`
 	// Configuration for HTTP request headers that will be passed through to the
 	// runtime.
