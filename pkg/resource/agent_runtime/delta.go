@@ -222,6 +222,13 @@ func newResourceDelta(
 			}
 		}
 	}
+	if ackcompare.HasNilDifference(a.ko.Spec.PlatformVersion, b.ko.Spec.PlatformVersion) {
+		delta.Add("Spec.PlatformVersion", a.ko.Spec.PlatformVersion, b.ko.Spec.PlatformVersion)
+	} else if a.ko.Spec.PlatformVersion != nil && b.ko.Spec.PlatformVersion != nil {
+		if *a.ko.Spec.PlatformVersion != *b.ko.Spec.PlatformVersion {
+			delta.Add("Spec.PlatformVersion", a.ko.Spec.PlatformVersion, b.ko.Spec.PlatformVersion)
+		}
+	}
 	if ackcompare.HasNilDifference(a.ko.Spec.ProtocolConfiguration, b.ko.Spec.ProtocolConfiguration) {
 		delta.Add("Spec.ProtocolConfiguration", a.ko.Spec.ProtocolConfiguration, b.ko.Spec.ProtocolConfiguration)
 	} else if a.ko.Spec.ProtocolConfiguration != nil && b.ko.Spec.ProtocolConfiguration != nil {
