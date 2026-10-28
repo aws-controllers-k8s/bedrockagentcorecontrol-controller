@@ -295,6 +295,8 @@ resources:
     hooks:
       sdk_update_pre_build_request:
         template_path: hooks/agentruntime/sdk_update_pre_build_request.go.tpl
+      delta_post_compare:
+        code: customPostCompare(delta, a, b)
 
   AgentRuntimeEndpoint:
     renames:
