@@ -104,11 +104,8 @@ ignore:
     #
     # AgentRuntime
     - CreateAgentRuntimeInput.CapacityProviderConfiguration
-    - CreateAgentRuntimeInput.PlatformVersion
     - UpdateAgentRuntimeInput.CapacityProviderConfiguration
-    - UpdateAgentRuntimeInput.PlatformVersion
     - GetAgentRuntimeOutput.CapacityProviderConfiguration
-    - GetAgentRuntimeOutput.PlatformVersion
     # DeleteAgentRuntime gained an optional AgentRuntimeVersion. Per the API:
     # "When you provide this value, only that version is deleted. When you omit
     # it, the entire AgentCore Runtime and all of its versions are deleted."
@@ -257,6 +254,12 @@ resources:
       ProtocolConfiguration.ServerProtocol:
         late_initialize:
           skip_incomplete_check: {}
+      # The service defaults the runtime platform version (V1 today) and
+      # returns it from GetAgentRuntime, so a spec that leaves it unset would
+      # otherwise differ from the observed value on every reconcile.
+      PlatformVersion:
+        late_initialize:
+          skip_incomplete_check: {}
       NetworkConfiguration.NetworkModeConfig.SecurityGroups:
         references:
           resource: SecurityGroup
@@ -292,6 +295,8 @@ resources:
     hooks:
       sdk_update_pre_build_request:
         template_path: hooks/agentruntime/sdk_update_pre_build_request.go.tpl
+      delta_post_compare:
+        code: customPostCompare(delta, a, b)
 
   AgentRuntimeEndpoint:
     renames:

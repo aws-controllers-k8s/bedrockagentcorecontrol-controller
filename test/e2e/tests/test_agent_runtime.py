@@ -124,11 +124,20 @@ class TestAgentRuntime:
         # The synced condition is gated on Status.Status == READY
         # (generator.yaml synced:when), so once synced the runtime must be READY.
         assert cr["status"]["status"] == "READY"
+        # the platform version is late-initialized from the service default
+        assert cr["spec"]["platformVersion"] == "V1"
+        runtime_version = cr["status"]["agentRuntimeVersion"]
 
         aws_runtime = bedrockagentcorecontrol_client.get_agent_runtime(
             agentRuntimeId=agent_runtime_id
         )
         assert aws_runtime["agentRuntimeId"] == agent_runtime_id
+
+        # a later reconcile must not update the runtime for the defaulted version
+        time.sleep(CREATE_WAIT_AFTER_SECONDS)
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=5)
+        cr = k8s.get_resource(ref)
+        assert cr["status"]["agentRuntimeVersion"] == runtime_version
 
     def test_create_update_filesystem_configurations(self, agent_runtime_with_filesystem, bedrockagentcorecontrol_client):
         (ref, cr) = agent_runtime_with_filesystem

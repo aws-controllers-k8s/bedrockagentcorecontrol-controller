@@ -723,6 +723,11 @@ func (in *AgentRuntimeSpec) DeepCopyInto(out *AgentRuntimeSpec) {
 		*out = new(NetworkConfiguration)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.PlatformVersion != nil {
+		in, out := &in.PlatformVersion, &out.PlatformVersion
+		*out = new(string)
+		**out = **in
+	}
 	if in.ProtocolConfiguration != nil {
 		in, out := &in.ProtocolConfiguration, &out.ProtocolConfiguration
 		*out = new(ProtocolConfiguration)
