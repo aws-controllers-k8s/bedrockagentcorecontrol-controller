@@ -223,6 +223,13 @@ func newResourceDelta(
 							delta.Add("Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID", a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID, b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID)
 						}
 					}
+					if ackcompare.HasNilDifference(a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version, b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version) {
+						delta.Add("Spec.TargetConfiguration.Mcp.Connector.Source.Version", a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version, b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version)
+					} else if a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version != nil && b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version != nil {
+						if *a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version != *b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version {
+							delta.Add("Spec.TargetConfiguration.Mcp.Connector.Source.Version", a.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version, b.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version)
+						}
+					}
 				}
 			}
 			if ackcompare.HasNilDifference(a.ko.Spec.TargetConfiguration.Mcp.Lambda, b.ko.Spec.TargetConfiguration.Mcp.Lambda) {

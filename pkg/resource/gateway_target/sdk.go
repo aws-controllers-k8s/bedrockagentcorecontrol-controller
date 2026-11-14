@@ -369,6 +369,9 @@ func (rm *resourceManager) sdkFind(
 							if f11f0f0f1.Value.Source.ConnectorId != nil {
 								f11f0f0f1f1f2.ConnectorID = f11f0f0f1.Value.Source.ConnectorId
 							}
+							if f11f0f0f1.Value.Source.Version != nil {
+								f11f0f0f1f1f2.Version = f11f0f0f1.Value.Source.Version
+							}
 							f11f0f0f1f1.Source = f11f0f0f1f1f2
 						}
 						f11f0f0.Connector = f11f0f0f1f1
@@ -813,6 +816,9 @@ func (rm *resourceManager) sdkCreate(
 							if f11f0f0f1.Value.Source.ConnectorId != nil {
 								f11f0f0f1f1f2.ConnectorID = f11f0f0f1.Value.Source.ConnectorId
 							}
+							if f11f0f0f1.Value.Source.Version != nil {
+								f11f0f0f1f1f2.Version = f11f0f0f1.Value.Source.Version
+							}
 							f11f0f0f1f1.Source = f11f0f0f1f1f2
 						}
 						f11f0f0.Connector = f11f0f0f1f1
@@ -1215,6 +1221,9 @@ func (rm *resourceManager) newCreateRequestPayload(
 					f7f0f1f2 := &svcsdktypes.ConnectorSource{}
 					if r.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID != nil {
 						f7f0f1f2.ConnectorId = r.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID
+					}
+					if r.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version != nil {
+						f7f0f1f2.Version = r.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version
 					}
 					f7f0f1.Source = f7f0f1f2
 				}
@@ -1654,6 +1663,9 @@ func (rm *resourceManager) sdkUpdate(
 							if f11f0f0f1.Value.Source.ConnectorId != nil {
 								f11f0f0f1f1f2.ConnectorID = f11f0f0f1.Value.Source.ConnectorId
 							}
+							if f11f0f0f1.Value.Source.Version != nil {
+								f11f0f0f1f1f2.Version = f11f0f0f1.Value.Source.Version
+							}
 							f11f0f0f1f1.Source = f11f0f0f1f1f2
 						}
 						f11f0f0.Connector = f11f0f0f1f1
@@ -2044,6 +2056,9 @@ func (rm *resourceManager) newUpdateRequestPayload(
 					f6f0f1f2 := &svcsdktypes.ConnectorSource{}
 					if r.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID != nil {
 						f6f0f1f2.ConnectorId = r.ko.Spec.TargetConfiguration.Mcp.Connector.Source.ConnectorID
+					}
+					if r.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version != nil {
+						f6f0f1f2.Version = r.ko.Spec.TargetConfiguration.Mcp.Connector.Source.Version
 					}
 					f6f0f1.Source = f6f0f1f2
 				}

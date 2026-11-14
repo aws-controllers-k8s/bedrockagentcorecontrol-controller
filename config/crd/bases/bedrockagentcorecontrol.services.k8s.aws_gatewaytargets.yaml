@@ -349,6 +349,8 @@ spec:
                             properties:
                               connectorID:
                                 type: string
+                              version:
+                                type: string
                             type: object
                         type: object
                       lambda:
