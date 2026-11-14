@@ -20,6 +20,7 @@ import (
 	svcapitypes "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/apis/v1alpha1"
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	svcsdk "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol"
+	svcsdkdocument "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol/document"
 	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol/types"
 	"k8s.io/apimachinery/pkg/api/equality"
 )
@@ -206,6 +207,228 @@ func ptrStringVal(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+// -----------------------------------------------------------------------------
+// Connector target ParameterValues (smithy document <-> JSON string)
+//
+// ConnectorConfiguration.ParameterValues is a smithy document (arbitrary JSON)
+// which has no CRD representation, so it is exposed as a JSON string and
+// marshaled/unmarshaled here. The API requires the field on every connector
+// configuration -- omitting it is rejected with "Connector configurations must
+// not be empty" -- so it must round-trip rather than be dropped.
+// -----------------------------------------------------------------------------
+
+// stringToDocument unmarshals a JSON string into a smithy document suitable for
+// the SDK ConnectorConfiguration.ParameterValues field.
+func stringToDocument(s *string) (svcsdkdocument.Interface, error) {
+	if s == nil || *s == "" {
+		return nil, nil
+	}
+	var v interface{}
+	if err := json.Unmarshal([]byte(*s), &v); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal ParameterValues JSON: %w", err)
+	}
+	return svcsdkdocument.NewLazyDocument(v), nil
+}
+
+// documentToString marshals a smithy document (as returned by the API) into a
+// JSON string. Inverse of stringToDocument, used when reading the resource back.
+func documentToString(d svcsdkdocument.Interface) (*string, error) {
+	if d == nil {
+		return nil, nil
+	}
+	// MarshalSmithyDocument yields the document's JSON byte representation and
+	// works for both lazy (outbound) and response (inbound) documents.
+	b, err := d.MarshalSmithyDocument()
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal ParameterValues document: %w", err)
+	}
+	s := string(b)
+	return &s, nil
+}
+
+// getMcpConnectorConfigurations returns the connector configurations from the
+// TargetConfiguration if the target is an MCP connector target. Returns nil if
+// the path doesn't apply.
+func getMcpConnectorConfigurations(tc *svcapitypes.TargetConfiguration) []*svcapitypes.ConnectorConfiguration {
+	if tc == nil || tc.Mcp == nil || tc.Mcp.Connector == nil {
+		return nil
+	}
+	return tc.Mcp.Connector.Configurations
+}
+
+// getSDKConnectorConfigurations extracts the connector configuration slice from
+// an SDK TargetConfiguration union, returning nil if the path doesn't match.
+func getSDKConnectorConfigurations(tc svcsdktypes.TargetConfiguration) []svcsdktypes.ConnectorConfiguration {
+	mcpMember, ok := tc.(*svcsdktypes.TargetConfigurationMemberMcp)
+	if !ok || mcpMember == nil {
+		return nil
+	}
+	connMember, ok := mcpMember.Value.(*svcsdktypes.McpTargetConfigurationMemberConnector)
+	if !ok || connMember == nil {
+		return nil
+	}
+	return connMember.Value.Configurations
+}
+
+// setConnectorParameterValuesOnInput sets each SDK configuration's
+// ParameterValues document by unmarshaling the JSON string from the CR.
+func setConnectorParameterValuesOnInput(
+	crCfgs []*svcapitypes.ConnectorConfiguration,
+	sdkCfgs []svcsdktypes.ConnectorConfiguration,
+) error {
+	for i, cfg := range crCfgs {
+		if i >= len(sdkCfgs) {
+			break
+		}
+		doc, err := stringToDocument(cfg.ParameterValues)
+		if err != nil {
+			return err
+		}
+		if doc == nil {
+			// ParameterValues is required on every connector configuration:
+			// CreateGatewayTarget rejects a missing/empty document with
+			// "ValidationException: Connector configurations must not be empty".
+			// An omitted or empty CR value therefore defaults to an empty JSON
+			// object, matching delta_pre_compare, which treats an absent value
+			// and "{}" as equal.
+			doc = svcsdkdocument.NewLazyDocument(map[string]interface{}{})
+		}
+		sdkCfgs[i].ParameterValues = doc
+	}
+	return nil
+}
+
+// setConnectorParameterValuesOnCreateInput populates connector ParameterValues
+// documents on the CreateGatewayTarget input from the CR's JSON strings.
+func setConnectorParameterValuesOnCreateInput(desired *resource, input *svcsdk.CreateGatewayTargetInput) error {
+	crCfgs := getMcpConnectorConfigurations(desired.ko.Spec.TargetConfiguration)
+	if crCfgs == nil {
+		return nil
+	}
+	sdkCfgs := getSDKConnectorConfigurations(input.TargetConfiguration)
+	if sdkCfgs == nil {
+		return nil
+	}
+	return setConnectorParameterValuesOnInput(crCfgs, sdkCfgs)
+}
+
+// setConnectorParameterValuesOnUpdateInput populates connector ParameterValues
+// documents on the UpdateGatewayTarget input from the CR's JSON strings.
+func setConnectorParameterValuesOnUpdateInput(desired *resource, input *svcsdk.UpdateGatewayTargetInput) error {
+	crCfgs := getMcpConnectorConfigurations(desired.ko.Spec.TargetConfiguration)
+	if crCfgs == nil {
+		return nil
+	}
+	sdkCfgs := getSDKConnectorConfigurations(input.TargetConfiguration)
+	if sdkCfgs == nil {
+		return nil
+	}
+	return setConnectorParameterValuesOnInput(crCfgs, sdkCfgs)
+}
+
+// setConnectorParameterValuesFromSDKResponse reads the SDK GetGatewayTarget
+// response and populates the connector ParameterValues JSON strings on the CR.
+func setConnectorParameterValuesFromSDKResponse(
+	ko *svcapitypes.GatewayTarget,
+	resp *svcsdk.GetGatewayTargetOutput,
+) error {
+	if resp.TargetConfiguration == nil {
+		return nil
+	}
+	sdkCfgs := getSDKConnectorConfigurations(resp.TargetConfiguration)
+	if sdkCfgs == nil {
+		return nil
+	}
+	crCfgs := getMcpConnectorConfigurations(ko.Spec.TargetConfiguration)
+	if crCfgs == nil {
+		return nil
+	}
+	for i, sdkCfg := range sdkCfgs {
+		if i >= len(crCfgs) {
+			break
+		}
+		s, err := documentToString(sdkCfg.ParameterValues)
+		if err != nil {
+			return err
+		}
+		crCfgs[i].ParameterValues = s
+	}
+	return nil
+}
+
+// jsonStringsEqual compares two JSON strings semantically (ignoring key ordering
+// and whitespace). A nil/empty string and a JSON object that unmarshals to an
+// empty value compare equal, so an omitted-vs-"{}" round trip is not a diff.
+func jsonStringsEqual(a, b *string) bool {
+	var va, vb interface{}
+	errA := json.Unmarshal([]byte(ptrStringVal(a)), &va)
+	errB := json.Unmarshal([]byte(ptrStringVal(b)), &vb)
+	if errA != nil || errB != nil {
+		return ptrStringVal(a) == ptrStringVal(b)
+	}
+	return equality.Semantic.Equalities.DeepEqual(va, vb)
+}
+
+// connectorConfigByName returns a map of ConnectorConfiguration keyed by Name
+// for order-independent lookup during comparison.
+func connectorConfigByName(
+	cfgs []*svcapitypes.ConnectorConfiguration,
+) map[string]*svcapitypes.ConnectorConfiguration {
+	m := make(map[string]*svcapitypes.ConnectorConfiguration, len(cfgs))
+	for _, cfg := range cfgs {
+		if cfg.Name != nil {
+			m[*cfg.Name] = cfg
+		}
+	}
+	return m
+}
+
+// compareConnectorParameterValues performs a semantic comparison of the
+// connector Configurations slices, matching by Name and comparing Description
+// and the ParameterValues JSON semantically (ignoring key ordering/whitespace
+// and treating an omitted-vs-"{}" round trip as equal). It owns the whole
+// Configurations comparison because the generated delta is disabled for it via
+// `compare: is_ignored: true`; without this a document round trip would drive a
+// perpetual update loop.
+func compareConnectorParameterValues(
+	delta *ackcompare.Delta,
+	a *resource,
+	b *resource,
+) {
+	const fieldPath = "Spec.TargetConfiguration.Mcp.Connector.Configurations"
+
+	aCfgs := getMcpConnectorConfigurations(a.ko.Spec.TargetConfiguration)
+	bCfgs := getMcpConnectorConfigurations(b.ko.Spec.TargetConfiguration)
+	if len(aCfgs) == 0 && len(bCfgs) == 0 {
+		return
+	}
+	if len(aCfgs) != len(bCfgs) {
+		delta.Add(fieldPath, aCfgs, bCfgs)
+		return
+	}
+
+	bByName := connectorConfigByName(bCfgs)
+	for _, aCfg := range aCfgs {
+		if aCfg.Name == nil {
+			continue
+		}
+		bCfg, ok := bByName[*aCfg.Name]
+		if !ok {
+			delta.Add(fieldPath, aCfgs, bCfgs)
+			return
+		}
+		if ackcompare.HasNilDifference(aCfg.Description, bCfg.Description) ||
+			(aCfg.Description != nil && *aCfg.Description != *bCfg.Description) {
+			delta.Add(fieldPath, aCfgs, bCfgs)
+			return
+		}
+		if !jsonStringsEqual(aCfg.ParameterValues, bCfg.ParameterValues) {
+			delta.Add(fieldPath, aCfgs, bCfgs)
+			return
+		}
+	}
 }
 
 // toolDefinitionByName returns a map of ToolDefinition keyed by Name for

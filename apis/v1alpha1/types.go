@@ -353,8 +353,10 @@ type ConfigurationBundleVersionSummary struct {
 
 // Configuration for a single tool within a connector.
 type ConnectorConfiguration struct {
-	Description *string `json:"description,omitempty"`
-	Name        *string `json:"name,omitempty"`
+	Description        *string                       `json:"description,omitempty"`
+	Name               *string                       `json:"name,omitempty"`
+	ParameterOverrides []*ConnectorParameterOverride `json:"parameterOverrides,omitempty"`
+	ParameterValues    *string                       `json:"parameterValues,omitempty"`
 }
 
 // Specifies a parameter override for a connector tool, allowing you to control
@@ -363,6 +365,21 @@ type ConnectorParameterOverride struct {
 	Description *string `json:"description,omitempty"`
 	Path        *string `json:"path,omitempty"`
 	Visible     *bool   `json:"visible,omitempty"`
+}
+
+// The source identifying the connector integration.
+type ConnectorSource struct {
+	ConnectorID *string `json:"connectorID,omitempty"`
+	Version     *string `json:"version,omitempty"`
+}
+
+// Configuration for a connector integration target. Connectors provide pre-built
+// integrations with Amazon Web Services services and third-party tools.
+type ConnectorTargetConfiguration struct {
+	Configurations []*ConnectorConfiguration `json:"configurations,omitempty"`
+	Enabled        []*string                 `json:"enabled,omitempty"`
+	// The source identifying the connector integration.
+	Source *ConnectorSource `json:"source,omitempty"`
 }
 
 // The identity provider configuration used to authenticate end users to the
@@ -779,6 +796,11 @@ type GatewayTarget_SDK struct {
 type HTTPAPISchemaConfiguration struct {
 	// Configuration for API schema.
 	Source *APISchemaConfiguration `json:"source,omitempty"`
+}
+
+// The source identifying the HTTP connector integration.
+type HTTPConnectorSource struct {
+	ConnectorID *string `json:"connectorID,omitempty"`
 }
 
 // Configuration for AgentCore Browser.
@@ -1306,6 +1328,9 @@ type McpServerTargetConfiguration struct {
 type McpTargetConfiguration struct {
 	// The configuration for an Amazon API Gateway target.
 	APIGateway *APIGatewayTargetConfiguration `json:"apiGateway,omitempty"`
+	// Configuration for a connector integration target. Connectors provide pre-built
+	// integrations with Amazon Web Services services and third-party tools.
+	Connector *ConnectorTargetConfiguration `json:"connector,omitempty"`
 	// The Lambda configuration for a Model Context Protocol target. This structure
 	// defines how the gateway uses a Lambda function to communicate with the target.
 	Lambda *McpLambdaTargetConfiguration `json:"lambda,omitempty"`

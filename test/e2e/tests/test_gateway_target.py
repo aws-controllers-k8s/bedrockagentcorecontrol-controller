@@ -578,6 +578,122 @@ class TestGatewayTargetOpenAPI:
         assert "SayGoodbye" in aws_openapi
 
 
+# The managed web search connector is only available in us-east-1.
+CONNECTOR_ID = "web-search"
+CONNECTOR_TOOL_NAME = "WebSearch"
+
+
+@pytest.fixture(scope="module")
+def connector_gateway_target(simple_gateway):
+    (gateway_ref, gateway_cr) = simple_gateway
+
+    # Wait for the parent gateway to be synced before creating a target
+    assert k8s.wait_on_condition(gateway_ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
+    gateway_cr = k8s.get_resource(gateway_ref)
+    gateway_id = gateway_cr["status"]["gatewayID"]
+
+    target_name = random_suffix_name("acktestgwconn", 32, delimiter="")
+
+    replacements = REPLACEMENT_VALUES.copy()
+    replacements["GATEWAY_TARGET_NAME"] = target_name
+    replacements["GATEWAY_ID"] = gateway_id
+    replacements["CONNECTOR_ID"] = CONNECTOR_ID
+    replacements["CONNECTOR_TOOL_NAME"] = CONNECTOR_TOOL_NAME
+    # The API requires parameterValues on every connector configuration; an
+    # empty object is the minimal valid value.
+    replacements["PARAMETER_VALUES"] = "{}"
+
+    resource_data = load_bedrockagentcorecontrol_resource(
+        "gateway_target_connector",
+        additional_replacements=replacements,
+    )
+
+    ref = k8s.CustomResourceReference(
+        CRD_GROUP,
+        CRD_VERSION,
+        GATEWAY_TARGET_RESOURCE_PLURAL,
+        target_name,
+        namespace="default",
+    )
+
+    k8s.create_custom_resource(ref, resource_data)
+    cr = k8s.wait_resource_consumed_by_controller(ref)
+
+    yield (ref, cr, gateway_id)
+
+    try:
+        _, deleted = k8s.delete_custom_resource(ref, wait_periods=3, period_length=10)
+        assert deleted
+    except:
+        pass
+
+
+@service_marker
+@pytest.mark.canary
+class TestGatewayTargetConnector:
+    def test_create_delete_connector_gateway_target(self, connector_gateway_target, bedrockagentcorecontrol_client):
+        (ref, cr, gateway_id) = connector_gateway_target
+
+        time.sleep(CREATE_WAIT_AFTER_SECONDS)
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
+        cr = k8s.get_resource(ref)
+        target_id = cr["status"]["targetID"]
+        assert target_id is not None
+
+        # The ParameterValues JSON string must round-trip back onto Spec (not be
+        # stripped by the create response).
+        cfgs = cr["spec"]["targetConfiguration"]["mcp"]["connector"]["configurations"]
+        assert cfgs[0]["parameterValues"] == "{}"
+
+        # Verify the target was created with a connector configuration in AWS.
+        aws_target = bedrockagentcorecontrol_client.get_gateway_target(
+            gatewayIdentifier=gateway_id,
+            targetId=target_id,
+        )
+        assert aws_target["targetId"] == target_id
+        aws_connector = aws_target["targetConfiguration"]["mcp"]["connector"]
+        assert aws_connector["source"]["connectorId"] == CONNECTOR_ID
+        assert aws_connector["configurations"][0]["name"] == CONNECTOR_TOOL_NAME
+
+    def test_update_connector_parameter_values(self, connector_gateway_target, bedrockagentcorecontrol_client):
+        (ref, cr, gateway_id) = connector_gateway_target
+
+        cr = k8s.get_resource(ref)
+        target_id = cr["status"]["targetID"]
+
+        # Update the ParameterValues JSON string (server-side domain denylist).
+        updates = {
+            "spec": {
+                "targetConfiguration": {
+                    "mcp": {
+                        "connector": {
+                            "source": {"connectorID": CONNECTOR_ID},
+                            "configurations": [
+                                {
+                                    "name": CONNECTOR_TOOL_NAME,
+                                    "parameterValues": '{"domainFilter":{"exclude":["example.com"]}}',
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        }
+        k8s.patch_custom_resource(ref, updates)
+        time.sleep(UPDATE_WAIT_AFTER_SECONDS)
+
+        assert k8s.wait_on_condition(ref, "ACK.ResourceSynced", "True", wait_periods=10)
+
+        aws_target = bedrockagentcorecontrol_client.get_gateway_target(
+            gatewayIdentifier=gateway_id,
+            targetId=target_id,
+        )
+        param_values = aws_target["targetConfiguration"]["mcp"]["connector"]["configurations"][0]["parameterValues"]
+        assert param_values["domainFilter"]["exclude"] == ["example.com"]
+
+
 @pytest.fixture(scope="module")
 def lambda_gateway_target(simple_gateway):
     (gateway_ref, gateway_cr) = simple_gateway
