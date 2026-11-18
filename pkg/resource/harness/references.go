@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	efsapitypes "github.com/aws-controllers-k8s/efs-controller/apis/v1alpha1"
 	iamapitypes "github.com/aws-controllers-k8s/iam-controller/apis/v1alpha1"
 	kmsapitypes "github.com/aws-controllers-k8s/kms-controller/apis/v1alpha1"
 	ackv1alpha1 "github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
@@ -32,6 +33,9 @@ import (
 
 	svcapitypes "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/apis/v1alpha1"
 )
+
+// +kubebuilder:rbac:groups=efs.services.k8s.aws,resources=accesspoints,verbs=get;list
+// +kubebuilder:rbac:groups=efs.services.k8s.aws,resources=accesspoints/status,verbs=get;list
 
 // +kubebuilder:rbac:groups=iam.services.k8s.aws,resources=roles,verbs=get;list
 // +kubebuilder:rbac:groups=iam.services.k8s.aws,resources=roles/status,verbs=get;list
@@ -45,6 +49,18 @@ import (
 // values.
 func (rm *resourceManager) ClearResolvedReferences(res acktypes.AWSResource) acktypes.AWSResource {
 	ko := rm.concreteResource(res).ko.DeepCopy()
+
+	if ko.Spec.Environment != nil {
+		if ko.Spec.Environment.AgentCoreRuntimeEnvironment != nil {
+			for f0idx, f0iter := range ko.Spec.Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations {
+				if f0iter.EFSAccessPoint != nil {
+					if f0iter.EFSAccessPoint.AccessPointRef != nil {
+						ko.Spec.Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations[f0idx].EFSAccessPoint.AccessPointARN = nil
+					}
+				}
+			}
+		}
+	}
 
 	if ko.Spec.ExecutionRoleRef != nil {
 		ko.Spec.ExecutionRoleARN = nil
@@ -154,6 +170,12 @@ func (rm *resourceManager) ResolveReferences(
 
 	resourceHasReferences := false
 	err := validateReferenceFields(ko)
+	if fieldHasReferences, err := rm.resolveReferenceForEnvironment_AgentCoreRuntimeEnvironment_FilesystemConfigurations_EFSAccessPoint_AccessPointARN(ctx, apiReader, ko); err != nil {
+		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
+	} else {
+		resourceHasReferences = resourceHasReferences || fieldHasReferences
+	}
+
 	if fieldHasReferences, err := rm.resolveReferenceForExecutionRoleARN(ctx, apiReader, ko); err != nil {
 		return &resource{ko}, (resourceHasReferences || fieldHasReferences), err
 	} else {
@@ -190,6 +212,18 @@ func (rm *resourceManager) ResolveReferences(
 // validateReferenceFields validates the reference field and corresponding
 // identifier field.
 func validateReferenceFields(ko *svcapitypes.Harness) error {
+
+	if ko.Spec.Environment != nil {
+		if ko.Spec.Environment.AgentCoreRuntimeEnvironment != nil {
+			for _, f0iter := range ko.Spec.Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations {
+				if f0iter.EFSAccessPoint != nil {
+					if f0iter.EFSAccessPoint.AccessPointRef != nil && f0iter.EFSAccessPoint.AccessPointARN != nil {
+						return ackerr.ResourceReferenceAndIDNotSupportedFor("Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations.EFSAccessPoint.AccessPointARN", "Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations.EFSAccessPoint.AccessPointRef")
+					}
+				}
+			}
+		}
+	}
 
 	if ko.Spec.ExecutionRoleRef != nil && ko.Spec.ExecutionRoleARN != nil {
 		return ackerr.ResourceReferenceAndIDNotSupportedFor("ExecutionRoleARN", "ExecutionRoleRef")
@@ -234,6 +268,102 @@ func validateReferenceFields(ko *svcapitypes.Harness) error {
 				}
 			}
 		}
+	}
+	return nil
+}
+
+// resolveReferenceForEnvironment_AgentCoreRuntimeEnvironment_FilesystemConfigurations_EFSAccessPoint_AccessPointARN reads the resource referenced
+// from Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations.EFSAccessPoint.AccessPointRef field and sets the Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations.EFSAccessPoint.AccessPointARN
+// from referenced resource. Returns a boolean indicating whether a reference
+// contains references, or an error
+func (rm *resourceManager) resolveReferenceForEnvironment_AgentCoreRuntimeEnvironment_FilesystemConfigurations_EFSAccessPoint_AccessPointARN(
+	ctx context.Context,
+	apiReader client.Reader,
+	ko *svcapitypes.Harness,
+) (hasReferences bool, err error) {
+	if ko.Spec.Environment != nil {
+		if ko.Spec.Environment.AgentCoreRuntimeEnvironment != nil {
+			for f0idx, f0iter := range ko.Spec.Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations {
+				if f0iter.EFSAccessPoint != nil {
+					if f0iter.EFSAccessPoint.AccessPointRef != nil && f0iter.EFSAccessPoint.AccessPointRef.From != nil {
+						hasReferences = true
+						arr := f0iter.EFSAccessPoint.AccessPointRef.From
+						if arr.Name == nil || *arr.Name == "" {
+							return hasReferences, fmt.Errorf("provided resource reference is nil or empty: Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations.EFSAccessPoint.AccessPointRef")
+						}
+						namespace, _, err := ackrt.ValidateCrossNamespaceReference(
+							rm.cfg.EnableCrossNamespace,
+							ko.ObjectMeta.GetNamespace(),
+							arr.Namespace,
+							*arr.Name,
+						)
+						if err != nil {
+							return hasReferences, err
+						}
+						obj := &efsapitypes.AccessPoint{}
+						if err := getReferencedResourceState_AccessPoint(ctx, apiReader, obj, *arr.Name, namespace); err != nil {
+							return hasReferences, err
+						}
+						ko.Spec.Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations[f0idx].EFSAccessPoint.AccessPointARN = (*string)(obj.Status.ACKResourceMetadata.ARN)
+					}
+				}
+			}
+		}
+	}
+
+	return hasReferences, nil
+}
+
+// getReferencedResourceState_AccessPoint looks up whether a referenced resource
+// exists and is in a ACK.ResourceSynced=True state. If the referenced resource does exist and is
+// in a Synced state, returns nil, otherwise returns `ackerr.ResourceReferenceTerminalFor` or
+// `ResourceReferenceNotSyncedFor` depending on if the resource is in a Terminal state.
+func getReferencedResourceState_AccessPoint(
+	ctx context.Context,
+	apiReader client.Reader,
+	obj *efsapitypes.AccessPoint,
+	name string, // the Kubernetes name of the referenced resource
+	namespace string, // the Kubernetes namespace of the referenced resource
+) error {
+	namespacedName := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	err := apiReader.Get(ctx, namespacedName, obj)
+	if err != nil {
+		return err
+	}
+	var refResourceTerminal bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeTerminal &&
+			cond.Status == corev1.ConditionTrue {
+			return ackerr.ResourceReferenceTerminalFor(
+				"AccessPoint",
+				namespace, name)
+		}
+	}
+	if refResourceTerminal {
+		return ackerr.ResourceReferenceTerminalFor(
+			"AccessPoint",
+			namespace, name)
+	}
+	var refResourceSynced bool
+	for _, cond := range obj.Status.Conditions {
+		if cond.Type == ackv1alpha1.ConditionTypeResourceSynced &&
+			cond.Status == corev1.ConditionTrue {
+			refResourceSynced = true
+		}
+	}
+	if !refResourceSynced {
+		return ackerr.ResourceReferenceNotSyncedFor(
+			"AccessPoint",
+			namespace, name)
+	}
+	if obj.Status.ACKResourceMetadata == nil || obj.Status.ACKResourceMetadata.ARN == nil {
+		return ackerr.ResourceReferenceMissingTargetFieldFor(
+			"AccessPoint",
+			namespace, name,
+			"Status.ACKResourceMetadata.ARN")
 	}
 	return nil
 }

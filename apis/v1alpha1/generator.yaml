@@ -268,6 +268,15 @@ resources:
           resource: Subnet
           service_name: ec2
           path: Status.SubnetID
+      # TODO: also reference s3files AccessPoint for
+      # FilesystemConfigurations.S3FilesAccessPoint.AccessPointArn once a
+      # code-generator release fixes the getReferencedResourceState_<Resource>
+      # helper collision between two referenced kinds named AccessPoint.
+      FilesystemConfigurations.EfsAccessPoint.AccessPointArn:
+        references:
+          resource: AccessPoint
+          service_name: efs
+          path: Status.ACKResourceMetadata.ARN
     synced:
       when:
         - path: Status.Status
@@ -293,6 +302,8 @@ resources:
     hooks:
       sdk_update_pre_build_request:
         template_path: hooks/agentruntime/sdk_update_pre_build_request.go.tpl
+      sdk_read_one_post_set_output:
+        code: normalizeFilesystemConfigurations(ko, r.ko)
       delta_post_compare:
         code: customPostCompare(delta, a, b)
 
@@ -365,6 +376,12 @@ resources:
       Tools.Config.AgentCoreGateway.GatewayArn:
         references:
           resource: Gateway
+          path: Status.ACKResourceMetadata.ARN
+      # TODO: add the s3files AccessPoint reference with AgentRuntime's.
+      Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations.EfsAccessPoint.AccessPointArn:
+        references:
+          resource: AccessPoint
+          service_name: efs
           path: Status.ACKResourceMetadata.ARN
       Tools.Type:
         go_tag: json:"type,omitempty"
@@ -445,6 +462,10 @@ resources:
     hooks:
       sdk_read_one_post_set_output:
         template_path: hooks/harness/sdk_read_one_post_set_output.go.tpl
+      sdk_create_post_set_output:
+        code: normalizeFilesystemConfigurations(ko, desired.ko)
+      sdk_update_post_set_output:
+        code: normalizeFilesystemConfigurations(ko, desired.ko)
       sdk_update_pre_build_request:
         template_path: hooks/harness/sdk_update_pre_build_request.go.tpl
       sdk_update_post_build_request:

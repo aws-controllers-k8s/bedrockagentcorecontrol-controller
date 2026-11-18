@@ -4,6 +4,7 @@ import (
 	"context"
 
 	svcapitypes "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/apis/v1alpha1"
+	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/filesystemconfig"
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/tags"
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	ackmetrics "github.com/aws-controllers-k8s/runtime/pkg/metrics"
@@ -12,6 +13,23 @@ import (
 	svcsdk "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol"
 	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol/types"
 )
+
+// normalizeFilesystemConfigurations is called from the ReadOne, Create and
+// Update set-output hooks, because each of them rebuilds Spec.Environment from
+// the response. See filesystemconfig.Normalize.
+func normalizeFilesystemConfigurations(ko, declared *svcapitypes.Harness) {
+	env := ko.Spec.Environment
+	if env == nil || env.AgentCoreRuntimeEnvironment == nil {
+		return
+	}
+	var declaredFCs []*svcapitypes.FilesystemConfiguration
+	if d := declared.Spec.Environment; d != nil && d.AgentCoreRuntimeEnvironment != nil {
+		declaredFCs = d.AgentCoreRuntimeEnvironment.FilesystemConfigurations
+	}
+	env.AgentCoreRuntimeEnvironment.FilesystemConfigurations = filesystemconfig.Normalize(
+		env.AgentCoreRuntimeEnvironment.FilesystemConfigurations, declaredFCs,
+	)
+}
 
 var syncTags = func(
 	ctx context.Context,

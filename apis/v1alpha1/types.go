@@ -527,7 +527,9 @@ type EBSVolumeConfiguration struct {
 // from your AgentCore Runtime sessions.
 type EFSAccessPointConfiguration struct {
 	AccessPointARN *string `json:"accessPointARN,omitempty"`
-	MountPath      *string `json:"mountPath,omitempty"`
+	// Reference field for AccessPointARN
+	AccessPointRef *ackv1alpha1.AWSResourceReferenceWrapper `json:"accessPointRef,omitempty"`
+	MountPath      *string                                  `json:"mountPath,omitempty"`
 }
 
 // The configuration for mounting an Amazon Elastic File System (Amazon EFS)

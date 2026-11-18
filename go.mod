@@ -4,9 +4,10 @@ go 1.26.0
 
 require (
 	github.com/aws-controllers-k8s/apigateway-controller v1.9.0
-	github.com/aws-controllers-k8s/ec2-controller v1.21.0
-	github.com/aws-controllers-k8s/iam-controller v1.9.0
-	github.com/aws-controllers-k8s/kms-controller v1.5.0
+	github.com/aws-controllers-k8s/ec2-controller v1.22.0
+	github.com/aws-controllers-k8s/efs-controller v1.9.0
+	github.com/aws-controllers-k8s/iam-controller v1.10.0
+	github.com/aws-controllers-k8s/kms-controller v1.6.0
 	github.com/aws-controllers-k8s/runtime v0.68.0
 	github.com/aws-controllers-k8s/secretsmanager-controller v1.6.1
 	github.com/aws-controllers-k8s/sns-controller v1.10.1
@@ -15,6 +16,7 @@ require (
 	github.com/aws/smithy-go v1.28.1
 	github.com/go-logr/logr v1.4.3
 	github.com/spf13/pflag v1.0.9
+	github.com/stretchr/testify v1.11.1
 	k8s.io/api v0.35.0
 	k8s.io/apimachinery v0.35.0
 	k8s.io/client-go v0.35.0

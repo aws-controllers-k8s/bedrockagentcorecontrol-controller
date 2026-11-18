@@ -752,6 +752,7 @@ func (rm *resourceManager) sdkFind(
 		return nil, err
 	}
 	ko.Spec.Tags = tags
+	normalizeFilesystemConfigurations(ko, r.ko)
 
 	return &resource{ko}, nil
 }
@@ -1474,6 +1475,7 @@ func (rm *resourceManager) sdkCreate(
 			}
 		}
 	}()
+	normalizeFilesystemConfigurations(ko, desired.ko)
 	return &resource{ko}, nil
 }
 
@@ -2836,6 +2838,7 @@ func (rm *resourceManager) sdkUpdate(
 	}
 
 	rm.setStatusDefaults(ko)
+	normalizeFilesystemConfigurations(ko, desired.ko)
 	return &resource{ko}, nil
 }
 

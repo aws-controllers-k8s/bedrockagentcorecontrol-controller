@@ -138,6 +138,14 @@ rules:
   - get
   - list
 - apiGroups:
+  - efs.services.k8s.aws
+  resources:
+  - accesspoints
+  - accesspoints/status
+  verbs:
+  - get
+  - list
+- apiGroups:
   - iam.services.k8s.aws
   resources:
   - roles

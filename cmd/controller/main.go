@@ -23,6 +23,7 @@ import (
 
 	apigatewayapitypes "github.com/aws-controllers-k8s/apigateway-controller/apis/v1alpha1"
 	ec2apitypes "github.com/aws-controllers-k8s/ec2-controller/apis/v1alpha1"
+	efsapitypes "github.com/aws-controllers-k8s/efs-controller/apis/v1alpha1"
 	iamapitypes "github.com/aws-controllers-k8s/iam-controller/apis/v1alpha1"
 	kmsapitypes "github.com/aws-controllers-k8s/kms-controller/apis/v1alpha1"
 	ackv1alpha1 "github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
@@ -95,6 +96,7 @@ func init() {
 	_ = ackv1alpha1.AddToScheme(scheme)
 	_ = apigatewayapitypes.AddToScheme(scheme)
 	_ = ec2apitypes.AddToScheme(scheme)
+	_ = efsapitypes.AddToScheme(scheme)
 	_ = iamapitypes.AddToScheme(scheme)
 	_ = kmsapitypes.AddToScheme(scheme)
 	_ = secretsmanagerapitypes.AddToScheme(scheme)

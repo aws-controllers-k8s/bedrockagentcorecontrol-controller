@@ -369,6 +369,7 @@ func (rm *resourceManager) sdkFind(
 	}
 
 	rm.setStatusDefaults(ko)
+	normalizeFilesystemConfigurations(ko, r.ko)
 	return &resource{ko}, nil
 }
 

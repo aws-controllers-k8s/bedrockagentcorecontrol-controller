@@ -2773,6 +2773,11 @@ func (in *EFSAccessPointConfiguration) DeepCopyInto(out *EFSAccessPointConfigura
 		*out = new(string)
 		**out = **in
 	}
+	if in.AccessPointRef != nil {
+		in, out := &in.AccessPointRef, &out.AccessPointRef
+		*out = new(corev1alpha1.AWSResourceReferenceWrapper)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.MountPath != nil {
 		in, out := &in.MountPath, &out.MountPath
 		*out = new(string)
