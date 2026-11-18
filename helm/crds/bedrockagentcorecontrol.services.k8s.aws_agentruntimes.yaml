@@ -169,6 +169,28 @@ spec:
                   description: Configuration for a filesystem that can be mounted
                     into the AgentCore Runtime.
                   properties:
+                    efsAccessPoint:
+                      description: |-
+                        Configuration for an Amazon EFS access point filesystem mounted into the
+                        AgentCore Runtime. EFS access points provide shared file storage accessible
+                        from your AgentCore Runtime sessions.
+                      properties:
+                        accessPointARN:
+                          type: string
+                        mountPath:
+                          type: string
+                      type: object
+                    s3FilesAccessPoint:
+                      description: |-
+                        Configuration for an Amazon S3 Files access point filesystem mounted into
+                        the AgentCore Runtime. S3 Files access points provide shared file storage
+                        accessible from your AgentCore Runtime sessions.
+                      properties:
+                        accessPointARN:
+                          type: string
+                        mountPath:
+                          type: string
+                      type: object
                     sessionStorage:
                       description: |-
                         Configuration for a session storage filesystem mounted into the AgentCore
