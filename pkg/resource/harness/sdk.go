@@ -185,14 +185,38 @@ func (rm *resourceManager) sdkFind(
 					for _, f4f0f0f3iter := range f4f0.Value.FilesystemConfigurations {
 						f4f0f0f3elem := &svcapitypes.FilesystemConfiguration{}
 						switch f4f0f0f3iter.(type) {
-						case *svcsdktypes.FilesystemConfigurationMemberSessionStorage:
-							f4f0f0f3elemf0 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
+						case *svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint:
+							f4f0f0f3elemf0 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint)
 							if f4f0f0f3elemf0 != nil {
-								f4f0f0f3elemf0f0 := &svcapitypes.SessionStorageConfiguration{}
+								f4f0f0f3elemf0f0 := &svcapitypes.EFSAccessPointConfiguration{}
+								if f4f0f0f3elemf0.Value.AccessPointArn != nil {
+									f4f0f0f3elemf0f0.AccessPointARN = f4f0f0f3elemf0.Value.AccessPointArn
+								}
 								if f4f0f0f3elemf0.Value.MountPath != nil {
 									f4f0f0f3elemf0f0.MountPath = f4f0f0f3elemf0.Value.MountPath
 								}
-								f4f0f0f3elem.SessionStorage = f4f0f0f3elemf0f0
+								f4f0f0f3elem.EFSAccessPoint = f4f0f0f3elemf0f0
+							}
+						case *svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint:
+							f4f0f0f3elemf1 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint)
+							if f4f0f0f3elemf1 != nil {
+								f4f0f0f3elemf1f1 := &svcapitypes.S3FilesAccessPointConfiguration{}
+								if f4f0f0f3elemf1.Value.AccessPointArn != nil {
+									f4f0f0f3elemf1f1.AccessPointARN = f4f0f0f3elemf1.Value.AccessPointArn
+								}
+								if f4f0f0f3elemf1.Value.MountPath != nil {
+									f4f0f0f3elemf1f1.MountPath = f4f0f0f3elemf1.Value.MountPath
+								}
+								f4f0f0f3elem.S3FilesAccessPoint = f4f0f0f3elemf1f1
+							}
+						case *svcsdktypes.FilesystemConfigurationMemberSessionStorage:
+							f4f0f0f3elemf2 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
+							if f4f0f0f3elemf2 != nil {
+								f4f0f0f3elemf2f2 := &svcapitypes.SessionStorageConfiguration{}
+								if f4f0f0f3elemf2.Value.MountPath != nil {
+									f4f0f0f3elemf2f2.MountPath = f4f0f0f3elemf2.Value.MountPath
+								}
+								f4f0f0f3elem.SessionStorage = f4f0f0f3elemf2f2
 							}
 						}
 						f4f0f0f3 = append(f4f0f0f3, f4f0f0f3elem)
@@ -728,6 +752,7 @@ func (rm *resourceManager) sdkFind(
 		return nil, err
 	}
 	ko.Spec.Tags = tags
+	normalizeFilesystemConfigurations(ko, r.ko)
 
 	return &resource{ko}, nil
 }
@@ -876,14 +901,38 @@ func (rm *resourceManager) sdkCreate(
 					for _, f4f0f0f3iter := range f4f0.Value.FilesystemConfigurations {
 						f4f0f0f3elem := &svcapitypes.FilesystemConfiguration{}
 						switch f4f0f0f3iter.(type) {
-						case *svcsdktypes.FilesystemConfigurationMemberSessionStorage:
-							f4f0f0f3elemf0 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
+						case *svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint:
+							f4f0f0f3elemf0 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint)
 							if f4f0f0f3elemf0 != nil {
-								f4f0f0f3elemf0f0 := &svcapitypes.SessionStorageConfiguration{}
+								f4f0f0f3elemf0f0 := &svcapitypes.EFSAccessPointConfiguration{}
+								if f4f0f0f3elemf0.Value.AccessPointArn != nil {
+									f4f0f0f3elemf0f0.AccessPointARN = f4f0f0f3elemf0.Value.AccessPointArn
+								}
 								if f4f0f0f3elemf0.Value.MountPath != nil {
 									f4f0f0f3elemf0f0.MountPath = f4f0f0f3elemf0.Value.MountPath
 								}
-								f4f0f0f3elem.SessionStorage = f4f0f0f3elemf0f0
+								f4f0f0f3elem.EFSAccessPoint = f4f0f0f3elemf0f0
+							}
+						case *svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint:
+							f4f0f0f3elemf1 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint)
+							if f4f0f0f3elemf1 != nil {
+								f4f0f0f3elemf1f1 := &svcapitypes.S3FilesAccessPointConfiguration{}
+								if f4f0f0f3elemf1.Value.AccessPointArn != nil {
+									f4f0f0f3elemf1f1.AccessPointARN = f4f0f0f3elemf1.Value.AccessPointArn
+								}
+								if f4f0f0f3elemf1.Value.MountPath != nil {
+									f4f0f0f3elemf1f1.MountPath = f4f0f0f3elemf1.Value.MountPath
+								}
+								f4f0f0f3elem.S3FilesAccessPoint = f4f0f0f3elemf1f1
+							}
+						case *svcsdktypes.FilesystemConfigurationMemberSessionStorage:
+							f4f0f0f3elemf2 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
+							if f4f0f0f3elemf2 != nil {
+								f4f0f0f3elemf2f2 := &svcapitypes.SessionStorageConfiguration{}
+								if f4f0f0f3elemf2.Value.MountPath != nil {
+									f4f0f0f3elemf2f2.MountPath = f4f0f0f3elemf2.Value.MountPath
+								}
+								f4f0f0f3elem.SessionStorage = f4f0f0f3elemf2f2
 							}
 						}
 						f4f0f0f3 = append(f4f0f0f3, f4f0f0f3elem)
@@ -1426,6 +1475,7 @@ func (rm *resourceManager) sdkCreate(
 			}
 		}
 	}()
+	normalizeFilesystemConfigurations(ko, desired.ko)
 	return &resource{ko}, nil
 }
 
@@ -1527,17 +1577,49 @@ func (rm *resourceManager) newCreateRequestPayload(
 				for _, f3f0f0iter := range r.ko.Spec.Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations {
 					var f3f0f0elem svcsdktypes.FilesystemConfiguration
 					isInterfaceSet := false
+					if f3f0f0iter.EFSAccessPoint != nil {
+						if isInterfaceSet {
+							return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for EfsAccessPoint"))
+						}
+						f3f0f0elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint{}
+						f3f0f0elemf0 := &svcsdktypes.EfsAccessPointConfiguration{}
+						if f3f0f0iter.EFSAccessPoint.AccessPointARN != nil {
+							f3f0f0elemf0.AccessPointArn = f3f0f0iter.EFSAccessPoint.AccessPointARN
+						}
+						if f3f0f0iter.EFSAccessPoint.MountPath != nil {
+							f3f0f0elemf0.MountPath = f3f0f0iter.EFSAccessPoint.MountPath
+						}
+						f3f0f0elemf0Parent.Value = *f3f0f0elemf0
+						f3f0f0elem = f3f0f0elemf0Parent
+						isInterfaceSet = true
+					}
+					if f3f0f0iter.S3FilesAccessPoint != nil {
+						if isInterfaceSet {
+							return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for S3FilesAccessPoint"))
+						}
+						f3f0f0elemf1Parent := &svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint{}
+						f3f0f0elemf1 := &svcsdktypes.S3FilesAccessPointConfiguration{}
+						if f3f0f0iter.S3FilesAccessPoint.AccessPointARN != nil {
+							f3f0f0elemf1.AccessPointArn = f3f0f0iter.S3FilesAccessPoint.AccessPointARN
+						}
+						if f3f0f0iter.S3FilesAccessPoint.MountPath != nil {
+							f3f0f0elemf1.MountPath = f3f0f0iter.S3FilesAccessPoint.MountPath
+						}
+						f3f0f0elemf1Parent.Value = *f3f0f0elemf1
+						f3f0f0elem = f3f0f0elemf1Parent
+						isInterfaceSet = true
+					}
 					if f3f0f0iter.SessionStorage != nil {
 						if isInterfaceSet {
 							return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for SessionStorage"))
 						}
-						f3f0f0elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
-						f3f0f0elemf0 := &svcsdktypes.SessionStorageConfiguration{}
+						f3f0f0elemf2Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
+						f3f0f0elemf2 := &svcsdktypes.SessionStorageConfiguration{}
 						if f3f0f0iter.SessionStorage.MountPath != nil {
-							f3f0f0elemf0.MountPath = f3f0f0iter.SessionStorage.MountPath
+							f3f0f0elemf2.MountPath = f3f0f0iter.SessionStorage.MountPath
 						}
-						f3f0f0elemf0Parent.Value = *f3f0f0elemf0
-						f3f0f0elem = f3f0f0elemf0Parent
+						f3f0f0elemf2Parent.Value = *f3f0f0elemf2
+						f3f0f0elem = f3f0f0elemf2Parent
 						isInterfaceSet = true
 					}
 					f3f0f0 = append(f3f0f0, f3f0f0elem)
@@ -2286,14 +2368,38 @@ func (rm *resourceManager) sdkUpdate(
 					for _, f4f0f0f3iter := range f4f0.Value.FilesystemConfigurations {
 						f4f0f0f3elem := &svcapitypes.FilesystemConfiguration{}
 						switch f4f0f0f3iter.(type) {
-						case *svcsdktypes.FilesystemConfigurationMemberSessionStorage:
-							f4f0f0f3elemf0 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
+						case *svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint:
+							f4f0f0f3elemf0 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint)
 							if f4f0f0f3elemf0 != nil {
-								f4f0f0f3elemf0f0 := &svcapitypes.SessionStorageConfiguration{}
+								f4f0f0f3elemf0f0 := &svcapitypes.EFSAccessPointConfiguration{}
+								if f4f0f0f3elemf0.Value.AccessPointArn != nil {
+									f4f0f0f3elemf0f0.AccessPointARN = f4f0f0f3elemf0.Value.AccessPointArn
+								}
 								if f4f0f0f3elemf0.Value.MountPath != nil {
 									f4f0f0f3elemf0f0.MountPath = f4f0f0f3elemf0.Value.MountPath
 								}
-								f4f0f0f3elem.SessionStorage = f4f0f0f3elemf0f0
+								f4f0f0f3elem.EFSAccessPoint = f4f0f0f3elemf0f0
+							}
+						case *svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint:
+							f4f0f0f3elemf1 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint)
+							if f4f0f0f3elemf1 != nil {
+								f4f0f0f3elemf1f1 := &svcapitypes.S3FilesAccessPointConfiguration{}
+								if f4f0f0f3elemf1.Value.AccessPointArn != nil {
+									f4f0f0f3elemf1f1.AccessPointARN = f4f0f0f3elemf1.Value.AccessPointArn
+								}
+								if f4f0f0f3elemf1.Value.MountPath != nil {
+									f4f0f0f3elemf1f1.MountPath = f4f0f0f3elemf1.Value.MountPath
+								}
+								f4f0f0f3elem.S3FilesAccessPoint = f4f0f0f3elemf1f1
+							}
+						case *svcsdktypes.FilesystemConfigurationMemberSessionStorage:
+							f4f0f0f3elemf2 := f4f0f0f3iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
+							if f4f0f0f3elemf2 != nil {
+								f4f0f0f3elemf2f2 := &svcapitypes.SessionStorageConfiguration{}
+								if f4f0f0f3elemf2.Value.MountPath != nil {
+									f4f0f0f3elemf2f2.MountPath = f4f0f0f3elemf2.Value.MountPath
+								}
+								f4f0f0f3elem.SessionStorage = f4f0f0f3elemf2f2
 							}
 						}
 						f4f0f0f3 = append(f4f0f0f3, f4f0f0f3elem)
@@ -2732,6 +2838,7 @@ func (rm *resourceManager) sdkUpdate(
 	}
 
 	rm.setStatusDefaults(ko)
+	normalizeFilesystemConfigurations(ko, desired.ko)
 	return &resource{ko}, nil
 }
 
@@ -2761,17 +2868,49 @@ func (rm *resourceManager) newUpdateRequestPayload(
 				for _, f3f0f0iter := range r.ko.Spec.Environment.AgentCoreRuntimeEnvironment.FilesystemConfigurations {
 					var f3f0f0elem svcsdktypes.FilesystemConfiguration
 					isInterfaceSet := false
+					if f3f0f0iter.EFSAccessPoint != nil {
+						if isInterfaceSet {
+							return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for EfsAccessPoint"))
+						}
+						f3f0f0elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint{}
+						f3f0f0elemf0 := &svcsdktypes.EfsAccessPointConfiguration{}
+						if f3f0f0iter.EFSAccessPoint.AccessPointARN != nil {
+							f3f0f0elemf0.AccessPointArn = f3f0f0iter.EFSAccessPoint.AccessPointARN
+						}
+						if f3f0f0iter.EFSAccessPoint.MountPath != nil {
+							f3f0f0elemf0.MountPath = f3f0f0iter.EFSAccessPoint.MountPath
+						}
+						f3f0f0elemf0Parent.Value = *f3f0f0elemf0
+						f3f0f0elem = f3f0f0elemf0Parent
+						isInterfaceSet = true
+					}
+					if f3f0f0iter.S3FilesAccessPoint != nil {
+						if isInterfaceSet {
+							return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for S3FilesAccessPoint"))
+						}
+						f3f0f0elemf1Parent := &svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint{}
+						f3f0f0elemf1 := &svcsdktypes.S3FilesAccessPointConfiguration{}
+						if f3f0f0iter.S3FilesAccessPoint.AccessPointARN != nil {
+							f3f0f0elemf1.AccessPointArn = f3f0f0iter.S3FilesAccessPoint.AccessPointARN
+						}
+						if f3f0f0iter.S3FilesAccessPoint.MountPath != nil {
+							f3f0f0elemf1.MountPath = f3f0f0iter.S3FilesAccessPoint.MountPath
+						}
+						f3f0f0elemf1Parent.Value = *f3f0f0elemf1
+						f3f0f0elem = f3f0f0elemf1Parent
+						isInterfaceSet = true
+					}
 					if f3f0f0iter.SessionStorage != nil {
 						if isInterfaceSet {
 							return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for SessionStorage"))
 						}
-						f3f0f0elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
-						f3f0f0elemf0 := &svcsdktypes.SessionStorageConfiguration{}
+						f3f0f0elemf2Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
+						f3f0f0elemf2 := &svcsdktypes.SessionStorageConfiguration{}
 						if f3f0f0iter.SessionStorage.MountPath != nil {
-							f3f0f0elemf0.MountPath = f3f0f0iter.SessionStorage.MountPath
+							f3f0f0elemf2.MountPath = f3f0f0iter.SessionStorage.MountPath
 						}
-						f3f0f0elemf0Parent.Value = *f3f0f0elemf0
-						f3f0f0elem = f3f0f0elemf0Parent
+						f3f0f0elemf2Parent.Value = *f3f0f0elemf2
+						f3f0f0elem = f3f0f0elemf2Parent
 						isInterfaceSet = true
 					}
 					f3f0f0 = append(f3f0f0, f3f0f0elem)
@@ -3465,18 +3604,6 @@ func (rm *resourceManager) updateConditions(
 // and if the exception indicates that it is a Terminal exception
 // 'Terminal' exception are specified in generator configuration
 func (rm *resourceManager) terminalAWSError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	var terminalErr smithy.APIError
-	if !errors.As(err, &terminalErr) {
-		return false
-	}
-	switch terminalErr.ErrorCode() {
-	case "ValidationException":
-		return true
-	default:
-		return false
-	}
+	// No terminal_errors specified for this resource in generator config
+	return false
 }

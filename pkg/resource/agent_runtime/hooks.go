@@ -3,10 +3,21 @@ package agent_runtime
 import (
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 
+	svcapitypes "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/apis/v1alpha1"
+	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/filesystemconfig"
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/tags"
 )
 
 var syncTags = tags.SyncTags
+
+// normalizeFilesystemConfigurations is called from the ReadOne
+// sdk_read_one_post_set_output hook. ReadOne is the only operation whose
+// output rebuilds Spec.FilesystemConfigurations. See filesystemconfig.Normalize.
+func normalizeFilesystemConfigurations(ko, declared *svcapitypes.AgentRuntime) {
+	ko.Spec.FilesystemConfigurations = filesystemconfig.Normalize(
+		ko.Spec.FilesystemConfigurations, declared.Spec.FilesystemConfigurations,
+	)
+}
 
 // customPostCompare drops the Spec.PlatformVersion difference when the spec
 // leaves the field unset. The service defaults the platform version on create

@@ -4,3 +4,4 @@
 		return nil, err
 	}
 	ko.Spec.Tags = tags
+	normalizeFilesystemConfigurations(ko, r.ko)
