@@ -1,7 +1,12 @@
 package agent_runtime
 
 import (
+	"context"
+	"fmt"
+
 	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	svcsdk "github.com/aws/aws-sdk-go-v2/service/bedrockagentcorecontrol"
 
 	svcapitypes "github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/apis/v1alpha1"
 	"github.com/aws-controllers-k8s/bedrockagentcorecontrol-controller/pkg/filesystemconfig"
@@ -9,6 +14,22 @@ import (
 )
 
 var syncTags = tags.SyncTags
+
+// GetAgentRuntime does not return tags. Never leave the copied desired tags in
+// the observed resource: that hides every tag delta from sdkUpdate.
+func (rm *resourceManager) readRuntimeTags(ctx context.Context, ko *svcapitypes.AgentRuntime) error {
+	if ko.Status.ACKResourceMetadata == nil || ko.Status.ACKResourceMetadata.ARN == nil {
+		return fmt.Errorf("cannot read runtime tags without an observed ARN")
+	}
+	arn := string(*ko.Status.ACKResourceMetadata.ARN)
+	output, err := rm.sdkapi.ListTagsForResource(ctx, &svcsdk.ListTagsForResourceInput{ResourceArn: &arn})
+	rm.metrics.RecordAPICall("GET", "ListTagsForResource", err)
+	if err != nil {
+		return err
+	}
+	ko.Spec.Tags = aws.StringMap(output.Tags)
+	return nil
+}
 
 // normalizeFilesystemConfigurations is called from the ReadOne
 // sdk_read_one_post_set_output hook. ReadOne is the only operation whose

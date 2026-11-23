@@ -369,7 +369,11 @@ func (rm *resourceManager) sdkFind(
 	}
 
 	rm.setStatusDefaults(ko)
+	if err := rm.readRuntimeTags(ctx, ko); err != nil {
+		return nil, err
+	}
 	normalizeFilesystemConfigurations(ko, r.ko)
+
 	return &resource{ko}, nil
 }
 
