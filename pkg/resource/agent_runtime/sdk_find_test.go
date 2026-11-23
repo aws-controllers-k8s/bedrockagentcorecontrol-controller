@@ -27,14 +27,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// cannedResponse answers every request with a fixed 200 JSON body.
+// cannedResponse returns the runtime body and an empty tag readback.
 type cannedResponse string
 
-func (c cannedResponse) Do(*http.Request) (*http.Response, error) {
+func (c cannedResponse) Do(r *http.Request) (*http.Response, error) {
+	body := string(c)
+	if strings.HasPrefix(r.URL.Path, "/tags/") {
+		body = `{"tags": {}}`
+	}
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Header:     http.Header{"Content-Type": []string{"application/json"}},
-		Body:       io.NopCloser(strings.NewReader(string(c))),
+		Body:       io.NopCloser(strings.NewReader(body)),
 	}, nil
 }
 
@@ -50,7 +54,7 @@ func TestSDKFind_FilesystemConfigurationsConverge(t *testing.T) {
 			Region:           "us-west-2",
 			Credentials:      aws.AnonymousCredentials{},
 			RetryMaxAttempts: 1,
-			HTTPClient: cannedResponse(`{"agentRuntimeId": "rt-1", "filesystemConfigurations": [
+			HTTPClient: cannedResponse(`{"agentRuntimeId": "rt-1", "agentRuntimeArn": "arn:aws:bedrock-agentcore:us-west-2:111122223333:runtime/rt-1", "filesystemConfigurations": [
 				{"sessionStorage": {"mountPath": "/mnt/session"}},
 				{"efsAccessPoint": {"accessPointArn": "` + arn + `", "mountPath": "/mnt/efs"}},
 				{"capacityProviderVolume": {"volumeName": "v", "mountPath": "/mnt/vol"}}]}`),
