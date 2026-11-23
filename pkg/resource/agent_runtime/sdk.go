@@ -373,6 +373,7 @@ func (rm *resourceManager) sdkFind(
 		return nil, err
 	}
 	normalizeFilesystemConfigurations(ko, r.ko)
+
 	return &resource{ko}, nil
 }
 

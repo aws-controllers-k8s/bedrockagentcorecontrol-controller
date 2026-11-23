@@ -304,7 +304,11 @@ resources:
       sdk_update_pre_build_request:
         template_path: hooks/agentruntime/sdk_update_pre_build_request.go.tpl
       sdk_read_one_post_set_output:
-        code: normalizeFilesystemConfigurations(ko, r.ko)
+        code: |
+          if err := rm.readRuntimeTags(ctx, ko); err != nil {
+            return nil, err
+          }
+          normalizeFilesystemConfigurations(ko, r.ko)
       delta_post_compare:
         code: customPostCompare(delta, a, b)
 
