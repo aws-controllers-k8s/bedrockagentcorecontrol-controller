@@ -1254,6 +1254,18 @@ resources:
         - path: Status.Status
           in:
             - READY
+    # DeleteGatewayTarget rejects a target in a transitional or pending
+    # authorization state with a ValidationException, which is terminal here.
+    # Note: a target stuck in *_PENDING_AUTH blocks CR deletion until the
+    # authorization flow is completed (or abandoned) outside the controller.
+    deletable:
+      when:
+        - path: Status.Status
+          in:
+            - READY
+            - FAILED
+            - UPDATE_UNSUCCESSFUL
+            - SYNCHRONIZE_UNSUCCESSFUL
     hooks:
       delta_pre_compare:
         template_path: hooks/gateway_target/delta_pre_compare.go.tpl

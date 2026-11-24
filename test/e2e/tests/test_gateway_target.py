@@ -363,7 +363,7 @@ def simple_gateway_target(simple_gateway):
     yield (ref, cr, gateway_id)
 
     try:
-        _, deleted = k8s.delete_custom_resource(ref, wait_periods=3, period_length=10)
+        _, deleted = k8s.delete_custom_resource(ref, wait_periods=6, period_length=10)
         assert deleted
     except:
         pass
@@ -497,7 +497,7 @@ def openapi_gateway_target(simple_gateway, api_key_credential_provider):
     yield (ref, cr, gateway_id)
 
     try:
-        _, deleted = k8s.delete_custom_resource(ref, wait_periods=3, period_length=10)
+        _, deleted = k8s.delete_custom_resource(ref, wait_periods=6, period_length=10)
         assert deleted
     except:
         pass
@@ -619,7 +619,7 @@ def lambda_gateway_target(simple_gateway):
     yield (ref, cr, gateway_id)
 
     try:
-        _, deleted = k8s.delete_custom_resource(ref, wait_periods=3, period_length=10)
+        _, deleted = k8s.delete_custom_resource(ref, wait_periods=6, period_length=10)
         assert deleted
     except:
         pass
