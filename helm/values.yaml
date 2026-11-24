@@ -4,7 +4,7 @@
 
 image:
   repository: public.ecr.aws/aws-controllers-k8s/bedrockagentcorecontrol-controller
-  tag: 1.21.0
+  tag: 1.21.1
   pullPolicy: IfNotPresent
   pullSecrets: []
 
