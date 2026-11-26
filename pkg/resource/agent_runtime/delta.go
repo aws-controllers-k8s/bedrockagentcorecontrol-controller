@@ -154,6 +154,17 @@ func newResourceDelta(
 			}
 		}
 	}
+	if ackcompare.HasNilDifference(a.ko.Spec.CapacityProviderConfiguration, b.ko.Spec.CapacityProviderConfiguration) {
+		delta.Add("Spec.CapacityProviderConfiguration", a.ko.Spec.CapacityProviderConfiguration, b.ko.Spec.CapacityProviderConfiguration)
+	} else if a.ko.Spec.CapacityProviderConfiguration != nil && b.ko.Spec.CapacityProviderConfiguration != nil {
+		if ackcompare.HasNilDifference(a.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN, b.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN) {
+			delta.Add("Spec.CapacityProviderConfiguration.CapacityProviderARN", a.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN, b.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN)
+		} else if a.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN != nil && b.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN != nil {
+			if *a.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN != *b.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN {
+				delta.Add("Spec.CapacityProviderConfiguration.CapacityProviderARN", a.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN, b.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN)
+			}
+		}
+	}
 	if ackcompare.HasNilDifference(a.ko.Spec.Description, b.ko.Spec.Description) {
 		delta.Add("Spec.Description", a.ko.Spec.Description, b.ko.Spec.Description)
 	} else if a.ko.Spec.Description != nil && b.ko.Spec.Description != nil {

@@ -103,9 +103,6 @@ ignore:
     # modeled deliberately.
     #
     # AgentRuntime
-    - CreateAgentRuntimeInput.CapacityProviderConfiguration
-    - UpdateAgentRuntimeInput.CapacityProviderConfiguration
-    - GetAgentRuntimeOutput.CapacityProviderConfiguration
     # DeleteAgentRuntime gained an optional AgentRuntimeVersion. Per the API:
     # "When you provide this value, only that version is deleted. When you omit
     # it, the entire AgentCore Runtime and all of its versions are deleted."
@@ -303,6 +300,20 @@ resources:
     hooks:
       sdk_update_pre_build_request:
         template_path: hooks/agentruntime/sdk_update_pre_build_request.go.tpl
+      sdk_update_post_build_request:
+        code: |
+          // The pinned SDK models only the ARN. UpdateAgentRuntime replaces the
+          // provider configuration, so an ARN-only update resets an existing
+          // PRIVILEGED runtime to STANDARD even when its ARN stays the same.
+          // https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-instances-privilege-mode.html
+          //
+          // Carry the existing attachment through other updates when the spec omits it.
+          observedProvider := latest.ko.Spec.CapacityProviderConfiguration
+          if input.CapacityProviderConfiguration == nil && observedProvider != nil && observedProvider.CapacityProviderARN != nil {
+            input.CapacityProviderConfiguration = &svcsdktypes.CapacityProviderConfiguration{
+              CapacityProviderArn: observedProvider.CapacityProviderARN,
+            }
+          }
       sdk_read_one_post_set_output:
         code: normalizeFilesystemConfigurations(ko, r.ko)
       delta_post_compare:
