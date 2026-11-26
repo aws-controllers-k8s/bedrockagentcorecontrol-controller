@@ -234,11 +234,19 @@ type BrowserSummary struct {
 	Status        *string      `json:"status,omitempty"`
 }
 
+// Configuration for customer-managed compute capacity for the AgentCore Runtime.
+// A capacity provider runs the AgentCore Runtime on the Instances compute type,
+// using Amazon Web Services managed compute in your account.
+type CapacityProviderConfiguration struct {
+	CapacityProviderARN *string `json:"capacityProviderARN,omitempty"`
+}
+
 // A summary of a capacity provider, as returned by ListCapacityProviders. Each
 // summary includes the capacity provider identifier, Amazon Resource Name (ARN),
 // name, status, and last-updated timestamp.
 type CapacityProviderSummary struct {
-	LastUpdatedAt *metav1.Time `json:"lastUpdatedAt,omitempty"`
+	CapacityProviderARN *string      `json:"capacityProviderARN,omitempty"`
+	LastUpdatedAt       *metav1.Time `json:"lastUpdatedAt,omitempty"`
 }
 
 // Configuration for a capacity provider volume mounted into the AgentCore Runtime.

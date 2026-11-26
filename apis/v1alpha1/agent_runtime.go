@@ -36,6 +36,10 @@ type AgentRuntimeSpec struct {
 	AgentRuntimeName *string `json:"agentRuntimeName"`
 	// The authorizer configuration for the AgentCore Runtime.
 	AuthorizerConfiguration *AuthorizerConfiguration `json:"authorizerConfiguration,omitempty"`
+	// The capacity provider configuration for the AgentCore Runtime. Use a capacity
+	// provider to run the AgentCore Runtime on the Instances compute type, which
+	// provisions Amazon Web Services managed compute in your account.
+	CapacityProviderConfiguration *CapacityProviderConfiguration `json:"capacityProviderConfiguration,omitempty"`
 	// The description of the AgentCore Runtime.
 	Description *string `json:"description,omitempty"`
 	// Environment variables to set in the AgentCore Runtime environment.

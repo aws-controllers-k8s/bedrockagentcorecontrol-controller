@@ -228,6 +228,15 @@ func (rm *resourceManager) sdkFind(
 	} else {
 		ko.Spec.AuthorizerConfiguration = nil
 	}
+	if resp.CapacityProviderConfiguration != nil {
+		f6 := &svcapitypes.CapacityProviderConfiguration{}
+		if resp.CapacityProviderConfiguration.CapacityProviderArn != nil {
+			f6.CapacityProviderARN = resp.CapacityProviderConfiguration.CapacityProviderArn
+		}
+		ko.Spec.CapacityProviderConfiguration = f6
+	} else {
+		ko.Spec.CapacityProviderConfiguration = nil
+	}
 	if resp.CreatedAt != nil {
 		ko.Status.CreatedAt = &metav1.Time{*resp.CreatedAt}
 	} else {
@@ -244,80 +253,80 @@ func (rm *resourceManager) sdkFind(
 		ko.Spec.EnvironmentVariables = nil
 	}
 	if resp.FilesystemConfigurations != nil {
-		f10 := []*svcapitypes.FilesystemConfiguration{}
-		for _, f10iter := range resp.FilesystemConfigurations {
-			f10elem := &svcapitypes.FilesystemConfiguration{}
-			switch f10iter.(type) {
+		f11 := []*svcapitypes.FilesystemConfiguration{}
+		for _, f11iter := range resp.FilesystemConfigurations {
+			f11elem := &svcapitypes.FilesystemConfiguration{}
+			switch f11iter.(type) {
 			case *svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint:
-				f10elemf0 := f10iter.(*svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint)
-				if f10elemf0 != nil {
-					f10elemf0f0 := &svcapitypes.EFSAccessPointConfiguration{}
-					if f10elemf0.Value.AccessPointArn != nil {
-						f10elemf0f0.AccessPointARN = f10elemf0.Value.AccessPointArn
+				f11elemf0 := f11iter.(*svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint)
+				if f11elemf0 != nil {
+					f11elemf0f0 := &svcapitypes.EFSAccessPointConfiguration{}
+					if f11elemf0.Value.AccessPointArn != nil {
+						f11elemf0f0.AccessPointARN = f11elemf0.Value.AccessPointArn
 					}
-					if f10elemf0.Value.MountPath != nil {
-						f10elemf0f0.MountPath = f10elemf0.Value.MountPath
+					if f11elemf0.Value.MountPath != nil {
+						f11elemf0f0.MountPath = f11elemf0.Value.MountPath
 					}
-					f10elem.EFSAccessPoint = f10elemf0f0
+					f11elem.EFSAccessPoint = f11elemf0f0
 				}
 			case *svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint:
-				f10elemf1 := f10iter.(*svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint)
-				if f10elemf1 != nil {
-					f10elemf1f1 := &svcapitypes.S3FilesAccessPointConfiguration{}
-					if f10elemf1.Value.AccessPointArn != nil {
-						f10elemf1f1.AccessPointARN = f10elemf1.Value.AccessPointArn
+				f11elemf1 := f11iter.(*svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint)
+				if f11elemf1 != nil {
+					f11elemf1f1 := &svcapitypes.S3FilesAccessPointConfiguration{}
+					if f11elemf1.Value.AccessPointArn != nil {
+						f11elemf1f1.AccessPointARN = f11elemf1.Value.AccessPointArn
 					}
-					if f10elemf1.Value.MountPath != nil {
-						f10elemf1f1.MountPath = f10elemf1.Value.MountPath
+					if f11elemf1.Value.MountPath != nil {
+						f11elemf1f1.MountPath = f11elemf1.Value.MountPath
 					}
-					f10elem.S3FilesAccessPoint = f10elemf1f1
+					f11elem.S3FilesAccessPoint = f11elemf1f1
 				}
 			case *svcsdktypes.FilesystemConfigurationMemberSessionStorage:
-				f10elemf2 := f10iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
-				if f10elemf2 != nil {
-					f10elemf2f2 := &svcapitypes.SessionStorageConfiguration{}
-					if f10elemf2.Value.MountPath != nil {
-						f10elemf2f2.MountPath = f10elemf2.Value.MountPath
+				f11elemf2 := f11iter.(*svcsdktypes.FilesystemConfigurationMemberSessionStorage)
+				if f11elemf2 != nil {
+					f11elemf2f2 := &svcapitypes.SessionStorageConfiguration{}
+					if f11elemf2.Value.MountPath != nil {
+						f11elemf2f2.MountPath = f11elemf2.Value.MountPath
 					}
-					f10elem.SessionStorage = f10elemf2f2
+					f11elem.SessionStorage = f11elemf2f2
 				}
 			}
-			f10 = append(f10, f10elem)
+			f11 = append(f11, f11elem)
 		}
-		ko.Spec.FilesystemConfigurations = f10
+		ko.Spec.FilesystemConfigurations = f11
 	} else {
 		ko.Spec.FilesystemConfigurations = nil
 	}
 	if resp.LifecycleConfiguration != nil {
-		f12 := &svcapitypes.LifecycleConfiguration{}
+		f13 := &svcapitypes.LifecycleConfiguration{}
 		if resp.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil {
 			idleRuntimeSessionTimeoutCopy := int64(*resp.LifecycleConfiguration.IdleRuntimeSessionTimeout)
-			f12.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
+			f13.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
 		}
 		if resp.LifecycleConfiguration.MaxLifetime != nil {
 			maxLifetimeCopy := int64(*resp.LifecycleConfiguration.MaxLifetime)
-			f12.MaxLifetime = &maxLifetimeCopy
+			f13.MaxLifetime = &maxLifetimeCopy
 		}
-		ko.Spec.LifecycleConfiguration = f12
+		ko.Spec.LifecycleConfiguration = f13
 	} else {
 		ko.Spec.LifecycleConfiguration = nil
 	}
 	if resp.NetworkConfiguration != nil {
-		f14 := &svcapitypes.NetworkConfiguration{}
+		f15 := &svcapitypes.NetworkConfiguration{}
 		if resp.NetworkConfiguration.NetworkMode != "" {
-			f14.NetworkMode = aws.String(string(resp.NetworkConfiguration.NetworkMode))
+			f15.NetworkMode = aws.String(string(resp.NetworkConfiguration.NetworkMode))
 		}
 		if resp.NetworkConfiguration.NetworkModeConfig != nil {
-			f14f1 := &svcapitypes.VPCConfig{}
+			f15f1 := &svcapitypes.VPCConfig{}
 			if resp.NetworkConfiguration.NetworkModeConfig.SecurityGroups != nil {
-				f14f1.SecurityGroups = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
+				f15f1.SecurityGroups = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
 			}
 			if resp.NetworkConfiguration.NetworkModeConfig.Subnets != nil {
-				f14f1.Subnets = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.Subnets)
+				f15f1.Subnets = aws.StringSlice(resp.NetworkConfiguration.NetworkModeConfig.Subnets)
 			}
-			f14.NetworkModeConfig = f14f1
+			f15.NetworkModeConfig = f15f1
 		}
-		ko.Spec.NetworkConfiguration = f14
+		ko.Spec.NetworkConfiguration = f15
 	} else {
 		ko.Spec.NetworkConfiguration = nil
 	}
@@ -327,24 +336,24 @@ func (rm *resourceManager) sdkFind(
 		ko.Spec.PlatformVersion = nil
 	}
 	if resp.ProtocolConfiguration != nil {
-		f16 := &svcapitypes.ProtocolConfiguration{}
+		f17 := &svcapitypes.ProtocolConfiguration{}
 		if resp.ProtocolConfiguration.ServerProtocol != "" {
-			f16.ServerProtocol = aws.String(string(resp.ProtocolConfiguration.ServerProtocol))
+			f17.ServerProtocol = aws.String(string(resp.ProtocolConfiguration.ServerProtocol))
 		}
-		ko.Spec.ProtocolConfiguration = f16
+		ko.Spec.ProtocolConfiguration = f17
 	} else {
 		ko.Spec.ProtocolConfiguration = nil
 	}
 	if resp.RequestHeaderConfiguration != nil {
-		f17 := &svcapitypes.RequestHeaderConfiguration{}
+		f18 := &svcapitypes.RequestHeaderConfiguration{}
 		switch resp.RequestHeaderConfiguration.(type) {
 		case *svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist:
-			f17f0 := resp.RequestHeaderConfiguration.(*svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist)
-			if f17f0 != nil {
-				f17.RequestHeaderAllowlist = aws.StringSlice(f17f0.Value)
+			f18f0 := resp.RequestHeaderConfiguration.(*svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist)
+			if f18f0 != nil {
+				f18.RequestHeaderAllowlist = aws.StringSlice(f18f0.Value)
 			}
 		}
-		ko.Spec.RequestHeaderConfiguration = f17
+		ko.Spec.RequestHeaderConfiguration = f18
 	} else {
 		ko.Spec.RequestHeaderConfiguration = nil
 	}
@@ -359,11 +368,11 @@ func (rm *resourceManager) sdkFind(
 		ko.Status.Status = nil
 	}
 	if resp.WorkloadIdentityDetails != nil {
-		f20 := &svcapitypes.WorkloadIdentityDetails{}
+		f21 := &svcapitypes.WorkloadIdentityDetails{}
 		if resp.WorkloadIdentityDetails.WorkloadIdentityArn != nil {
-			f20.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
+			f21.WorkloadIdentityARN = resp.WorkloadIdentityDetails.WorkloadIdentityArn
 		}
-		ko.Status.WorkloadIdentityDetails = f20
+		ko.Status.WorkloadIdentityDetails = f21
 	} else {
 		ko.Status.WorkloadIdentityDetails = nil
 	}
@@ -624,6 +633,13 @@ func (rm *resourceManager) newCreateRequestPayload(
 		}
 		res.AuthorizerConfiguration = f2
 	}
+	if r.ko.Spec.CapacityProviderConfiguration != nil {
+		f3 := &svcsdktypes.CapacityProviderConfiguration{}
+		if r.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN != nil {
+			f3.CapacityProviderArn = r.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN
+		}
+		res.CapacityProviderConfiguration = f3
+	}
 	if r.ko.Spec.Description != nil {
 		res.Description = r.ko.Spec.Description
 	}
@@ -631,68 +647,68 @@ func (rm *resourceManager) newCreateRequestPayload(
 		res.EnvironmentVariables = aws.ToStringMap(r.ko.Spec.EnvironmentVariables)
 	}
 	if r.ko.Spec.FilesystemConfigurations != nil {
-		f5 := []svcsdktypes.FilesystemConfiguration{}
-		for _, f5iter := range r.ko.Spec.FilesystemConfigurations {
-			var f5elem svcsdktypes.FilesystemConfiguration
+		f6 := []svcsdktypes.FilesystemConfiguration{}
+		for _, f6iter := range r.ko.Spec.FilesystemConfigurations {
+			var f6elem svcsdktypes.FilesystemConfiguration
 			isInterfaceSet := false
-			if f5iter.EFSAccessPoint != nil {
+			if f6iter.EFSAccessPoint != nil {
 				if isInterfaceSet {
 					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for EfsAccessPoint"))
 				}
-				f5elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint{}
-				f5elemf0 := &svcsdktypes.EfsAccessPointConfiguration{}
-				if f5iter.EFSAccessPoint.AccessPointARN != nil {
-					f5elemf0.AccessPointArn = f5iter.EFSAccessPoint.AccessPointARN
+				f6elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint{}
+				f6elemf0 := &svcsdktypes.EfsAccessPointConfiguration{}
+				if f6iter.EFSAccessPoint.AccessPointARN != nil {
+					f6elemf0.AccessPointArn = f6iter.EFSAccessPoint.AccessPointARN
 				}
-				if f5iter.EFSAccessPoint.MountPath != nil {
-					f5elemf0.MountPath = f5iter.EFSAccessPoint.MountPath
+				if f6iter.EFSAccessPoint.MountPath != nil {
+					f6elemf0.MountPath = f6iter.EFSAccessPoint.MountPath
 				}
-				f5elemf0Parent.Value = *f5elemf0
-				f5elem = f5elemf0Parent
+				f6elemf0Parent.Value = *f6elemf0
+				f6elem = f6elemf0Parent
 				isInterfaceSet = true
 			}
-			if f5iter.S3FilesAccessPoint != nil {
+			if f6iter.S3FilesAccessPoint != nil {
 				if isInterfaceSet {
 					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for S3FilesAccessPoint"))
 				}
-				f5elemf1Parent := &svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint{}
-				f5elemf1 := &svcsdktypes.S3FilesAccessPointConfiguration{}
-				if f5iter.S3FilesAccessPoint.AccessPointARN != nil {
-					f5elemf1.AccessPointArn = f5iter.S3FilesAccessPoint.AccessPointARN
+				f6elemf1Parent := &svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint{}
+				f6elemf1 := &svcsdktypes.S3FilesAccessPointConfiguration{}
+				if f6iter.S3FilesAccessPoint.AccessPointARN != nil {
+					f6elemf1.AccessPointArn = f6iter.S3FilesAccessPoint.AccessPointARN
 				}
-				if f5iter.S3FilesAccessPoint.MountPath != nil {
-					f5elemf1.MountPath = f5iter.S3FilesAccessPoint.MountPath
+				if f6iter.S3FilesAccessPoint.MountPath != nil {
+					f6elemf1.MountPath = f6iter.S3FilesAccessPoint.MountPath
 				}
-				f5elemf1Parent.Value = *f5elemf1
-				f5elem = f5elemf1Parent
+				f6elemf1Parent.Value = *f6elemf1
+				f6elem = f6elemf1Parent
 				isInterfaceSet = true
 			}
-			if f5iter.SessionStorage != nil {
+			if f6iter.SessionStorage != nil {
 				if isInterfaceSet {
 					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for SessionStorage"))
 				}
-				f5elemf2Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
-				f5elemf2 := &svcsdktypes.SessionStorageConfiguration{}
-				if f5iter.SessionStorage.MountPath != nil {
-					f5elemf2.MountPath = f5iter.SessionStorage.MountPath
+				f6elemf2Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
+				f6elemf2 := &svcsdktypes.SessionStorageConfiguration{}
+				if f6iter.SessionStorage.MountPath != nil {
+					f6elemf2.MountPath = f6iter.SessionStorage.MountPath
 				}
-				f5elemf2Parent.Value = *f5elemf2
-				f5elem = f5elemf2Parent
+				f6elemf2Parent.Value = *f6elemf2
+				f6elem = f6elemf2Parent
 				isInterfaceSet = true
 			}
-			f5 = append(f5, f5elem)
+			f6 = append(f6, f6elem)
 		}
-		res.FilesystemConfigurations = f5
+		res.FilesystemConfigurations = f6
 	}
 	if r.ko.Spec.LifecycleConfiguration != nil {
-		f6 := &svcsdktypes.LifecycleConfiguration{}
+		f7 := &svcsdktypes.LifecycleConfiguration{}
 		if r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil {
 			idleRuntimeSessionTimeoutCopy0 := *r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout
 			if idleRuntimeSessionTimeoutCopy0 > math.MaxInt32 || idleRuntimeSessionTimeoutCopy0 < math.MinInt32 {
 				return nil, fmt.Errorf("error: field idleRuntimeSessionTimeout is of type int32")
 			}
 			idleRuntimeSessionTimeoutCopy := int32(idleRuntimeSessionTimeoutCopy0)
-			f6.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
+			f7.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
 		}
 		if r.ko.Spec.LifecycleConfiguration.MaxLifetime != nil {
 			maxLifetimeCopy0 := *r.ko.Spec.LifecycleConfiguration.MaxLifetime
@@ -700,52 +716,52 @@ func (rm *resourceManager) newCreateRequestPayload(
 				return nil, fmt.Errorf("error: field maxLifetime is of type int32")
 			}
 			maxLifetimeCopy := int32(maxLifetimeCopy0)
-			f6.MaxLifetime = &maxLifetimeCopy
+			f7.MaxLifetime = &maxLifetimeCopy
 		}
-		res.LifecycleConfiguration = f6
+		res.LifecycleConfiguration = f7
 	}
 	if r.ko.Spec.NetworkConfiguration != nil {
-		f7 := &svcsdktypes.NetworkConfiguration{}
+		f8 := &svcsdktypes.NetworkConfiguration{}
 		if r.ko.Spec.NetworkConfiguration.NetworkMode != nil {
-			f7.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
+			f8.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
 		}
 		if r.ko.Spec.NetworkConfiguration.NetworkModeConfig != nil {
-			f7f1 := &svcsdktypes.VpcConfig{}
+			f8f1 := &svcsdktypes.VpcConfig{}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups != nil {
-				f7f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
+				f8f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
 			}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets != nil {
-				f7f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
+				f8f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
 			}
-			f7.NetworkModeConfig = f7f1
+			f8.NetworkModeConfig = f8f1
 		}
-		res.NetworkConfiguration = f7
+		res.NetworkConfiguration = f8
 	}
 	if r.ko.Spec.PlatformVersion != nil {
 		res.PlatformVersion = r.ko.Spec.PlatformVersion
 	}
 	if r.ko.Spec.ProtocolConfiguration != nil {
-		f9 := &svcsdktypes.ProtocolConfiguration{}
+		f10 := &svcsdktypes.ProtocolConfiguration{}
 		if r.ko.Spec.ProtocolConfiguration.ServerProtocol != nil {
-			f9.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
+			f10.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
 		}
-		res.ProtocolConfiguration = f9
+		res.ProtocolConfiguration = f10
 	}
 	if r.ko.Spec.RequestHeaderConfiguration != nil {
-		var f10 svcsdktypes.RequestHeaderConfiguration
+		var f11 svcsdktypes.RequestHeaderConfiguration
 		isInterfaceSet := false
 		if r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for RequestHeaderAllowlist"))
 			}
-			f10f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
-			f10f0 := []string{}
-			f10f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
-			f10f0Parent.Value = f10f0
-			f10 = f10f0Parent
+			f11f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
+			f11f0 := []string{}
+			f11f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
+			f11f0Parent.Value = f11f0
+			f11 = f11f0Parent
 			isInterfaceSet = true
 		}
-		res.RequestHeaderConfiguration = f10
+		res.RequestHeaderConfiguration = f11
 	}
 	if r.ko.Spec.RoleARN != nil {
 		res.RoleArn = r.ko.Spec.RoleARN
@@ -796,6 +812,18 @@ func (rm *resourceManager) sdkUpdate(
 	input, err := rm.newUpdateRequestPayload(ctx, desired, delta)
 	if err != nil {
 		return nil, err
+	}
+	// The pinned SDK models only the ARN. UpdateAgentRuntime replaces the
+	// provider configuration, so an ARN-only update resets an existing
+	// PRIVILEGED runtime to STANDARD even when its ARN stays the same.
+	// https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-instances-privilege-mode.html
+	//
+	// Carry the existing attachment through other updates when the spec omits it.
+	observedProvider := latest.ko.Spec.CapacityProviderConfiguration
+	if input.CapacityProviderConfiguration == nil && observedProvider != nil && observedProvider.CapacityProviderARN != nil {
+		input.CapacityProviderConfiguration = &svcsdktypes.CapacityProviderConfiguration{
+			CapacityProviderArn: observedProvider.CapacityProviderARN,
+		}
 	}
 
 	var resp *svcsdk.UpdateAgentRuntimeOutput
@@ -993,6 +1021,13 @@ func (rm *resourceManager) newUpdateRequestPayload(
 		}
 		res.AuthorizerConfiguration = f2
 	}
+	if r.ko.Spec.CapacityProviderConfiguration != nil {
+		f3 := &svcsdktypes.CapacityProviderConfiguration{}
+		if r.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN != nil {
+			f3.CapacityProviderArn = r.ko.Spec.CapacityProviderConfiguration.CapacityProviderARN
+		}
+		res.CapacityProviderConfiguration = f3
+	}
 	if r.ko.Spec.Description != nil {
 		res.Description = r.ko.Spec.Description
 	}
@@ -1000,68 +1035,68 @@ func (rm *resourceManager) newUpdateRequestPayload(
 		res.EnvironmentVariables = aws.ToStringMap(r.ko.Spec.EnvironmentVariables)
 	}
 	if r.ko.Spec.FilesystemConfigurations != nil {
-		f6 := []svcsdktypes.FilesystemConfiguration{}
-		for _, f6iter := range r.ko.Spec.FilesystemConfigurations {
-			var f6elem svcsdktypes.FilesystemConfiguration
+		f7 := []svcsdktypes.FilesystemConfiguration{}
+		for _, f7iter := range r.ko.Spec.FilesystemConfigurations {
+			var f7elem svcsdktypes.FilesystemConfiguration
 			isInterfaceSet := false
-			if f6iter.EFSAccessPoint != nil {
+			if f7iter.EFSAccessPoint != nil {
 				if isInterfaceSet {
 					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for EfsAccessPoint"))
 				}
-				f6elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint{}
-				f6elemf0 := &svcsdktypes.EfsAccessPointConfiguration{}
-				if f6iter.EFSAccessPoint.AccessPointARN != nil {
-					f6elemf0.AccessPointArn = f6iter.EFSAccessPoint.AccessPointARN
+				f7elemf0Parent := &svcsdktypes.FilesystemConfigurationMemberEfsAccessPoint{}
+				f7elemf0 := &svcsdktypes.EfsAccessPointConfiguration{}
+				if f7iter.EFSAccessPoint.AccessPointARN != nil {
+					f7elemf0.AccessPointArn = f7iter.EFSAccessPoint.AccessPointARN
 				}
-				if f6iter.EFSAccessPoint.MountPath != nil {
-					f6elemf0.MountPath = f6iter.EFSAccessPoint.MountPath
+				if f7iter.EFSAccessPoint.MountPath != nil {
+					f7elemf0.MountPath = f7iter.EFSAccessPoint.MountPath
 				}
-				f6elemf0Parent.Value = *f6elemf0
-				f6elem = f6elemf0Parent
+				f7elemf0Parent.Value = *f7elemf0
+				f7elem = f7elemf0Parent
 				isInterfaceSet = true
 			}
-			if f6iter.S3FilesAccessPoint != nil {
+			if f7iter.S3FilesAccessPoint != nil {
 				if isInterfaceSet {
 					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for S3FilesAccessPoint"))
 				}
-				f6elemf1Parent := &svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint{}
-				f6elemf1 := &svcsdktypes.S3FilesAccessPointConfiguration{}
-				if f6iter.S3FilesAccessPoint.AccessPointARN != nil {
-					f6elemf1.AccessPointArn = f6iter.S3FilesAccessPoint.AccessPointARN
+				f7elemf1Parent := &svcsdktypes.FilesystemConfigurationMemberS3FilesAccessPoint{}
+				f7elemf1 := &svcsdktypes.S3FilesAccessPointConfiguration{}
+				if f7iter.S3FilesAccessPoint.AccessPointARN != nil {
+					f7elemf1.AccessPointArn = f7iter.S3FilesAccessPoint.AccessPointARN
 				}
-				if f6iter.S3FilesAccessPoint.MountPath != nil {
-					f6elemf1.MountPath = f6iter.S3FilesAccessPoint.MountPath
+				if f7iter.S3FilesAccessPoint.MountPath != nil {
+					f7elemf1.MountPath = f7iter.S3FilesAccessPoint.MountPath
 				}
-				f6elemf1Parent.Value = *f6elemf1
-				f6elem = f6elemf1Parent
+				f7elemf1Parent.Value = *f7elemf1
+				f7elem = f7elemf1Parent
 				isInterfaceSet = true
 			}
-			if f6iter.SessionStorage != nil {
+			if f7iter.SessionStorage != nil {
 				if isInterfaceSet {
 					return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for SessionStorage"))
 				}
-				f6elemf2Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
-				f6elemf2 := &svcsdktypes.SessionStorageConfiguration{}
-				if f6iter.SessionStorage.MountPath != nil {
-					f6elemf2.MountPath = f6iter.SessionStorage.MountPath
+				f7elemf2Parent := &svcsdktypes.FilesystemConfigurationMemberSessionStorage{}
+				f7elemf2 := &svcsdktypes.SessionStorageConfiguration{}
+				if f7iter.SessionStorage.MountPath != nil {
+					f7elemf2.MountPath = f7iter.SessionStorage.MountPath
 				}
-				f6elemf2Parent.Value = *f6elemf2
-				f6elem = f6elemf2Parent
+				f7elemf2Parent.Value = *f7elemf2
+				f7elem = f7elemf2Parent
 				isInterfaceSet = true
 			}
-			f6 = append(f6, f6elem)
+			f7 = append(f7, f7elem)
 		}
-		res.FilesystemConfigurations = f6
+		res.FilesystemConfigurations = f7
 	}
 	if r.ko.Spec.LifecycleConfiguration != nil {
-		f7 := &svcsdktypes.LifecycleConfiguration{}
+		f8 := &svcsdktypes.LifecycleConfiguration{}
 		if r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout != nil {
 			idleRuntimeSessionTimeoutCopy0 := *r.ko.Spec.LifecycleConfiguration.IdleRuntimeSessionTimeout
 			if idleRuntimeSessionTimeoutCopy0 > math.MaxInt32 || idleRuntimeSessionTimeoutCopy0 < math.MinInt32 {
 				return nil, fmt.Errorf("error: field idleRuntimeSessionTimeout is of type int32")
 			}
 			idleRuntimeSessionTimeoutCopy := int32(idleRuntimeSessionTimeoutCopy0)
-			f7.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
+			f8.IdleRuntimeSessionTimeout = &idleRuntimeSessionTimeoutCopy
 		}
 		if r.ko.Spec.LifecycleConfiguration.MaxLifetime != nil {
 			maxLifetimeCopy0 := *r.ko.Spec.LifecycleConfiguration.MaxLifetime
@@ -1069,52 +1104,52 @@ func (rm *resourceManager) newUpdateRequestPayload(
 				return nil, fmt.Errorf("error: field maxLifetime is of type int32")
 			}
 			maxLifetimeCopy := int32(maxLifetimeCopy0)
-			f7.MaxLifetime = &maxLifetimeCopy
+			f8.MaxLifetime = &maxLifetimeCopy
 		}
-		res.LifecycleConfiguration = f7
+		res.LifecycleConfiguration = f8
 	}
 	if r.ko.Spec.NetworkConfiguration != nil {
-		f9 := &svcsdktypes.NetworkConfiguration{}
+		f10 := &svcsdktypes.NetworkConfiguration{}
 		if r.ko.Spec.NetworkConfiguration.NetworkMode != nil {
-			f9.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
+			f10.NetworkMode = svcsdktypes.NetworkMode(*r.ko.Spec.NetworkConfiguration.NetworkMode)
 		}
 		if r.ko.Spec.NetworkConfiguration.NetworkModeConfig != nil {
-			f9f1 := &svcsdktypes.VpcConfig{}
+			f10f1 := &svcsdktypes.VpcConfig{}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups != nil {
-				f9f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
+				f10f1.SecurityGroups = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.SecurityGroups)
 			}
 			if r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets != nil {
-				f9f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
+				f10f1.Subnets = aws.ToStringSlice(r.ko.Spec.NetworkConfiguration.NetworkModeConfig.Subnets)
 			}
-			f9.NetworkModeConfig = f9f1
+			f10.NetworkModeConfig = f10f1
 		}
-		res.NetworkConfiguration = f9
+		res.NetworkConfiguration = f10
 	}
 	if r.ko.Spec.PlatformVersion != nil {
 		res.PlatformVersion = r.ko.Spec.PlatformVersion
 	}
 	if r.ko.Spec.ProtocolConfiguration != nil {
-		f11 := &svcsdktypes.ProtocolConfiguration{}
+		f12 := &svcsdktypes.ProtocolConfiguration{}
 		if r.ko.Spec.ProtocolConfiguration.ServerProtocol != nil {
-			f11.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
+			f12.ServerProtocol = svcsdktypes.ServerProtocol(*r.ko.Spec.ProtocolConfiguration.ServerProtocol)
 		}
-		res.ProtocolConfiguration = f11
+		res.ProtocolConfiguration = f12
 	}
 	if r.ko.Spec.RequestHeaderConfiguration != nil {
-		var f12 svcsdktypes.RequestHeaderConfiguration
+		var f13 svcsdktypes.RequestHeaderConfiguration
 		isInterfaceSet := false
 		if r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist != nil {
 			if isInterfaceSet {
 				return nil, ackerr.NewTerminalError(fmt.Errorf("can only set one of the members for RequestHeaderAllowlist"))
 			}
-			f12f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
-			f12f0 := []string{}
-			f12f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
-			f12f0Parent.Value = f12f0
-			f12 = f12f0Parent
+			f13f0Parent := &svcsdktypes.RequestHeaderConfigurationMemberRequestHeaderAllowlist{}
+			f13f0 := []string{}
+			f13f0 = aws.ToStringSlice(r.ko.Spec.RequestHeaderConfiguration.RequestHeaderAllowlist)
+			f13f0Parent.Value = f13f0
+			f13 = f13f0Parent
 			isInterfaceSet = true
 		}
-		res.RequestHeaderConfiguration = f12
+		res.RequestHeaderConfiguration = f13
 	}
 	if r.ko.Spec.RoleARN != nil {
 		res.RoleArn = r.ko.Spec.RoleARN

@@ -152,6 +152,15 @@ spec:
                         type: string
                     type: object
                 type: object
+              capacityProviderConfiguration:
+                description: |-
+                  The capacity provider configuration for the AgentCore Runtime. Use a capacity
+                  provider to run the AgentCore Runtime on the Instances compute type, which
+                  provisions Amazon Web Services managed compute in your account.
+                properties:
+                  capacityProviderARN:
+                    type: string
+                type: object
               description:
                 description: The description of the AgentCore Runtime.
                 type: string
